@@ -64,17 +64,27 @@ looked like during the v1.03 presentation" at any time in the future with
 
 | Version | Tag | Commit Hash |
 |---------|-----|--------------|
-| v1.00 | v1.00 | `c3cb6718bb3cbad63357bee45b12f69a47e38f4e` |
-| v1.01 | v1.01 | `092164a33079046cbcffc47cdd147c923c173383` |
-| v1.02 | v1.02 | `4e6beca8459d5d0f5977498e43b1128a7ccaf485` |
-| v1.03 | v1.03 | `9bce386aae40225a954bde86b6bbe6b5a7d27c07` |
-| v1.04 | v1.04 | `28c0b85a4f45a2bac6fc4aeb442fc55ac98ae9f7` |
-| v1.05 | v1.05 | `0c13a5d2e7d2b373b7dffd707590f626db23da64` |
-| v1.06 | v1.06 | `b45370f47e20190fcbe0a326baf8ca33f5808ee3` |
-| v1.07 | v1.07 | `2cf4dca8f70db840f44419b4cc14cca73159b199` |
-| v1.08 | v1.08 | `5ca8430f8996e8b73b98ab5def45899e78876544` |
-| v1.09 | v1.09 | `7db9d02b6a0112c67578f68c35c46fdb5970709b` |
-| v1.10 | v1.10 | `346cd510e8a2ec21035bad90d8b671648baedabf` |
+| v1.00 | v1.00 | `48575c717fe43b5c1ce34b290f6b8d842c0686eb` |
+| v1.01 | v1.01 | `e5ad916a2a1184c4c586e785c3a3284e96fe019d` |
+| v1.02 | v1.02 | `f4a388bd4d6b62ddc5d1f4e67bf356fa4ad21e6d` |
+| v1.03 | v1.03 | `5f3cbf7cd4c9879c0a4fda90d54e77b9a2186a56` |
+| v1.04 | v1.04 | `b53e4243f0896e80ff39398cc6fe455d3c5b10f2` |
+| v1.05 | v1.05 | `a28886cb202635ec2c79a16d870d020d082df5ca` |
+| v1.06 | v1.06 | `6c9371408d7ad7fd6b7d007148b0c532277160d5` |
+| v1.07 | v1.07 | `c58714c62b9d6eb02be1c15726c4078b69e2a11f` |
+| v1.08 | v1.08 | `a902583a4c599eeec025f5502420338cc8e3cbe8` |
+| v1.09 | v1.09 | `4c205812f5e6db7b4e94be5b913be1c2a1eca656` |
+| v1.10 | v1.10 | `225793875b28f5c42f8846b6be95fc8bc8cec0ab` |
+
+_Hashes updated after the v1.11 fix (Go Back → Logout button on the Under Construction page) was cherry-picked into every tag; see the note below._
+
+### Note: Go Back → Logout Fix (cherry-picked into all tags)
+
+The Under Construction card originally had a "Go Back" button (`javascript:history.back()`).
+Clicking it after logging in could return to a stale page and error out. It was replaced with
+a "Logout" button (`<?= BASE_URL ?>/logout.php`) that cleanly ends the session instead. This fix
+was applied on `main` and cherry-picked into every existing tag (`v1.00`–`v1.10`) per
+`docs/Cherry-Pick-Guide.md`, so every demo snapshot shows the corrected button.
 
 Fill this table in with:
 
