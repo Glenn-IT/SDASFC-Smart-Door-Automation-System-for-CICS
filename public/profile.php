@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/../components/under-construction.php';
+
 require_once __DIR__ . '/../app/core/Auth.php';
 require_once __DIR__ . '/../app/controllers/ProfileController.php';
 require_once __DIR__ . '/../app/models/Admin.php';

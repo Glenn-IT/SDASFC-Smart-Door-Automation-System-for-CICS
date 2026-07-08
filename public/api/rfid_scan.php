@@ -1,9 +1,16 @@
 <?php
 
 require_once __DIR__ . '/../../app/config/config.php';
+require_once __DIR__ . '/../../components/version.php';
 require_once __DIR__ . '/../../app/controllers/AccessController.php';
 
 header('Content-Type: application/json');
+
+if (CURRENT_VERSION !== 'v1.10') {
+    http_response_code(503);
+    echo json_encode(['access' => 'denied', 'reason' => 'feature_not_yet_available']);
+    exit;
+}
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
