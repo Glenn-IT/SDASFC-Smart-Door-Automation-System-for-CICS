@@ -1,5 +1,6 @@
 <?php
 
+require_once __DIR__ . '/../app/config/config.php';
 require_once __DIR__ . '/version.php';
 ?>
 <!DOCTYPE html>
@@ -18,7 +19,7 @@ require_once __DIR__ . '/version.php';
                 <span class="badge bg-secondary mb-2"><?= htmlspecialchars(CURRENT_VERSION) ?></span>
                 <h4 class="card-title mb-2">Page Under Construction</h4>
                 <p class="text-muted mb-4">This feature hasn't been unlocked yet in the current presentation version. Please check back in a later release.</p>
-                <a href="javascript:history.back()" class="btn btn-primary">Go Back</a>
+                <a href="<?= BASE_URL ?>/logout.php" class="btn btn-danger">Logout</a>
             </div>
         </div>
     </div>
