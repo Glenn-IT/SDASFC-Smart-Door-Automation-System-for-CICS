@@ -64,17 +64,17 @@ looked like during the v1.03 presentation" at any time in the future with
 
 | Version | Tag | Commit Hash |
 |---------|-----|--------------|
-| v1.00 | v1.00 | _(fill after push)_ |
-| v1.01 | v1.01 | _(fill after push)_ |
-| v1.02 | v1.02 | _(fill after push)_ |
-| v1.03 | v1.03 | _(fill after push)_ |
-| v1.04 | v1.04 | _(fill after push)_ |
-| v1.05 | v1.05 | _(fill after push)_ |
-| v1.06 | v1.06 | _(fill after push)_ |
-| v1.07 | v1.07 | _(fill after push)_ |
-| v1.08 | v1.08 | _(fill after push)_ |
-| v1.09 | v1.09 | _(fill after push)_ |
-| v1.10 | v1.10 | _(fill after push)_ |
+| v1.00 | v1.00 | `c3cb6718bb3cbad63357bee45b12f69a47e38f4e` |
+| v1.01 | v1.01 | `092164a33079046cbcffc47cdd147c923c173383` |
+| v1.02 | v1.02 | `4e6beca8459d5d0f5977498e43b1128a7ccaf485` |
+| v1.03 | v1.03 | `9bce386aae40225a954bde86b6bbe6b5a7d27c07` |
+| v1.04 | v1.04 | `28c0b85a4f45a2bac6fc4aeb442fc55ac98ae9f7` |
+| v1.05 | v1.05 | `0c13a5d2e7d2b373b7dffd707590f626db23da64` |
+| v1.06 | v1.06 | `b45370f47e20190fcbe0a326baf8ca33f5808ee3` |
+| v1.07 | v1.07 | `2cf4dca8f70db840f44419b4cc14cca73159b199` |
+| v1.08 | v1.08 | `5ca8430f8996e8b73b98ab5def45899e78876544` |
+| v1.09 | v1.09 | `7db9d02b6a0112c67578f68c35c46fdb5970709b` |
+| v1.10 | v1.10 | `346cd510e8a2ec21035bad90d8b671648baedabf` |
 
 Fill this table in with:
 
