@@ -64,7 +64,7 @@ looked like during the v1.03 presentation" at any time in the future with
 
 | Version | Tag | Commit Hash |
 |---------|-----|--------------|
-| v1.00 | v1.00 | `48575c717fe43b5c1ce34b290f6b8d842c0686eb` |
+| v1.00 | v1.00 | `350fb46ea6665e1f1a4cc1e3bbde32bca5860e9e` |
 | v1.01 | v1.01 | `e5ad916a2a1184c4c586e785c3a3284e96fe019d` |
 | v1.02 | v1.02 | `f4a388bd4d6b62ddc5d1f4e67bf356fa4ad21e6d` |
 | v1.03 | v1.03 | `5f3cbf7cd4c9879c0a4fda90d54e77b9a2186a56` |
@@ -76,7 +76,7 @@ looked like during the v1.03 presentation" at any time in the future with
 | v1.09 | v1.09 | `4c205812f5e6db7b4e94be5b913be1c2a1eca656` |
 | v1.10 | v1.10 | `225793875b28f5c42f8846b6be95fc8bc8cec0ab` |
 
-_Hashes updated after the v1.11 fix (Go Back → Logout button on the Under Construction page) was cherry-picked into every tag; see the note below._
+_Hashes updated after the v1.11 fix (Go Back → Logout button on the Under Construction page) was cherry-picked into every tag, and after the v1.00 login/forgot/reset UI refresh was cherry-picked into `v1.00`; see the notes below._
 
 ### Note: Go Back → Logout Fix (cherry-picked into all tags)
 
@@ -85,6 +85,16 @@ Clicking it after logging in could return to a stale page and error out. It was 
 a "Logout" button (`<?= BASE_URL ?>/logout.php`) that cleanly ends the session instead. This fix
 was applied on `main` and cherry-picked into every existing tag (`v1.00`–`v1.10`) per
 `docs/Cherry-Pick-Guide.md`, so every demo snapshot shows the corrected button.
+
+### Note: Login/Forgot/Reset Password UI refresh (cherry-picked into v1.00)
+
+`login.php`, `forgot-password.php`, and `reset-password.php` were redesigned on `main` with a
+navy/blue (`#293681` / `#4274D9` / `#95CCDD` / `#D0E7E6`) themed card (`public/assets/css/login.css`),
+the full system title instead of the "SDASFC" acronym, and full-field lockout (textboxes and
+buttons disabled, not just the submit button) after repeated failed logins. Since `v1.00` is the
+tag that demos exactly these three pages, the fix was cherry-picked into `v1.00` per
+`docs/Cherry-Pick-Guide.md` so the tagged snapshot matches the current design instead of the
+original plain Bootstrap card.
 
 Fill this table in with:
 
