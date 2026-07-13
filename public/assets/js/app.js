@@ -21,8 +21,14 @@ document.addEventListener('DOMContentLoaded', function () {
     let seconds = parseInt(btn.getAttribute('data-lockout-seconds'), 10);
     if (!seconds || seconds <= 0) return;
 
+    const form = btn.closest('form');
+    const otherControls = form
+        ? Array.from(form.querySelectorAll('input, button')).filter(function (el) { return el !== btn; })
+        : [];
+
     const originalText = btn.textContent;
     btn.disabled = true;
+    otherControls.forEach(function (el) { el.disabled = true; });
 
     const timer = setInterval(function () {
         btn.textContent = 'Try again in ' + seconds + 's';
@@ -32,6 +38,7 @@ document.addEventListener('DOMContentLoaded', function () {
             clearInterval(timer);
             btn.disabled = false;
             btn.textContent = originalText;
+            otherControls.forEach(function (el) { el.disabled = false; });
         }
     }, 1000);
 });
