@@ -16,34 +16,63 @@ include __DIR__ . '/partials/header.php';
 
 <div class="row g-3 mb-4">
     <div class="col-sm-6 col-lg-3">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <div class="text-muted small">Registered Users</div>
-                <div class="fs-3 fw-semibold"><?= $userCount ?></div>
+        <div class="card stat-card shadow-sm">
+            <div class="card-body d-flex align-items-center gap-3">
+                <span class="stat-card-icon" style="background: linear-gradient(135deg, var(--app-navy), var(--app-blue));">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7Zm4-6a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Zm-5.784 6A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216ZM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/>
+                    </svg>
+                </span>
+                <div>
+                    <div class="text-muted small">Registered Users</div>
+                    <div class="fs-3 fw-semibold"><?= $userCount ?></div>
+                </div>
             </div>
         </div>
     </div>
     <div class="col-sm-6 col-lg-3">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <div class="text-muted small">Taps Today</div>
-                <div class="fs-3 fw-semibold"><?= $stats['taps'] ?></div>
+        <div class="card stat-card shadow-sm">
+            <div class="card-body d-flex align-items-center gap-3">
+                <span class="stat-card-icon" style="background: linear-gradient(135deg, var(--app-blue), var(--app-sky));">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M0 3a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3Zm2-1a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1H2Z"/>
+                        <path d="M8 4a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5ZM4.5 12a3.5 3.5 0 1 1 7 0h-7Z"/>
+                    </svg>
+                </span>
+                <div>
+                    <div class="text-muted small">Taps Today</div>
+                    <div class="fs-3 fw-semibold"><?= $stats['taps'] ?></div>
+                </div>
             </div>
         </div>
     </div>
     <div class="col-sm-6 col-lg-3">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <div class="text-muted small">Granted Today</div>
-                <div class="fs-3 fw-semibold text-success"><?= $stats['granted'] ?></div>
+        <div class="card stat-card shadow-sm">
+            <div class="card-body d-flex align-items-center gap-3">
+                <span class="stat-card-icon" style="background: linear-gradient(135deg, #1f9d63, #34c982);">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0Z"/>
+                    </svg>
+                </span>
+                <div>
+                    <div class="text-muted small">Granted Today</div>
+                    <div class="fs-3 fw-semibold text-success"><?= $stats['granted'] ?></div>
+                </div>
             </div>
         </div>
     </div>
     <div class="col-sm-6 col-lg-3">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <div class="text-muted small">Denied Today</div>
-                <div class="fs-3 fw-semibold text-danger"><?= $stats['denied'] ?></div>
+        <div class="card stat-card shadow-sm">
+            <div class="card-body d-flex align-items-center gap-3">
+                <span class="stat-card-icon" style="background: linear-gradient(135deg, #b3261e, #e04b42);">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708Z"/>
+                    </svg>
+                </span>
+                <div>
+                    <div class="text-muted small">Denied Today</div>
+                    <div class="fs-3 fw-semibold text-danger"><?= $stats['denied'] ?></div>
+                </div>
             </div>
         </div>
     </div>
