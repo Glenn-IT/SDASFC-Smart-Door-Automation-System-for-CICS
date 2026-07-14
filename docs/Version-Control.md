@@ -84,8 +84,10 @@ looked like during the v1.03 presentation" at any time in the future with
 | v1.08 | v1.08 | `a902583a4c599eeec025f5502420338cc8e3cbe8` |
 | v1.09 | v1.09 | `4c205812f5e6db7b4e94be5b913be1c2a1eca656` |
 | v1.10 | v1.10 | `225793875b28f5c42f8846b6be95fc8bc8cec0ab` |
+| v2.00 | v2.00 | `89f472a40c9eb75f14140b1cac35db4b67b71155` |
+| v2.10 | v2.10 | `97162309072e5ab974b4c23bee41cf567bcac7ba` |
 
-_Hashes updated after the v1.11 fix (Go Back → Logout button on the Under Construction page) was cherry-picked into every tag, and after the v1.00 login/forgot/reset UI refresh was cherry-picked into `v1.00`; see the notes below._
+_Hashes updated after the v1.11 fix (Go Back → Logout button on the Under Construction page) was cherry-picked into every tag, after the v1.00 login/forgot/reset UI refresh was cherry-picked into `v1.00`, and after the admin-panel theme rework was cherry-picked into `v2.00`; see the notes below._
 
 ### Note: Go Back → Logout Fix (cherry-picked into all tags)
 
@@ -104,6 +106,19 @@ buttons disabled, not just the submit button) after repeated failed logins. Sinc
 tag that demos exactly these three pages, the fix was cherry-picked into `v1.00` per
 `docs/Cherry-Pick-Guide.md` so the tagged snapshot matches the current design instead of the
 original plain Bootstrap card.
+
+### Note: Admin-panel theme rework (cherry-picked into v2.00)
+
+The dashboard/profile admin layout (`public/partials/sidebar.php`, `public/partials/header.php`,
+`public/dashboard.php`, `public/assets/css/app.css`) and the "Under Construction" gate card
+(`components/under-construction.php`) were redesigned on `main` to match the navy/blue
+(`#293681` / `#4274D9` / `#95CCDD` / `#D0E7E6`) theme introduced by the login UI refresh: a navy
+gradient sidebar with gradient active-link pills, a themed stat-card layout on the dashboard, and
+a matching card style for the gate page. Since `v2.00` is the tag that demos exactly Dashboard and
+Profile (with every other page showing the gate card), the rework was cherry-picked into `v2.00`
+per `docs/Cherry-Pick-Guide.md` so the tagged snapshot matches the current design instead of the
+original plain Bootstrap layout. `v2.10` already includes this rework since it was committed on
+`main` before v2.10 branched off.
 
 Fill this table in with:
 
