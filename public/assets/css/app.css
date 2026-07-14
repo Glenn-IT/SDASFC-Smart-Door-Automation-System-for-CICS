@@ -1,9 +1,120 @@
-.nav-pills .nav-link.active {
-    background-color: var(--bs-primary);
+:root {
+    --app-navy: #293681;
+    --app-blue: #4274d9;
+    --app-sky: #95ccdd;
+    --app-mint: #d0e7e6;
+    --app-ink: #1c2440;
+    --app-muted: #7480a3;
+    --app-bg: #f4f6fb;
+
+    --bs-primary: var(--app-blue);
+    --bs-primary-rgb: 66, 116, 217;
+    --bs-body-font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    --bs-body-color: var(--app-ink);
 }
+
+body {
+    background: var(--app-bg);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Sidebar */
+.app-sidebar {
+    width: 220px;
+    min-height: 100vh;
+    background: linear-gradient(180deg, var(--app-navy) 0%, #1c2557 100%);
+}
+
+.app-sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: #fff;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+}
+
+.app-sidebar-brand-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: linear-gradient(145deg, var(--app-sky), var(--app-blue));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 6px 14px -6px rgba(0, 0, 0, 0.5);
+}
+
 .nav-pills .nav-link {
-    color: rgba(255, 255, 255, 0.75);
+    color: rgba(255, 255, 255, 0.7);
+    border-radius: 10px;
+    font-size: 0.92rem;
+    font-weight: 500;
+    padding: 0.6rem 0.85rem;
+    transition: background 0.15s ease, color 0.15s ease;
 }
+
 .nav-pills .nav-link:hover {
     color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.nav-pills .nav-link.active {
+    background: linear-gradient(135deg, var(--app-navy), var(--app-blue));
+    color: #fff;
+    box-shadow: 0 6px 14px -6px rgba(0, 0, 0, 0.5);
+}
+
+/* Top navbar */
+.app-navbar {
+    background: #ffffff;
+}
+
+/* Cards */
+.card {
+    border: none;
+    border-radius: 14px;
+}
+
+.card-title {
+    color: var(--app-ink);
+    font-weight: 700;
+}
+
+.text-muted {
+    color: var(--app-muted) !important;
+}
+
+/* Stat cards on dashboard */
+.stat-card {
+    border-radius: 14px;
+}
+
+.stat-card-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    flex-shrink: 0;
+}
+
+/* Buttons */
+.btn-primary {
+    background: linear-gradient(135deg, var(--app-navy), var(--app-blue));
+    border: none;
+    box-shadow: 0 8px 16px -8px rgba(41, 54, 129, 0.55);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background: linear-gradient(135deg, var(--app-navy), var(--app-blue));
+    box-shadow: 0 10px 20px -8px rgba(41, 54, 129, 0.65);
+}
+
+a {
+    color: var(--app-blue);
 }
