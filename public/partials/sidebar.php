@@ -1,9 +1,9 @@
 <?php
-$currentPage = basename($_SERVER['SCRIPT_NAME']);
+$currentPage = $_SERVER['SCRIPT_NAME'];
 
 function navLink(string $file, string $label, string $currentPage): string
 {
-    $active = $currentPage === $file ? ' active' : '';
+    $active = str_ends_with($currentPage, '/' . $file) ? ' active' : '';
     return '<a href="' . BASE_URL . '/' . $file . '" class="nav-link text-white' . $active . '">' . $label . '</a>';
 }
 ?>
