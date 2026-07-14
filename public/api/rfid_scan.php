@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../app/controllers/AccessController.php';
 
 header('Content-Type: application/json');
 
-if (CURRENT_VERSION !== 'v1.10') {
+if (CURRENT_VERSION !== 'v1.10' && CURRENT_VERSION !== 'v2.10') {
     http_response_code(503);
     echo json_encode(['access' => 'denied', 'reason' => 'feature_not_yet_available']);
     exit;

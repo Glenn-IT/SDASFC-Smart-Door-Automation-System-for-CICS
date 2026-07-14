@@ -20,11 +20,14 @@ exactly one page or feature on top of the previous version. Pages not yet unlock
 | v1.09 | Admin: Reports — CSV Export | `reports/export.php` | RFID API |
 | v1.10 | Admin: RFID Scan / Hardware Integration (Full System) | `api/rfid_scan.php` | — (full system unlocked) |
 | v2.00 | Rollout restart on the refreshed codebase (login UI refresh, lockout, sidebar highlight fix, etc.) | `dashboard.php`, `profile.php` | Users, Schedules, Reports, RFID API |
+| v2.10 | Unlock everything else (Users, Schedules, Reports, RFID API) in one step | `users/index.php`, `users/create.php`, `users/edit.php`, `schedules/index.php`, `schedules/user.php`, `reports/index.php`, `reports/export.php`, `api/rfid_scan.php` | — (full system unlocked) |
 
-v2.00 restarts the presentation rollout on top of everything accumulated on `main` since v1.10
-(the login/forgot/reset UI refresh, full-field lockout, and the sidebar active-link fix). It
-re-gates Users, Schedules, Reports, and the RFID API exactly like v1.02 did in the v1.x rollout,
-so future versions (v2.01, v2.02, ...) can unlock them again one at a time.
+v2.00 restarted the presentation rollout on top of everything accumulated on `main` since v1.10
+(the login/forgot/reset UI refresh, full-field lockout, and the sidebar active-link fix), re-gating
+Users, Schedules, Reports, and the RFID API exactly like v1.02 did in the v1.x rollout. Rather than
+re-running the full page-by-page schedule, v2.10 unlocks all of those remaining pages in a single
+step, so the theme rework carries through to a fully unlocked system without a multi-week replay.
+`api/rfid_scan.php` accepts both `v1.10` and `v2.10` so the original v1.x tag snapshot still works.
 
 This system has a single authenticated role (Admin). The "users" managed in the Users and
 Schedules pages are RFID cardholders (door-access subjects), not separate logins.
