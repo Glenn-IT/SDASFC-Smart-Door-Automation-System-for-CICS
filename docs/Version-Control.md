@@ -21,13 +21,21 @@ exactly one page or feature on top of the previous version. Pages not yet unlock
 | v1.10 | Admin: RFID Scan / Hardware Integration (Full System) | `api/rfid_scan.php` | — (full system unlocked) |
 | v2.00 | Rollout restart on the refreshed codebase (login UI refresh, lockout, sidebar highlight fix, etc.) | `dashboard.php`, `profile.php` | Users, Schedules, Reports, RFID API |
 | v2.10 | Unlock everything else (Users, Schedules, Reports, RFID API) in one step | `users/index.php`, `users/create.php`, `users/edit.php`, `schedules/index.php`, `schedules/user.php`, `reports/index.php`, `reports/export.php`, `api/rfid_scan.php` | — (full system unlocked) |
+| v3.00 | Rollout restart #2 on top of v2.10 (sidebar/login logo swapped to the real SDASFC logo) — Dashboard, Profile, and Manage Users carried forward, everything else re-gated | `dashboard.php`, `profile.php`, `users/index.php` | Users (create/edit), Schedules, Reports, RFID API |
 
 v2.00 restarted the presentation rollout on top of everything accumulated on `main` since v1.10
 (the login/forgot/reset UI refresh, full-field lockout, and the sidebar active-link fix), re-gating
 Users, Schedules, Reports, and the RFID API exactly like v1.02 did in the v1.x rollout. Rather than
 re-running the full page-by-page schedule, v2.10 unlocks all of those remaining pages in a single
 step, so the theme rework carries through to a fully unlocked system without a multi-week replay.
-`api/rfid_scan.php` accepts both `v1.10` and `v2.10` so the original v1.x tag snapshot still works.
+`api/rfid_scan.php` accepts both `v1.10` and `v2.10` so the original v1.x tag snapshot still works
+(v3.00 re-gates the API since it isn't in the accepted-version list).
+
+v3.00 restarts the rollout a second time on top of everything on `main` since v2.10 (the person-icon
+placeholder in the login avatar and sidebar brand mark was replaced with the real `docs/Logo.jpg`
+logo). It carries forward Dashboard and Profile from v2.00 and additionally unlocks Manage Users
+(view list only, same scope as v1.03), re-gating Users create/edit, Schedules, Reports, and the
+RFID API.
 
 This system has a single authenticated role (Admin). The "users" managed in the Users and
 Schedules pages are RFID cardholders (door-access subjects), not separate logins.

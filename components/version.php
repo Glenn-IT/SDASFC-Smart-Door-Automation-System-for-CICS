@@ -1,5 +1,5 @@
 <?php
 
 if (!defined('CURRENT_VERSION')) {
-    define('CURRENT_VERSION', 'v2.10');
+    define('CURRENT_VERSION', 'v3.00');
 }
