@@ -22,6 +22,7 @@ exactly one page or feature on top of the previous version. Pages not yet unlock
 | v2.00 | Rollout restart on the refreshed codebase (login UI refresh, lockout, sidebar highlight fix, etc.) | `dashboard.php`, `profile.php` | Users, Schedules, Reports, RFID API |
 | v2.10 | Unlock everything else (Users, Schedules, Reports, RFID API) in one step | `users/index.php`, `users/create.php`, `users/edit.php`, `schedules/index.php`, `schedules/user.php`, `reports/index.php`, `reports/export.php`, `api/rfid_scan.php` | — (full system unlocked) |
 | v3.00 | Rollout restart #2 on top of v2.10 (sidebar/login logo swapped to the real SDASFC logo) — Dashboard, Profile, and Manage Users carried forward, everything else re-gated | `dashboard.php`, `profile.php`, `users/index.php` | Users (create/edit), Schedules, Reports, RFID API |
+| v3.10 | Unlock everything else (Users create/edit, Schedules, Reports, RFID API) in one step | `users/create.php`, `users/edit.php`, `schedules/index.php`, `schedules/user.php`, `reports/index.php`, `reports/export.php`, `api/rfid_scan.php` | — (full system unlocked) |
 
 v2.00 restarted the presentation rollout on top of everything accumulated on `main` since v1.10
 (the login/forgot/reset UI refresh, full-field lockout, and the sidebar active-link fix), re-gating
@@ -36,6 +37,11 @@ placeholder in the login avatar and sidebar brand mark was replaced with the rea
 logo). It carries forward Dashboard and Profile from v2.00 and additionally unlocks Manage Users
 (view list only, same scope as v1.03), re-gating Users create/edit, Schedules, Reports, and the
 RFID API.
+
+v3.10 unlocks all of the pages re-gated at v3.00 (Users create/edit, Schedules, Reports, and the
+RFID API) in a single step, exactly like v2.10 did after v2.00, rather than replaying the
+page-by-page schedule a second time. `api/rfid_scan.php` now also accepts `v3.10` in addition to
+`v1.10` and `v2.10`, so the earlier tag snapshots still work unchanged.
 
 This system has a single authenticated role (Admin). The "users" managed in the Users and
 Schedules pages are RFID cardholders (door-access subjects), not separate logins.
@@ -95,6 +101,7 @@ looked like during the v1.03 presentation" at any time in the future with
 | v2.00 | v2.00 | `89f472a40c9eb75f14140b1cac35db4b67b71155` |
 | v2.10 | v2.10 | `97162309072e5ab974b4c23bee41cf567bcac7ba` |
 | v3.00 | v3.00 | `f6dc467045d4747dc9620f48a553350292bf9652` |
+| v3.10 | v3.10 | _(filled in after tagging)_ |
 
 _Hashes updated after the v1.11 fix (Go Back → Logout button on the Under Construction page) was cherry-picked into every tag, after the v1.00 login/forgot/reset UI refresh was cherry-picked into `v1.00`, and after the admin-panel theme rework was cherry-picked into `v2.00`; see the notes below._
 
