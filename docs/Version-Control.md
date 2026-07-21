@@ -101,7 +101,7 @@ looked like during the v1.03 presentation" at any time in the future with
 | v2.00 | v2.00 | `89f472a40c9eb75f14140b1cac35db4b67b71155` |
 | v2.10 | v2.10 | `97162309072e5ab974b4c23bee41cf567bcac7ba` |
 | v3.00 | v3.00 | `f6dc467045d4747dc9620f48a553350292bf9652` |
-| v3.10 | v3.10 | _(filled in after tagging)_ |
+| v3.10 | v3.10 | `5bf7ec6a9229bd4819ecdbabf268172b81fa03bc` |
 
 _Hashes updated after the v1.11 fix (Go Back → Logout button on the Under Construction page) was cherry-picked into every tag, after the v1.00 login/forgot/reset UI refresh was cherry-picked into `v1.00`, and after the admin-panel theme rework was cherry-picked into `v2.00`; see the notes below._
 
