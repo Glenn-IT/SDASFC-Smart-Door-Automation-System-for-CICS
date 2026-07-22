@@ -62,6 +62,34 @@ class AccessLog
         ];
     }
 
+    public static function dailyCounts(int $days = 7): array
+    {
+        $stmt = Database::getConnection()->prepare(
+            "SELECT DATE(scanned_at) AS d, COUNT(*) AS c
+             FROM access_logs
+             WHERE scanned_at >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
+             GROUP BY d"
+        );
+        $stmt->bindValue(1, $days - 1, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $counts = [];
+        foreach ($stmt->fetchAll() as $row) {
+            $counts[$row['d']] = (int) $row['c'];
+        }
+
+        $series = [];
+        for ($i = $days - 1; $i >= 0; $i--) {
+            $date = date('Y-m-d', strtotime("-{$i} days"));
+            $series[] = [
+                'label' => date('M j', strtotime($date)),
+                'count' => $counts[$date] ?? 0,
+            ];
+        }
+
+        return $series;
+    }
+
     private static function buildWhere(array $filters): array
     {
         $clauses = [];
