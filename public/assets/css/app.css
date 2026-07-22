@@ -22,15 +22,43 @@ body {
 .app-sidebar {
     width: 220px;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
     background: linear-gradient(180deg, var(--app-navy) 0%, #1c2557 100%);
+    overflow: hidden;
+    transition: width 0.2s ease;
+}
+
+.app-sidebar.collapsed {
+    width: 0;
+}
+
+.app-sidebar-toggle {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--app-ink);
+    flex-shrink: 0;
+    transition: background 0.15s ease;
+}
+
+.app-sidebar-toggle:hover {
+    background: rgba(28, 36, 64, 0.08);
 }
 
 .app-sidebar-brand {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 0.6rem;
     color: #fff;
     font-weight: 800;
+    font-size: 0.8rem;
+    line-height: 1.25;
     letter-spacing: 0.02em;
 }
 

@@ -23,6 +23,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $lockSeconds = AuthController::getLoginLockSeconds();
+$loginCssVer = @filemtime(__DIR__ . '/assets/css/login.css') ?: time();
+$appJsVer = @filemtime(__DIR__ . '/assets/js/app.js') ?: time();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -30,29 +32,29 @@ $lockSeconds = AuthController::getLoginLockSeconds();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login - Smart Door Automation System for CICS</title>
+    <link rel="icon" type="image/jpeg" href="assets/img/logo.jpg">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="assets/css/login.css" rel="stylesheet">
+    <link href="assets/css/login.css?v=<?= $loginCssVer ?>" rel="stylesheet">
 </head>
 <body class="login-body">
     <div class="login-blob login-blob-1"></div>
     <div class="login-blob login-blob-2"></div>
 
-    <div class="login-wrapper">
-        <div class="login-card">
-            <div class="login-banner">
-                <div class="login-banner-shapes">
-                    <span class="login-banner-shape login-banner-shape-1"></span>
-                    <span class="login-banner-shape login-banner-shape-2"></span>
-                    <span class="login-banner-shape login-banner-shape-3"></span>
-                </div>
-                <div class="login-avatar">
-                    <img src="assets/img/logo.jpg" alt="SDASFC Logo" class="login-avatar-img">
+    <div class="login-wrapper login-wrapper--wide">
+        <div class="login-card login-card--split">
+            <div class="login-hero-panel" style="background-image:url('../docs/Login-BG.jpg')">
+                <div class="login-hero-content">
+                    <div class="login-hero-logo">
+                        <img src="assets/img/logo.jpg" alt="SDASFC Logo" class="login-hero-logo-img">
+                    </div>
+                    <h1 class="login-hero-title">Smart Door Automation System for CICS</h1>
+                    <p class="login-hero-desc">Real-time, secure access control for the CICS building — monitor doors, manage schedules, and keep your campus protected from anywhere.</p>
                 </div>
             </div>
 
-            <div class="login-body-content">
-            <h4 class="login-title">Smart Door Automation System for CICS</h4>
+            <div class="login-body-content login-body-content--form">
+            <h4 class="login-title">Welcome Back</h4>
             <p class="login-subtitle">Sign in to manage your building access</p>
 
             <?php if (!empty($_GET['reset'])): ?>
@@ -105,6 +107,6 @@ $lockSeconds = AuthController::getLoginLockSeconds();
             </div>
         </div>
     </div>
-    <script src="assets/js/app.js"></script>
+    <script src="assets/js/app.js?v=<?= $appJsVer ?>"></script>
 </body>
 </html>

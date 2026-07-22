@@ -18,6 +18,18 @@ class User
         return (int) Database::getConnection()->query('SELECT COUNT(*) FROM users')->fetchColumn();
     }
 
+    public static function countByRole(): array
+    {
+        $stmt = Database::getConnection()->query('SELECT role, COUNT(*) AS c FROM users GROUP BY role');
+
+        $counts = ['student' => 0, 'faculty' => 0, 'staff' => 0];
+        foreach ($stmt->fetchAll() as $row) {
+            $counts[$row['role']] = (int) $row['c'];
+        }
+
+        return $counts;
+    }
+
     public static function findById(int $id): ?array
     {
         $stmt = Database::getConnection()->prepare(

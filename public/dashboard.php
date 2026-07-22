@@ -9,10 +9,14 @@ Auth::requireAdmin();
 $userCount = User::count();
 $stats = AccessLog::todayStats();
 $recentLogs = AccessLog::recent(10);
+$dailyCounts = AccessLog::dailyCounts(7);
+$roleCounts = User::countByRole();
 
 $pageTitle = 'Dashboard';
 include __DIR__ . '/partials/header.php';
 ?>
+
+<h4 class="mb-3">Welcome back, <?= htmlspecialchars(Auth::currentAdminName()) ?>!</h4>
 
 <div class="row g-3 mb-4">
     <div class="col-sm-6 col-lg-3">
@@ -78,6 +82,33 @@ include __DIR__ . '/partials/header.php';
     </div>
 </div>
 
+<div class="row g-3 mb-4">
+    <div class="col-lg-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h6 class="card-title mb-3">Taps — Last 7 Days</h6>
+                <canvas id="chartTaps" height="220"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h6 class="card-title mb-3">Today's Access Results</h6>
+                <canvas id="chartResults" height="220"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h6 class="card-title mb-3">Users by Role</h6>
+                <canvas id="chartRoles" height="220"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="card shadow-sm">
     <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-2">
@@ -121,5 +152,60 @@ include __DIR__ . '/partials/header.php';
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+    const dailyLabels = <?= json_encode(array_column($dailyCounts, 'label')) ?>;
+    const dailyCounts = <?= json_encode(array_column($dailyCounts, 'count')) ?>;
+    const resultCounts = <?= json_encode([$stats['granted'], $stats['denied']]) ?>;
+    const roleLabels = <?= json_encode(array_map('ucfirst', array_keys($roleCounts))) ?>;
+    const roleCounts = <?= json_encode(array_values($roleCounts)) ?>;
+
+    new Chart(document.getElementById('chartTaps'), {
+        type: 'line',
+        data: {
+            labels: dailyLabels,
+            datasets: [{
+                label: 'Taps',
+                data: dailyCounts,
+                borderColor: '#293681',
+                backgroundColor: 'rgba(66, 116, 217, 0.15)',
+                tension: 0.3,
+                fill: true,
+            }],
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+        },
+    });
+
+    new Chart(document.getElementById('chartResults'), {
+        type: 'pie',
+        data: {
+            labels: ['Granted', 'Denied'],
+            datasets: [{
+                data: resultCounts,
+                backgroundColor: ['#1f9d63', '#b3261e'],
+            }],
+        },
+    });
+
+    new Chart(document.getElementById('chartRoles'), {
+        type: 'bar',
+        data: {
+            labels: roleLabels,
+            datasets: [{
+                label: 'Users',
+                data: roleCounts,
+                backgroundColor: ['#293681', '#4274d9', '#95ccdd'],
+            }],
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+        },
+    });
+</script>
 
 <?php include __DIR__ . '/partials/footer.php'; ?>
