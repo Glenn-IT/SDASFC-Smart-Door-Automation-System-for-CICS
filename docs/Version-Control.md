@@ -100,10 +100,10 @@ looked like during the v1.03 presentation" at any time in the future with
 | v1.10 | v1.10 | `225793875b28f5c42f8846b6be95fc8bc8cec0ab` |
 | v2.00 | v2.00 | `89f472a40c9eb75f14140b1cac35db4b67b71155` |
 | v2.10 | v2.10 | `97162309072e5ab974b4c23bee41cf567bcac7ba` |
-| v3.00 | v3.00 | `f6dc467045d4747dc9620f48a553350292bf9652` |
+| v3.00 | v3.00 | `635a094924f92eaaca28e9fba3bef93956f607ff` |
 | v3.10 | v3.10 | `5bf7ec6a9229bd4819ecdbabf268172b81fa03bc` |
 
-_Hashes updated after the v1.11 fix (Go Back → Logout button on the Under Construction page) was cherry-picked into every tag, after the v1.00 login/forgot/reset UI refresh was cherry-picked into `v1.00`, and after the admin-panel theme rework was cherry-picked into `v2.00`; see the notes below._
+_Hashes updated after the v1.11 fix (Go Back → Logout button on the Under Construction page) was cherry-picked into every tag, after the v1.00 login/forgot/reset UI refresh was cherry-picked into `v1.00`, after the admin-panel theme rework was cherry-picked into `v2.00`, and after the sidebar/login rework and dashboard charts were cherry-picked into `v3.00`; see the notes below._
 
 ### Note: Go Back → Logout Fix (cherry-picked into all tags)
 
@@ -135,6 +135,20 @@ Profile (with every other page showing the gate card), the rework was cherry-pic
 per `docs/Cherry-Pick-Guide.md` so the tagged snapshot matches the current design instead of the
 original plain Bootstrap layout. `v2.10` already includes this rework since it was committed on
 `main` before v2.10 branched off.
+
+### Note: Sidebar/login rework and dashboard charts (cherry-picked into v3.00)
+
+The sidebar/login/dashboard were reworked further on `main`: the sidebar brand now shows the full
+system name, the login page became a two-column layout with a school-building photo background
+(`docs/Login-BG.jpg`), the sidebar gained a collapsible burger toggle and a Profile link, Logout
+moved to the sidebar bottom, the dashboard gained a welcome message plus Line/Pie/Bar charts
+(Chart.js, backed by new `AccessLog::dailyCounts()` and `User::countByRole()` queries), and the app
+logo replaced the default XAMPP favicon on every page. Since `v3.00` is the tag that demos Dashboard,
+Profile, and Manage Users (view list) on top of the always-reachable login/forgot/reset pages, the
+rework was cherry-picked into `v3.00` per `docs/Cherry-Pick-Guide.md` so the tagged snapshot matches
+the current design. `v3.00`'s gated scope (Users create/edit, Schedules, Reports, RFID API) was left
+untouched. Note that `v3.10` was tagged *before* this rework was committed on `main`, so `v3.10`
+does not yet include it — it would need its own cherry-pick if a matching demo is needed there.
 
 Fill this table in with:
 
