@@ -37,8 +37,19 @@ logo). It carries forward Dashboard and Profile from v2.00 and additionally unlo
 (view list only, same scope as v1.03), re-gating Users create/edit, Schedules, Reports, and the
 RFID API.
 
-This system has a single authenticated role (Admin). The "users" managed in the Users and
-Schedules pages are RFID cardholders (door-access subjects), not separate logins.
+### Schedules feature removed
+
+The Schedules feature has been removed from the system. `public/schedules/index.php`,
+`public/schedules/user.php`, `app/models/Schedule.php`, `app/controllers/ScheduleController.php`,
+and the `schedules` database table no longer exist, and the sidebar no longer links to them. The
+"Still Gated" column above still names Schedules for the earlier rollout rows — that is left
+unedited on purpose, since it records what those tags actually gated at the time.
+
+RFID taps are now decided by UID registration and user status alone; the `outside_schedule` deny
+reason is retired, though historical `access_logs` rows may still carry it.
+
+This system has a single authenticated role (Admin). The "users" managed in the Users pages are
+RFID cardholders (door-access subjects), not separate logins.
 
 ## Under Construction Strategy
 

@@ -62,21 +62,6 @@ INSERT INTO `admins` (`id`, `username`, `password_hash`, `full_name`, `security_
 -- --------------------------------------------------------
 
 --
--- Table structure for table `schedules`
---
-
-CREATE TABLE `schedules` (
-  `id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `day_of_week` enum('Mon','Tue','Wed','Thu','Fri','Sat','Sun') NOT NULL,
-  `time_start` time NOT NULL,
-  `time_end` time NOT NULL,
-  `is_active` tinyint(1) NOT NULL DEFAULT 1
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `users`
 --
 
@@ -117,13 +102,6 @@ ALTER TABLE `admins`
   ADD UNIQUE KEY `username` (`username`);
 
 --
--- Indexes for table `schedules`
---
-ALTER TABLE `schedules`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `idx_schedules_user` (`user_id`);
-
---
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
@@ -148,12 +126,6 @@ ALTER TABLE `admins`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- AUTO_INCREMENT for table `schedules`
---
-ALTER TABLE `schedules`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-
---
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
@@ -168,12 +140,6 @@ ALTER TABLE `users`
 --
 ALTER TABLE `access_logs`
   ADD CONSTRAINT `access_logs_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL;
-
---
--- Constraints for table `schedules`
---
-ALTER TABLE `schedules`
-  ADD CONSTRAINT `schedules_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

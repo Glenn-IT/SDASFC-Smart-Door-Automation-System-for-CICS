@@ -2,16 +2,15 @@
 
 A web-based admin panel connected to an Arduino + RFID reader installed at the CICS
 department door. Users tap their RFID card to request entry; the system unlocks the
-door only if the card is registered, active, and the current day/time falls within
-the user's assigned schedule. Every tap is logged as granted or denied.
+door only if the card is registered and the user is active. Every tap is logged as
+granted or denied.
 
 ## Features
 
 - **Admin authentication** with forgot-password / security-question recovery
 - **Dashboard** — today's taps, granted vs. denied counts, active users, recent activity
 - **User management** — CRUD for RFID users (name, section, RFID UID, status)
-- **Schedules** — assign one or more allowed day/time windows per user
-- **Access control** — validates UID, user status, and schedule window on every tap
+- **Access control** — validates UID and user status on every tap
 - **Reports** — filterable access log history with CSV export
 - **RFID API endpoint** (`public/api/rfid_scan.php`) for the Arduino bridge to call
 
@@ -57,7 +56,7 @@ Detailed design docs live in `docs/`:
 1. `01-overview.md` — project summary and requirements
 2. `02-project-structure.md` — folder/file layout
 3. `03-database-schema.md` — tables and relationships
-4. `04-access-control-flow.md` — how a tap is validated against schedules
+4. `04-access-control-flow.md` — how a tap is validated
 5. `05-arduino-integration.md` — hardware wiring and serial bridge design
 6. `06-pages-and-features.md` — admin panel pages breakdown
 7. `07-development-plan.md` — phased build plan

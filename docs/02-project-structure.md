@@ -17,10 +17,6 @@ SDASFC-Smart-Door-Automation-System-for-CICS/
 │   │   ├── create.php
 │   │   ├── edit.php
 │   │   └── delete.php
-│   ├── schedules/
-│   │   ├── index.php            # list schedules per user
-│   │   ├── create.php
-│   │   └── edit.php
 │   ├── reports/
 │   │   ├── index.php            # logs table + filters
 │   │   └── export.php           # CSV export
@@ -35,13 +31,11 @@ SDASFC-Smart-Door-Automation-System-for-CICS/
 │   │   └── database.php          # PDO connection
 │   ├── models/
 │   │   ├── User.php
-│   │   ├── Schedule.php
 │   │   ├── AccessLog.php
 │   │   └── Admin.php
 │   ├── controllers/
 │   │   ├── AuthController.php
 │   │   ├── UserController.php
-│   │   ├── ScheduleController.php
 │   │   ├── ReportController.php
 │   │   └── DashboardController.php
 │   ├── core/
@@ -53,7 +47,7 @@ SDASFC-Smart-Door-Automation-System-for-CICS/
 │
 ├── database/
 │   ├── schema.sql                # full CREATE TABLE statements
-│   └── seed.sql                  # sample admin + test users/schedules
+│   └── seed.sql                  # sample admin + test users
 │
 ├── hardware/
 │   ├── arduino/
