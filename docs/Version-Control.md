@@ -49,10 +49,17 @@ The Schedules feature was removed from the system after v3.10. `public/schedules
 `public/schedules/user.php`, `app/models/Schedule.php`, `app/controllers/ScheduleController.php`,
 and the `schedules` database table no longer exist, and the sidebar no longer links to them. The
 rollout rows above (v1.06, v1.07, v2.10, v3.00, v3.10) are left unedited on purpose — they record
-what actually shipped at each tag, and those tag snapshots still contain the Schedules pages.
+what actually shipped at each tag.
 
 RFID taps are now decided by UID registration and user status alone; the `outside_schedule` deny
 reason is retired, though historical `access_logs` rows may still carry it.
+
+The removal was also cherry-picked into `v3.00` per `docs/Cherry-Pick-Guide.md`, so the current
+demo snapshot matches the live system. `v3.00`'s gating is unchanged by that cherry-pick —
+`CURRENT_VERSION` stays `'v3.00'` and Users create/edit, Reports, and the RFID API remain gated;
+the Schedules pages simply no longer exist there rather than showing the gate card. Tags `v1.00`
+–`v2.10` are deliberately left alone: they predate the removal and still demo the Schedules
+feature as it shipped.
 
 This system has a single authenticated role (Admin). The "users" managed in the Users pages are
 RFID cardholders (door-access subjects), not separate logins.
@@ -111,10 +118,10 @@ looked like during the v1.03 presentation" at any time in the future with
 | v1.10 | v1.10 | `225793875b28f5c42f8846b6be95fc8bc8cec0ab` |
 | v2.00 | v2.00 | `89f472a40c9eb75f14140b1cac35db4b67b71155` |
 | v2.10 | v2.10 | `97162309072e5ab974b4c23bee41cf567bcac7ba` |
-| v3.00 | v3.00 | `635a094924f92eaaca28e9fba3bef93956f607ff` |
+| v3.00 | v3.00 | `374bd72ef51127c440376ce5a9ea72dba6601834` |
 | v3.10 | v3.10 | `5bf7ec6a9229bd4819ecdbabf268172b81fa03bc` |
 
-_Hashes updated after the v1.11 fix (Go Back → Logout button on the Under Construction page) was cherry-picked into every tag, after the v1.00 login/forgot/reset UI refresh was cherry-picked into `v1.00`, after the admin-panel theme rework was cherry-picked into `v2.00`, and after the sidebar/login rework and dashboard charts were cherry-picked into `v3.00`; see the notes below._
+_Hashes updated after the v1.11 fix (Go Back → Logout button on the Under Construction page) was cherry-picked into every tag, after the v1.00 login/forgot/reset UI refresh was cherry-picked into `v1.00`, after the admin-panel theme rework was cherry-picked into `v2.00`, after the sidebar/login rework and dashboard charts were cherry-picked into `v3.00`, and after the Schedules feature removal was cherry-picked into `v3.00`; see the notes below._
 
 ### Note: Go Back → Logout Fix (cherry-picked into all tags)
 
