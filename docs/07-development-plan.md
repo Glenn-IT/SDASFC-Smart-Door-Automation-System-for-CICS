@@ -15,16 +15,16 @@
 - CRUD pages for `users` table.
 - Manual RFID UID entry field (hardware not required yet to test this phase).
 
-## Phase 3 — Schedules
-- CRUD pages for `schedules`, scoped per user.
-- Form validation (start < end time, day selection).
+## Phase 3 — Schedules *(removed)*
+Per-user day/time access windows were built and later removed from the system.
+Access is now governed by user status alone. Phase numbering is kept as-is so it
+still lines up with `09-progress-checklist.md`.
 
 ## Phase 4 — Access Control API (software-only test)
 - Build `app/api/rfid_scan.php` implementing the flow in
   `04-access-control-flow.md`.
 - Test with a simple manual POST (Postman/curl) simulating an RFID tap —
-  no hardware needed yet, just confirm grant/deny logic against seeded
-  users/schedules.
+  no hardware needed yet, just confirm grant/deny logic against seeded users.
 
 ## Phase 5 — Reports/Logs
 - Build the log table with filters + CSV export.
@@ -37,9 +37,9 @@
   grant/deny back to the Arduino, actuating the relay.
 
 ## Phase 7 — End-to-End Testing
-- Test full flow: admin creates a user + schedule → tap card inside window
-  (door opens) → tap outside window (denied, logged) → tap unknown card
-  (denied, logged) → verify dashboard/report reflect these events correctly.
+- Test full flow: admin creates a user → tap registered card (door opens) →
+  tap unknown card (denied, logged) → verify dashboard/report reflect these
+  events correctly.
 - Test inactive-user denial.
 - Test edge cases noted in `04-access-control-flow.md`.
 

@@ -49,7 +49,7 @@ $appJsVer = @filemtime(__DIR__ . '/assets/js/app.js') ?: time();
                         <img src="assets/img/logo.jpg" alt="SDASFC Logo" class="login-hero-logo-img">
                     </div>
                     <h1 class="login-hero-title">Smart Door Automation System for CICS</h1>
-                    <p class="login-hero-desc">Real-time, secure access control for the CICS building — monitor doors, manage schedules, and keep your campus protected from anywhere.</p>
+                    <p class="login-hero-desc">Real-time, secure access control for the CICS building — monitor doors, manage users, and keep your campus protected from anywhere.</p>
                 </div>
             </div>
 

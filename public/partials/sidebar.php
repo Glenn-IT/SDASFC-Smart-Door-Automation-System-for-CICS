@@ -17,7 +17,6 @@ function navLink(string $file, string $label, string $currentPage): string
     <nav class="nav nav-pills flex-column gap-1">
         <?= navLink('dashboard.php', 'Dashboard', $currentPage) ?>
         <?= navLink('users/index.php', 'Manage Users', $currentPage) ?>
-        <?= navLink('schedules/index.php', 'Schedules', $currentPage) ?>
         <?= navLink('reports/index.php', 'Reports', $currentPage) ?>
         <?= navLink('profile.php', 'Profile', $currentPage) ?>
     </nav>

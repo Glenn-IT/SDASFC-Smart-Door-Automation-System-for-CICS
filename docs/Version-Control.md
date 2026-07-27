@@ -43,8 +43,19 @@ RFID API) in a single step, exactly like v2.10 did after v2.00, rather than repl
 page-by-page schedule a second time. `api/rfid_scan.php` now also accepts `v3.10` in addition to
 `v1.10` and `v2.10`, so the earlier tag snapshots still work unchanged.
 
-This system has a single authenticated role (Admin). The "users" managed in the Users and
-Schedules pages are RFID cardholders (door-access subjects), not separate logins.
+### Schedules feature removed (after v3.10)
+
+The Schedules feature was removed from the system after v3.10. `public/schedules/index.php`,
+`public/schedules/user.php`, `app/models/Schedule.php`, `app/controllers/ScheduleController.php`,
+and the `schedules` database table no longer exist, and the sidebar no longer links to them. The
+rollout rows above (v1.06, v1.07, v2.10, v3.00, v3.10) are left unedited on purpose — they record
+what actually shipped at each tag, and those tag snapshots still contain the Schedules pages.
+
+RFID taps are now decided by UID registration and user status alone; the `outside_schedule` deny
+reason is retired, though historical `access_logs` rows may still carry it.
+
+This system has a single authenticated role (Admin). The "users" managed in the Users pages are
+RFID cardholders (door-access subjects), not separate logins.
 
 ## Under Construction Strategy
 

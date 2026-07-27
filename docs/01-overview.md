@@ -6,12 +6,12 @@
 ## 2. Summary
 A web-based admin panel connected to an Arduino + RFID reader installed at the CICS
 department door. Users (students/faculty/staff) tap their RFID card on the sensor to
-request entry. The system only unlocks the door if the user has an active schedule
-that covers the current day/time (e.g., allowed Mon–Fri 7:00–9:00 AM). Taps outside
-the assigned schedule are logged as denied and the door stays locked.
+request entry. The system only unlocks the door if the card UID is registered and the
+user's account is active. Taps from unknown cards or inactive users are logged as
+denied and the door stays locked.
 
 ## 3. Core Actors
-- **Admin** — the only account type with panel access. Manages users, schedules,
+- **Admin** — the only account type with panel access. Manages users,
   views dashboard analytics, and generates reports.
 - **RFID User** — students/faculty/staff whose card UID is registered in the system.
   They do not log into the panel; they only interact via the physical RFID sensor.
@@ -21,17 +21,14 @@ the assigned schedule are logged as denied and the door stays locked.
 ## 4. Key Features (from requirements)
 1. **Admin-only authentication** — single role, no public/user-facing accounts.
 2. **Dashboard** — at-a-glance stats: today's taps, granted vs denied, active users,
-   currently "in schedule" users, recent activity feed.
+   recent activity feed.
 3. **Manage Users** — CRUD for RFID users (name, ID/section, RFID UID, status).
-4. **Schedules** — assign one or more allowed day/time windows per user
-   (e.g., Mon–Fri 7–9 AM). Supports multiple windows per user for flexibility.
-5. **Access Control Logic** — on each tap, backend checks: (a) is UID registered,
-   (b) is user active, (c) does current day/time fall inside any of the user's
-   schedule windows. Only if all pass → door opens; otherwise access denied and logged.
-6. **Reports / Logs** — historical log of every tap: user, time, result
-   (granted/denied), reason if denied (unknown UID, inactive user, outside schedule).
+4. **Access Control Logic** — on each tap, backend checks: (a) is UID registered,
+   (b) is user active. Only if both pass → door opens; otherwise access denied and logged.
+5. **Reports / Logs** — historical log of every tap: user, time, result
+   (granted/denied), reason if denied (unknown UID, inactive user).
    Filterable/exportable by date range, user, status.
-7. **Arduino Integration** — Arduino reads RFID tag, sends UID to backend via a
+6. **Arduino Integration** — Arduino reads RFID tag, sends UID to backend via a
    serial-to-web bridge script running on the host PC, receives grant/deny response,
    drives the door lock hardware.
 
@@ -54,7 +51,7 @@ the assigned schedule are logged as denied and the door stays locked.
 - `01-overview.md` — this file
 - `02-project-structure.md` — folder/file layout for the PHP project
 - `03-database-schema.md` — tables, columns, relationships
-- `04-access-control-flow.md` — how a tap is validated against schedules
+- `04-access-control-flow.md` — how a tap is validated
 - `05-arduino-integration.md` — hardware wiring + serial bridge design
 - `06-pages-and-features.md` — admin panel pages/screens breakdown
 - `07-development-plan.md` — phased build plan / milestones

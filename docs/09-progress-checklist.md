@@ -30,14 +30,12 @@ the whole history.
 - [x] Activate/Deactivate + Delete actions
 - Files: `app/models/User.php`, `app/controllers/UserController.php`
 
-## Phase 3 — Schedules
-- [x] CRUD pages for `schedules`, scoped per user
-      (`public/schedules/index.php` lists users, `user.php?id=` manages
-      that user's access windows)
-- [x] Form validation — start time < end time, day-of-week required,
-      and overlapping windows for the same user/day are rejected
-- [x] Activate/Deactivate + Delete per schedule window
-- Files: `app/models/Schedule.php`, `app/controllers/ScheduleController.php`
+## Phase 3 — Schedules *(removed)*
+- [x] Built, then removed from the system. The `schedules` table, the
+      `public/schedules/` pages, `app/models/Schedule.php`, and
+      `app/controllers/ScheduleController.php` are all gone, and the RFID tap
+      flow no longer checks a time window.
+- Phase number retained so it still matches `07-development-plan.md`.
 
 ## Phase 4 — Access Control API (software-only test)
 - [x] Built `public/api/rfid_scan.php` (moved from the `app/api/` path
@@ -45,9 +43,8 @@ the whole history.
       `.htaccess` — same pattern as every other page living under `public/`)
 - [x] Tested with manual POST (curl) simulating an RFID tap — JSON body
       `{"rfid_uid": "..."}` and form-encoded body both supported
-- [x] Confirmed grant/deny logic: unknown UID, inactive user, outside
-      schedule, and granted-within-schedule all logged correctly to
-      `access_logs`
+- [x] Confirmed grant/deny logic: unknown UID, inactive user, and granted
+      all logged correctly to `access_logs`
 - Files: `app/models/AccessLog.php`, `app/controllers/AccessController.php`,
   `public/api/rfid_scan.php`
 
@@ -67,8 +64,8 @@ the whole history.
       and relays grant/deny back to the Arduino relay
 
 ## Phase 7 — End-to-End Testing
-- [ ] Full flow: create user + schedule → tap inside window (granted)
-      → tap outside window (denied) → tap unknown card (denied)
+- [ ] Full flow: create user → tap registered card (granted)
+      → tap unknown card (denied)
 - [ ] Inactive-user denial
 - [ ] Edge cases from `04-access-control-flow.md`
 
