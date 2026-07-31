@@ -35,4 +35,9 @@ class Auth
     {
         return $_SESSION['admin_full_name'] ?? '';
     }
+
+    public static function currentAdminId(): ?int
+    {
+        return isset($_SESSION['admin_id']) ? (int) $_SESSION['admin_id'] : null;
+    }
 }

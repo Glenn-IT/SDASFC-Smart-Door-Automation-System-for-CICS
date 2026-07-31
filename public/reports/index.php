@@ -1,7 +1,8 @@
 <?php
 
 require_once __DIR__ . '/../../app/core/Auth.php';
-require_once __DIR__ . '/../../app/models/AccessLog.php';
+require_once __DIR__ . '/../../app/core/helpers.php';
+require_once __DIR__ . '/../../app/models/ReportsFeed.php';
 require_once __DIR__ . '/../../app/models/User.php';
 
 Auth::requireAdmin();
@@ -13,7 +14,7 @@ $filters = [
     'user_id' => $_GET['user_id'] ?? '',
 ];
 
-$logs = AccessLog::filtered($filters);
+$rows = ReportsFeed::filtered($filters);
 $users = User::all();
 
 $queryString = http_build_query(array_filter($filters));
@@ -23,7 +24,7 @@ include __DIR__ . '/../partials/header.php';
 ?>
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h5 class="mb-0">Access Logs</h5>
+    <h5 class="mb-0">System Reports</h5>
     <a href="export.php?<?= htmlspecialchars($queryString) ?>" class="btn btn-outline-primary btn-sm">Export CSV</a>
 </div>
 
@@ -71,31 +72,45 @@ include __DIR__ . '/../partials/header.php';
             <thead class="table-light">
                 <tr>
                     <th>Date/Time</th>
-                    <th>User</th>
-                    <th>RFID UID</th>
+                    <th>Type</th>
+                    <th>User/Admin</th>
+                    <th>Details</th>
                     <th>Result</th>
-                    <th>Reason</th>
                 </tr>
             </thead>
             <tbody>
-                <?php if (!$logs): ?>
+                <?php if (!$rows): ?>
                     <tr>
-                        <td colspan="5" class="text-center text-muted py-4">No access log entries match these filters.</td>
+                        <td colspan="5" class="text-center text-muted py-4">No transactions match these filters.</td>
                     </tr>
                 <?php endif; ?>
-                <?php foreach ($logs as $log): ?>
+                <?php foreach ($rows as $row): ?>
                     <tr>
-                        <td><?= htmlspecialchars($log['scanned_at']) ?></td>
-                        <td><?= htmlspecialchars($log['full_name'] ?? 'Unknown') ?></td>
-                        <td><code><?= htmlspecialchars($log['rfid_uid']) ?></code></td>
+                        <td><?= htmlspecialchars(formatDateTime($row['timestamp'])) ?></td>
                         <td>
-                            <?php if ($log['result'] === 'granted'): ?>
-                                <span class="badge bg-success">Granted</span>
+                            <?php if ($row['type'] === 'access'): ?>
+                                <span class="badge bg-info text-dark">RFID</span>
                             <?php else: ?>
-                                <span class="badge bg-danger">Denied</span>
+                                <span class="badge bg-secondary">Admin</span>
                             <?php endif; ?>
                         </td>
-                        <td><?= htmlspecialchars($log['reason']) ?></td>
+                        <td><?= htmlspecialchars($row['person']) ?></td>
+                        <td>
+                            <?php if ($row['type'] === 'access'): ?>
+                                <code><?= htmlspecialchars($row['detail_primary']) ?></code> &mdash; <?= htmlspecialchars($row['detail_secondary']) ?>
+                            <?php else: ?>
+                                <?= htmlspecialchars($row['detail_secondary']) ?>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <?php if ($row['result'] === 'granted'): ?>
+                                <span class="badge bg-success">Granted</span>
+                            <?php elseif ($row['result'] === 'denied'): ?>
+                                <span class="badge bg-danger">Denied</span>
+                            <?php else: ?>
+                                <span class="text-muted">&mdash;</span>
+                            <?php endif; ?>
+                        </td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>

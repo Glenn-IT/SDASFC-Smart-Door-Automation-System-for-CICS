@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../core/Auth.php';
 require_once __DIR__ . '/../models/Admin.php';
+require_once __DIR__ . '/../models/ActivityLog.php';
 
 class AuthController
 {
@@ -53,6 +54,7 @@ class AuthController
 
         unset($_SESSION['login_attempts'], $_SESSION['login_lock_until']);
         Auth::login($admin);
+        ActivityLog::record((int) $admin['id'], 'login', 'Admin ' . $admin['full_name'] . ' logged in');
 
         return null;
     }
@@ -131,6 +133,9 @@ class AuthController
         }
 
         Admin::updatePassword((int) $adminId, $newPassword);
+
+        $admin = Admin::findById((int) $adminId);
+        ActivityLog::record((int) $adminId, 'password_reset', 'Admin ' . ($admin['full_name'] ?? $adminId) . ' reset their password');
         self::clearPasswordResetSession();
 
         return null;

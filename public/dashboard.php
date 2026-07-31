@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../app/core/Auth.php';
+require_once __DIR__ . '/../app/core/helpers.php';
 require_once __DIR__ . '/../app/models/User.php';
 require_once __DIR__ . '/../app/models/AccessLog.php';
 
@@ -134,7 +135,7 @@ include __DIR__ . '/partials/header.php';
                     <?php endif; ?>
                     <?php foreach ($recentLogs as $log): ?>
                         <tr>
-                            <td><?= htmlspecialchars($log['scanned_at']) ?></td>
+                            <td><?= htmlspecialchars(formatDateTime($log['scanned_at'])) ?></td>
                             <td><?= htmlspecialchars($log['full_name'] ?? 'Unknown') ?></td>
                             <td><code><?= htmlspecialchars($log['rfid_uid']) ?></code></td>
                             <td>

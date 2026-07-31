@@ -32,3 +32,13 @@ CREATE TABLE IF NOT EXISTS access_logs (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
     INDEX idx_logs_scanned_at (scanned_at)
 ) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS activity_logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    admin_id INT NULL,
+    action VARCHAR(50) NOT NULL,
+    description VARCHAR(255) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (admin_id) REFERENCES admins(id) ON DELETE SET NULL,
+    INDEX idx_activity_created_at (created_at)
+) ENGINE=InnoDB;

@@ -1,7 +1,8 @@
 <?php
 
 require_once __DIR__ . '/../../app/core/Auth.php';
-require_once __DIR__ . '/../../app/models/AccessLog.php';
+require_once __DIR__ . '/../../app/core/helpers.php';
+require_once __DIR__ . '/../../app/models/ReportsFeed.php';
 
 Auth::requireAdmin();
 
@@ -12,21 +13,23 @@ $filters = [
     'user_id' => $_GET['user_id'] ?? '',
 ];
 
-$logs = AccessLog::filtered($filters);
+$rows = ReportsFeed::filtered($filters);
 
 header('Content-Type: text/csv');
-header('Content-Disposition: attachment; filename="access_logs_' . date('Y-m-d_His') . '.csv"');
+header('Content-Disposition: attachment; filename="reports_' . date('Y-m-d_His') . '.csv"');
 
 $out = fopen('php://output', 'w');
-fputcsv($out, ['Date/Time', 'User', 'RFID UID', 'Result', 'Reason']);
+fputcsv($out, ['Date/Time', 'Type', 'User/Admin', 'Detail', 'Result']);
 
-foreach ($logs as $log) {
+foreach ($rows as $row) {
     fputcsv($out, [
-        $log['scanned_at'],
-        $log['full_name'] ?? 'Unknown',
-        $log['rfid_uid'],
-        $log['result'],
-        $log['reason'],
+        formatDateTime($row['timestamp']),
+        $row['type'] === 'access' ? 'RFID' : 'Admin',
+        $row['person'],
+        $row['type'] === 'access'
+            ? $row['detail_primary'] . ' - ' . $row['detail_secondary']
+            : $row['detail_secondary'],
+        $row['result'] ?? '',
     ]);
 }
 

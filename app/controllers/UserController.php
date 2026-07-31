@@ -1,6 +1,8 @@
 <?php
 
 require_once __DIR__ . '/../models/User.php';
+require_once __DIR__ . '/../models/ActivityLog.php';
+require_once __DIR__ . '/../core/Auth.php';
 
 class UserController
 {
@@ -18,6 +20,7 @@ class UserController
         }
 
         User::create($fullName, $idNumber, $rfidUid, $role);
+        ActivityLog::record(Auth::currentAdminId(), 'user_created', 'Created user ' . $fullName . ' (ID ' . $idNumber . ')');
 
         return null;
     }
@@ -38,6 +41,7 @@ class UserController
         }
 
         User::update($id, $fullName, $idNumber, $rfidUid, $role);
+        ActivityLog::record(Auth::currentAdminId(), 'user_updated', 'Updated user ' . $fullName . ' (ID ' . $idNumber . ')');
 
         return null;
     }
@@ -50,12 +54,19 @@ class UserController
             return;
         }
 
-        User::setStatus($id, $user['status'] === 'active' ? 'inactive' : 'active');
+        $newStatus = $user['status'] === 'active' ? 'inactive' : 'active';
+        User::setStatus($id, $newStatus);
+        ActivityLog::record(Auth::currentAdminId(), 'user_status_toggled', 'Set user ' . $user['full_name'] . ' to ' . $newStatus);
     }
 
     public static function delete(int $id): void
     {
+        $user = User::findById($id);
         User::delete($id);
+
+        if ($user) {
+            ActivityLog::record(Auth::currentAdminId(), 'user_deleted', 'Deleted user ' . $user['full_name'] . ' (ID ' . $user['id_number'] . ')');
+        }
     }
 
     private static function validate(
