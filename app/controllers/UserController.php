@@ -84,6 +84,10 @@ class UserController
             return 'Invalid role selected.';
         }
 
+        if (User::findByFullName($fullName, $excludeId)) {
+            return 'A user with that full name already exists.';
+        }
+
         if (User::findByIdNumber($idNumber, $excludeId)) {
             return 'A user with that ID number already exists.';
         }

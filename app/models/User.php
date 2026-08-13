@@ -4,11 +4,37 @@ require_once __DIR__ . '/../core/Database.php';
 
 class User
 {
-    public static function all(): array
+    public static function all(string $sort = 'a-z', string $role = 'all', string $status = 'all', string $search = ''): array
     {
-        $stmt = Database::getConnection()->query(
-            'SELECT * FROM users ORDER BY full_name ASC'
-        );
+        $sql = 'SELECT * FROM users WHERE 1=1';
+        $params = [];
+
+        if ($role !== 'all' && in_array($role, ['student', 'faculty', 'staff'], true)) {
+            $sql .= ' AND role = ?';
+            $params[] = $role;
+        }
+
+        if ($status !== 'all' && in_array($status, ['active', 'inactive'], true)) {
+            $sql .= ' AND status = ?';
+            $params[] = $status;
+        }
+
+        if (trim($search) !== '') {
+            $sql .= ' AND (full_name LIKE ? OR id_number LIKE ? OR rfid_uid LIKE ?)';
+            $searchTerm = '%' . trim($search) . '%';
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+        }
+
+        if ($sort === 'z-a') {
+            $sql .= ' ORDER BY full_name DESC';
+        } else {
+            $sql .= ' ORDER BY full_name ASC';
+        }
+
+        $stmt = Database::getConnection()->prepare($sql);
+        $stmt->execute($params);
 
         return $stmt->fetchAll();
     }
@@ -41,10 +67,27 @@ class User
         return $user ?: null;
     }
 
+    public static function findByFullName(string $fullName, ?int $excludeId = null): ?array
+    {
+        $sql = 'SELECT * FROM users WHERE LOWER(TRIM(full_name)) = LOWER(TRIM(?))';
+        $params = [trim($fullName)];
+
+        if ($excludeId !== null) {
+            $sql .= ' AND id != ?';
+            $params[] = $excludeId;
+        }
+
+        $stmt = Database::getConnection()->prepare($sql . ' LIMIT 1');
+        $stmt->execute($params);
+        $user = $stmt->fetch();
+
+        return $user ?: null;
+    }
+
     public static function findByIdNumber(string $idNumber, ?int $excludeId = null): ?array
     {
-        $sql = 'SELECT * FROM users WHERE id_number = ?';
-        $params = [$idNumber];
+        $sql = 'SELECT * FROM users WHERE LOWER(TRIM(id_number)) = LOWER(TRIM(?))';
+        $params = [trim($idNumber)];
 
         if ($excludeId !== null) {
             $sql .= ' AND id != ?';
@@ -60,8 +103,8 @@ class User
 
     public static function findByRfidUid(string $rfidUid, ?int $excludeId = null): ?array
     {
-        $sql = 'SELECT * FROM users WHERE rfid_uid = ?';
-        $params = [$rfidUid];
+        $sql = 'SELECT * FROM users WHERE LOWER(TRIM(rfid_uid)) = LOWER(TRIM(?))';
+        $params = [trim($rfidUid)];
 
         if ($excludeId !== null) {
             $sql .= ' AND id != ?';

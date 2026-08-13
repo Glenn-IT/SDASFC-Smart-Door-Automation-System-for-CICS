@@ -46,9 +46,23 @@ include __DIR__ . '/../partials/header.php';
             </div>
             <div class="mb-3">
                 <label class="form-label" for="rfid_uid">RFID UID</label>
-                <input type="text" class="form-control" id="rfid_uid" name="rfid_uid" value="<?= htmlspecialchars($rfidUid) ?>" required>
-                <div class="form-text">Enter manually for now; will be read from the scanner once hardware is wired up.</div>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="rfid_uid" name="rfid_uid" value="<?= htmlspecialchars($rfidUid) ?>" placeholder="e.g. A1B2C3D4" required>
+                    <button type="button" class="btn btn-outline-secondary" onclick="generateRandomRfid()">🎲 Generate</button>
+                </div>
+                <div class="form-text">Enter manually or click Generate to assign a random RFID code.</div>
             </div>
+
+            <script>
+            function generateRandomRfid() {
+                const chars = '0123456789ABCDEF';
+                let uid = '';
+                for (let i = 0; i < 8; i++) {
+                    uid += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                document.getElementById('rfid_uid').value = uid;
+            }
+            </script>
             <div class="mb-3">
                 <label class="form-label" for="role">Role</label>
                 <select class="form-select" id="role" name="role">
