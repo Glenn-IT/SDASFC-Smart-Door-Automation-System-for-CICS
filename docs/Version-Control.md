@@ -120,6 +120,7 @@ looked like during the v1.03 presentation" at any time in the future with
 | v2.10 | v2.10 | `97162309072e5ab974b4c23bee41cf567bcac7ba` |
 | v3.00 | v3.00 | `374bd72ef51127c440376ce5a9ea72dba6601834` |
 | v3.10 | v3.10 | `5bf7ec6a9229bd4819ecdbabf268172b81fa03bc` |
+| Final Output | final-output / v-final | `087e1e61cf0d1eb74a97c1c727c63d4ed473bd60` |
 
 _Hashes updated after the v1.11 fix (Go Back → Logout button on the Under Construction page) was cherry-picked into every tag, after the v1.00 login/forgot/reset UI refresh was cherry-picked into `v1.00`, after the admin-panel theme rework was cherry-picked into `v2.00`, after the sidebar/login rework and dashboard charts were cherry-picked into `v3.00`, and after the Schedules feature removal was cherry-picked into `v3.00`; see the notes below._
 
