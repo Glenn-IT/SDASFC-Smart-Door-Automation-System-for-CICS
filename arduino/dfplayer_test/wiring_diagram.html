@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DFPlayer Mini & Speaker Standalone Test — Wiring Diagram</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-card-hover: #334155;
+            --border-color: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-cyan: #06b6d4;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-rose: #f43f5e;
+            --accent-purple: #8b5cf6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.35rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: rgba(6, 182, 212, 0.15);
+            color: var(--accent-cyan);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            margin-bottom: 0.75rem;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 1.75rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        .card-title .icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 0.5rem;
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--accent-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        /* SVG Canvas styling */
+        .svg-container {
+            width: 100%;
+            overflow-x: auto;
+            background: #090d16;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            border: 1px solid #1e293b;
+        }
+
+        svg {
+            display: block;
+            margin: 0 auto;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .wire {
+            stroke-dasharray: 8;
+            animation: dash 30s linear infinite;
+            transition: stroke-width 0.2s ease, stroke 0.2s ease;
+            cursor: pointer;
+        }
+
+        .wire:hover {
+            stroke-width: 4.5px !important;
+            filter: drop-shadow(0 0 6px currentColor);
+        }
+
+        @keyframes dash {
+            to {
+                stroke-dashoffset: -1000;
+            }
+        }
+
+        /* Table styling */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+
+        th {
+            background-color: #0f172a;
+            color: var(--text-secondary);
+            font-weight: 600;
+            padding: 0.85rem 1rem;
+            border-bottom: 2px solid var(--border-color);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        tr:hover td {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .pin-tag {
+            font-family: 'JetBrains Mono', monospace;
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.35rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .tag-esp32 { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
+        .tag-dfplayer { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+        .tag-pwr { background: rgba(244, 63, 94, 0.2); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.4); }
+        .tag-gnd { background: rgba(148, 163, 184, 0.2); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.4); }
+        .tag-spk { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+
+        .note-box {
+            background: rgba(245, 158, 11, 0.1);
+            border-left: 4px solid var(--accent-amber);
+            padding: 1rem 1.25rem;
+            border-radius: 0 0.5rem 0.5rem 0;
+            margin-top: 1.5rem;
+        }
+
+        .note-box h4 {
+            color: var(--accent-amber);
+            font-size: 0.95rem;
+            margin-bottom: 0.35rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .note-box p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .cmd-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .cmd-card {
+            background: #0f172a;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 0.85rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .cmd-key {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 1.1rem;
+            background: rgba(6, 182, 212, 0.2);
+            color: var(--accent-cyan);
+            border: 1px solid rgba(6, 182, 212, 0.4);
+            padding: 0.3rem 0.75rem;
+            border-radius: 0.4rem;
+        }
+
+        .cmd-desc {
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+        }
+
+        .cmd-desc strong {
+            color: var(--text-primary);
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <span class="badge">Standalone Hardware Test</span>
+        <h1>DFPlayer Mini & Speaker Wiring Diagram</h1>
+        <p class="subtitle">Visual setup schematic for testing ESP32 + DFPlayer Mini + 3W Speaker</p>
+    </header>
+
+    <div class="grid-layout">
+        <!-- Interactive Visual Diagram -->
+        <div class="card">
+            <div class="card-title">
+                <div class="icon">🔌</div>
+                Visual Wiring Schematic
+            </div>
+            
+            <div class="svg-container">
+                <svg viewBox="0 0 950 540" width="950" height="540" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <!-- Glow Filters -->
+                        <filter id="glow-cyan" x="-20%" y="-20%" width="140%" height="140%">
+                            <feGaussianBlur stdDeviation="3" result="blur" />
+                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                        </filter>
+                    </defs>
+
+                    <!-- Background Grid Pattern -->
+                    <g opacity="0.05">
+                        <path d="M 0 0 L 950 0 M 0 50 L 950 50 M 0 100 L 950 100 M 0 150 L 950 150 M 0 200 L 950 200 M 0 250 L 950 250 M 0 300 L 950 300 M 0 350 L 950 350 M 0 400 L 950 400 M 0 450 L 950 450 M 0 500 L 950 500" stroke="#ffffff" stroke-width="1"/>
+                        <path d="M 0 0 L 0 540 M 50 0 L 50 540 M 100 0 L 100 540 M 150 0 L 150 540 M 200 0 L 200 540 M 250 0 L 250 540 M 300 0 L 300 540 M 350 0 L 350 540 M 400 0 L 400 540 M 450 0 L 450 540 M 500 0 L 500 540 M 550 0 L 550 540 M 600 0 L 600 540 M 650 0 L 650 540 M 700 0 L 700 540 M 750 0 L 750 540 M 800 0 L 800 540 M 850 0 L 850 540 M 900 0 L 900 540" stroke="#ffffff" stroke-width="1"/>
+                    </g>
+
+                    <!-- ===================================== -->
+                    <!-- 1. ESP32 DEV MODULE (LEFT)            -->
+                    <!-- ===================================== -->
+                    <g id="esp32-module">
+                        <!-- ESP32 Board Base -->
+                        <rect x="60" y="80" width="220" height="380" rx="12" fill="#1e293b" stroke="#3b82f6" stroke-width="2.5"/>
+                        <!-- Board Header Label -->
+                        <rect x="75" y="95" width="190" height="35" rx="6" fill="#0f172a"/>
+                        <text x="170" y="118" fill="#3b82f6" font-size="14" font-weight="700" text-anchor="middle">ESP32 Dev Module</text>
+
+                        <!-- Micro USB Connector -->
+                        <rect x="130" y="445" width="80" height="20" rx="3" fill="#475569" stroke="#94a3b8" stroke-width="1"/>
+                        <text x="170" y="459" fill="#cbd5e1" font-size="9" font-weight="600" text-anchor="middle">USB POWER</text>
+
+                        <!-- ESP32 Pins on Right Side -->
+                        <!-- 5V (VIN) Pin -->
+                        <rect x="250" y="150" width="30" height="18" rx="3" fill="#f43f5e"/>
+                        <text x="240" y="163" fill="#ffffff" font-size="11" font-family="JetBrains Mono" text-anchor="end">5V (VIN)</text>
+
+                        <!-- GND Pin -->
+                        <rect x="250" y="190" width="30" height="18" rx="3" fill="#64748b"/>
+                        <text x="240" y="203" fill="#ffffff" font-size="11" font-family="JetBrains Mono" text-anchor="end">GND</text>
+
+                        <!-- GPIO16 (RX2) Pin -->
+                        <rect x="250" y="270" width="30" height="18" rx="3" fill="#3b82f6"/>
+                        <text x="240" y="283" fill="#ffffff" font-size="11" font-family="JetBrains Mono" text-anchor="end">GPIO16 (RX2)</text>
+
+                        <!-- GPIO17 (TX2) Pin -->
+                        <rect x="250" y="320" width="30" height="18" rx="3" fill="#06b6d4"/>
+                        <text x="240" y="333" fill="#ffffff" font-size="11" font-family="JetBrains Mono" text-anchor="end">GPIO17 (TX2)</text>
+                    </g>
+
+                    <!-- ===================================== -->
+                    <!-- 2. DFPLAYER MINI MODULE (MIDDLE)      -->
+                    <!-- ===================================== -->
+                    <g id="dfplayer-module">
+                        <!-- DFPlayer Base Body -->
+                        <rect x="440" y="100" width="220" height="340" rx="10" fill="#0f172a" stroke="#10b981" stroke-width="2.5"/>
+                        <rect x="455" y="115" width="190" height="35" rx="6" fill="#1e293b"/>
+                        <text x="550" y="138" fill="#10b981" font-size="14" font-weight="700" text-anchor="middle">DFPlayer Mini MP3</text>
+
+                        <!-- MicroSD Card Slot Graphic -->
+                        <rect x="480" y="165" width="140" height="60" rx="6" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
+                        <rect x="495" y="175" width="110" height="40" rx="4" fill="#0284c7"/>
+                        <text x="550" y="199" fill="#ffffff" font-size="10" font-weight="700" text-anchor="middle">MicroSD (FAT32)</text>
+
+                        <!-- DFPlayer Left Pins -->
+                        <!-- Pin 1: VCC -->
+                        <circle cx="440" cy="270" r="7" fill="#f43f5e"/>
+                        <text x="455" y="274" fill="#f8fafc" font-size="10" font-family="JetBrains Mono">Pin 1 (VCC)</text>
+
+                        <!-- Pin 2: RX -->
+                        <circle cx="440" cy="310" r="7" fill="#06b6d4"/>
+                        <text x="455" y="314" fill="#f8fafc" font-size="10" font-family="JetBrains Mono">Pin 2 (RX)</text>
+
+                        <!-- Pin 3: TX -->
+                        <circle cx="440" cy="350" r="7" fill="#3b82f6"/>
+                        <text x="455" y="354" fill="#f8fafc" font-size="10" font-family="JetBrains Mono">Pin 3 (TX)</text>
+
+                        <!-- Pin 7: GND -->
+                        <circle cx="440" cy="390" r="7" fill="#64748b"/>
+                        <text x="455" y="394" fill="#f8fafc" font-size="10" font-family="JetBrains Mono">Pin 7 (GND)</text>
+
+                        <!-- DFPlayer Right Pins -->
+                        <!-- Pin 9: SPK1 -->
+                        <circle cx="660" cy="310" r="7" fill="#f59e0b"/>
+                        <text x="645" y="314" fill="#f8fafc" font-size="10" font-family="JetBrains Mono" text-anchor="end">Pin 9 (SPK1)</text>
+
+                        <!-- Pin 11: SPK2 -->
+                        <circle cx="660" cy="370" r="7" fill="#fbbf24"/>
+                        <text x="645" y="374" fill="#f8fafc" font-size="10" font-family="JetBrains Mono" text-anchor="end">Pin 11 (SPK2)</text>
+                    </g>
+
+                    <!-- ===================================== -->
+                    <!-- 3. 1kΩ INLINE RESISTOR                -->
+                    <!-- ===================================== -->
+                    <g id="resistor-component">
+                        <rect x="330" y="318" width="55" height="22" rx="4" fill="#d97706" stroke="#f59e0b" stroke-width="1.5"/>
+                        <!-- Color Bands: Brown (1), Black (0), Red (x100), Gold (5%) -->
+                        <rect x="340" y="318" width="5" height="22" fill="#78350f"/>
+                        <rect x="350" y="318" width="5" height="22" fill="#000000"/>
+                        <rect x="360" y="318" width="5" height="22" fill="#dc2626"/>
+                        <rect x="372" y="318" width="5" height="22" fill="#fbbf24"/>
+                        <text x="357" y="312" fill="#fbbf24" font-size="10" font-weight="700" text-anchor="middle">1kΩ</text>
+                    </g>
+
+                    <!-- ===================================== -->
+                    <!-- 4. 3W 8Ω SPEAKER MODULE (RIGHT)       -->
+                    <!-- ===================================== -->
+                    <g id="speaker-module">
+                        <circle cx="820" cy="340" r="60" fill="#1e293b" stroke="#f59e0b" stroke-width="3"/>
+                        <circle cx="820" cy="340" r="40" fill="#0f172a" stroke="#d97706" stroke-width="2"/>
+                        <circle cx="820" cy="340" r="20" fill="#f59e0b" opacity="0.3"/>
+                        <text x="820" y="345" fill="#f8fafc" font-size="13" font-weight="700" text-anchor="middle">3W 8Ω</text>
+                        <text x="820" y="362" fill="#94a3b8" font-size="10" text-anchor="middle">Speaker</text>
+
+                        <!-- Speaker Terminals -->
+                        <circle cx="760" cy="310" r="6" fill="#f59e0b"/>
+                        <text x="772" y="314" fill="#fbbf24" font-size="10" font-weight="700">+</text>
+
+                        <circle cx="760" cy="370" r="6" fill="#fbbf24"/>
+                        <text x="772" y="374" fill="#fbbf24" font-size="10" font-weight="700">-</text>
+                    </g>
+
+                    <!-- ===================================== -->
+                    <!-- 5. WIRING CONNECTORS & PATHS          -->
+                    <!-- ===================================== -->
+
+                    <!-- Wire 1: 5V Power (Red) -->
+                    <path class="wire" d="M 280 159 L 360 159 L 360 270 L 440 270" stroke="#f43f5e" stroke-width="3.5" fill="none"/>
+                    
+                    <!-- Wire 2: Ground (Black / Slate) -->
+                    <path class="wire" d="M 280 199 L 380 199 L 380 390 L 440 390" stroke="#94a3b8" stroke-width="3.5" fill="none"/>
+
+                    <!-- Wire 3: ESP32 GPIO16 (RX2) -> DFPlayer TX (Pin 3) (Blue) -->
+                    <path class="wire" d="M 280 279 L 410 279 L 410 350 L 440 350" stroke="#3b82f6" stroke-width="3" fill="none"/>
+
+                    <!-- Wire 4: ESP32 GPIO17 (TX2) -> 1kΩ Resistor -> DFPlayer RX (Pin 2) (Cyan) -->
+                    <path class="wire" d="M 280 329 L 330 329" stroke="#06b6d4" stroke-width="3" fill="none"/>
+                    <path class="wire" d="M 385 329 L 410 329 L 410 310 L 440 310" stroke="#06b6d4" stroke-width="3" fill="none"/>
+
+                    <!-- Wire 5: DFPlayer SPK1 -> Speaker (+) (Amber) -->
+                    <path class="wire" d="M 660 310 L 760 310" stroke="#f59e0b" stroke-width="3" fill="none"/>
+
+                    <!-- Wire 6: DFPlayer SPK2 -> Speaker (-) (Yellow) -->
+                    <path class="wire" d="M 660 370 L 760 370" stroke="#fbbf24" stroke-width="3" fill="none"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Pin Connections Table -->
+        <div class="card">
+            <div class="card-title">
+                <div class="icon">📊</div>
+                Hardware Pin Connection Reference
+            </div>
+            
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>DFPlayer Pin</th>
+                            <th>Function</th>
+                            <th>Target Connection</th>
+                            <th>Wire Color</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Pin 1 (VCC)</strong></td>
+                            <td>Module Power</td>
+                            <td><span class="pin-tag tag-pwr">ESP32 5V (VIN)</span></td>
+                            <td><strong style="color: #f43f5e;">Red</strong></td>
+                            <td>5V Power Input</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Pin 2 (RX)</strong></td>
+                            <td>Serial Data In</td>
+                            <td><span class="pin-tag tag-esp32">ESP32 GPIO 17 (TX2)</span></td>
+                            <td><strong style="color: #06b6d4;">Cyan</strong></td>
+                            <td>⚠️ <strong>Connect through 1kΩ Resistor!</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Pin 3 (TX)</strong></td>
+                            <td>Serial Data Out</td>
+                            <td><span class="pin-tag tag-esp32">ESP32 GPIO 16 (RX2)</span></td>
+                            <td><strong style="color: #3b82f6;">Blue</strong></td>
+                            <td>Direct Serial connection</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Pin 7 (GND)</strong></td>
+                            <td>Ground</td>
+                            <td><span class="pin-tag tag-gnd">ESP32 GND</span></td>
+                            <td><strong style="color: #94a3b8;">Black / Slate</strong></td>
+                            <td>Common Ground</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Pin 9 (SPK1)</strong></td>
+                            <td>Audio Output +</td>
+                            <td><span class="pin-tag tag-spk">Speaker Lead (+)</span></td>
+                            <td><strong style="color: #f59e0b;">Amber</strong></td>
+                            <td>Direct 3W 8Ω Speaker connection</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Pin 11 (SPK2)</strong></td>
+                            <td>Audio Output -</td>
+                            <td><span class="pin-tag tag-spk">Speaker Lead (-)</span></td>
+                            <td><strong style="color: #fbbf24;">Yellow</strong></td>
+                            <td>Direct 3W 8Ω Speaker connection</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="note-box">
+                <h4>⚡ Why is the 1kΩ Resistor Required?</h4>
+                <p>The ESP32 outputs 3.3V logic signals on GPIO 17, while the DFPlayer Mini expects 5V logic. The 1kΩ resistor steps down current noise and prevents loud pops, humming, or corrupted serial commands when the speaker plays.</p>
+            </div>
+        </div>
+
+        <!-- Serial Controls Reference -->
+        <div class="card">
+            <div class="card-title">
+                <div class="icon">💻</div>
+                Serial Monitor Interactive Commands (115200 Baud)
+            </div>
+
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">Open Arduino IDE Serial Monitor, select <strong>115200 baud</strong>, and type these commands:</p>
+
+            <div class="cmd-grid">
+                <div class="cmd-card">
+                    <span class="cmd-key">1</span>
+                    <div class="cmd-desc">
+                        <strong>Play 0001.mp3</strong>
+                        System Ready / Welcome prompt
+                    </div>
+                </div>
+                <div class="cmd-card">
+                    <span class="cmd-key">2</span>
+                    <div class="cmd-desc">
+                        <strong>Play 0002.mp3</strong>
+                        Access Granted prompt
+                    </div>
+                </div>
+                <div class="cmd-card">
+                    <span class="cmd-key">3</span>
+                    <div class="cmd-desc">
+                        <strong>Play 0003.mp3</strong>
+                        Access Denied prompt
+                    </div>
+                </div>
+                <div class="cmd-card">
+                    <span class="cmd-key">+</span>
+                    <div class="cmd-desc">
+                        <strong>Volume Up</strong>
+                        Increases volume (+2 steps)
+                    </div>
+                </div>
+                <div class="cmd-card">
+                    <span class="cmd-key">-</span>
+                    <div class="cmd-desc">
+                        <strong>Volume Down</strong>
+                        Decreases volume (-2 steps)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
