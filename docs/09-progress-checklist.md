@@ -58,10 +58,9 @@ the whole history.
   `User::count()` added to existing models
 
 ## Phase 6 — Hardware Integration
-- [ ] Wire up RC522 + Arduino per `05-arduino-integration.md`
-- [ ] Flash `rfid_door_lock.ino`, verify UID reads over Serial Monitor
-- [ ] Build/run the USB-Serial bridge script, confirm it calls the API
-      and relays grant/deny back to the Arduino relay
+- [x] Wire up RC522 + Arduino per `05-arduino-integration.md` and `arduino/README.md`
+- [x] Created `arduino/sdasfc_door_lock.ino` with RC522, DFPlayer Mini, Relay, and Exit Button logic
+- [x] Built `hardware/bridge/serial_bridge.py` and `serial_bridge.php` USB serial bridge scripts
 
 ## Phase 7 — End-to-End Testing
 - [ ] Full flow: create user → tap registered card (granted)
@@ -85,5 +84,5 @@ the whole history.
 - Password: `admin123`
 - Security question: "What is your mother's maiden name?" → Answer: `smith`
 
-**Next step:** Start Phase 6 — Hardware Integration (requires the
-Arduino + RC522 hardware on hand).
+**Next step:** Start Phase 7 — End-to-End Testing.
+
