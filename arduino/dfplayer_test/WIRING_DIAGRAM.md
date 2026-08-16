@@ -6,47 +6,49 @@ This guide explains how to connect your extra **ESP32 Dev Module**, **DFPlayer M
 
 ## 📌 Hardware Pin Mapping Table
 
+### For Board Layout shown in your Image (SPK_1 & SPK_2 on Left Side):
+
 | Component | Pin Label | ESP32 Connection | Notes |
 |-----------|-----------|------------------|-------|
 | **DFPlayer Mini** | **Pin 1 (VCC)** | **5V / VIN** | Connect to ESP32 5V (or USB 5V rail) |
 | | **Pin 2 (RX)** | **GPIO 17 (TX2)** | ⚠️ **MUST put a 1kΩ Resistor in series!** |
 | | **Pin 3 (TX)** | **GPIO 16 (RX2)** | Direct connection to ESP32 RX2 |
-| | **Pin 7 (GND)** | **GND** | Connect to ESP32 GND |
-| | **Pin 9 (SPK_1)** | **Speaker Positive (+)** | To 3W 8Ω Speaker Lead 1 |
-| | **Pin 11 (SPK_2)**| **Speaker Negative (-)** | To 3W 8Ω Speaker Lead 2 |
+| | **Pin 6 (SPK_1)** | **Speaker Lead 1 (+)**| Speaker Output 1 (6th pin on Left) |
+| | **Pin 7 (GND)** | **GND** | Connect to ESP32 GND (7th pin on Left) |
+| | **Pin 8 (SPK_2)** | **Speaker Lead 2 (-)**| Speaker Output 2 (Bottom Left pin) |
 | **MicroSD Card** | MicroSD Slot | Inserted in DFPlayer | Formatted FAT32 (`0001.mp3`, `0002.mp3`, `0003.mp3`) |
+
+*Note: If your board has `SPK_1` on Pin 9 (Bottom Right) and `SPK_2` on Pin 11 (Right side), connect speaker to Pin 9 and Pin 11 instead.*
 
 ---
 
-## 📐 Visual Schematic & Pinout Diagram
+## 📐 Visual Schematic & Pinout Diagrams
 
-```text
-              ESP32 Dev Module                         DFPlayer Mini Pinout
-          +-----------------------+                   +--------------------+
-          |                       |                   |  [ MicroSD Slot ]  |
-          |                  VIN  |===================| Pin 1  (VCC)       |
-          |                  GND  |===================| Pin 7  (GND)       |
-          |                       |                   |                    |
-          |          GPIO 17(TX2) |---[ 1kΩ Resistor ]| Pin 2  (RX)        |
-          |          GPIO 16(RX2) |<------------------| Pin 3  (TX)        |
-          |                       |                   |                    |
-          |                       |                   | Pin 9  (SPK1) ----+-- (Speaker +)
-          |                       |                   | Pin 11 (SPK2) ----+-- (Speaker -)
-          +-----------------------+                   +--------------------+
-```
-
-### DFPlayer Mini Physical Pin Diagram (Top View, Notch Up):
-
+### 1. Board Layout from your Uploaded Diagram (SPK on Left):
 ```text
                +---|  |---+
        (VCC) 1 |  v   v   | 16 (BUSY)
         (RX) 2 |          | 15 (USB-)
         (TX) 3 |          | 14 (USB+)
-       (DAC_)4 | DFPlayer | 13 (ADKEY2)
-       (DAC_)5 |   Mini   | 12 (ADKEY1)
-     (LINE_R)6 |          | 11 (SPK2)  ---> Speaker (-)
+     (DAC_R) 4 | MP3-TF-  | 13 (ADKEY_2)
+     (DAC_L) 5 |   16P    | 12 (ADKEY_1)
+     (SPK_1) 6 |          | 11 (IO_2)  
        (GND) 7 |          | 10 (GND)
-     (LINE_L)8 |          | 9  (SPK1)  ---> Speaker (+)
+     (SPK_2) 8 |          | 9  (IO_1)
+               +----------+
+```
+
+### 2. Standard DFPlayer Mini Variant (SPK on Right):
+```text
+               +---|  |---+
+       (VCC) 1 |  v   v   | 16 (BUSY)
+        (RX) 2 |          | 15 (USB-)
+        (TX) 3 |          | 14 (USB+)
+     (DAC_R) 4 | DFPlayer | 13 (ADKEY2)
+     (DAC_L) 5 |   Mini   | 12 (ADKEY1)
+    (LINE_R) 6 |          | 11 (SPK2)  ---> Speaker (-)
+       (GND) 7 |          | 10 (GND)
+    (LINE_L) 8 |          | 9  (SPK1)  ---> Speaker (+)
                +----------+
 ```
 

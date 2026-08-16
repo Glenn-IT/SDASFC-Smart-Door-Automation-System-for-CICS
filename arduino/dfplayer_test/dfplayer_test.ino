@@ -39,41 +39,50 @@
     delay(1000);
 
     Serial.println("\n============================================");
-    Serial.println("  ESP32 + DFPlayer Mini Standalone Test");
+    Serial.println("  ESP32 + MP3-TF-16P Standalone Test");
     Serial.println("============================================");
 
     // Initialize HardwareSerial2 at 9600 baud
     mp3Serial.begin(9600, SERIAL_8N1, RX2_PIN, TX2_PIN);
+    delay(1000);
+
+    Serial.println("[INIT] Connecting to MP3-TF-16P...");
+
+    // Initialize player object pointer first to prevent Null Pointer Crash
+    bool isOnline = player.begin(mp3Serial, false, false);
     delay(500);
+    yield();
 
-    Serial.println("[INIT] Connecting to DFPlayer Mini...");
-
-    int attempts = 0;
-    while (!player.begin(mp3Serial, false, false) && attempts < 5) {
-      attempts++;
-      Serial.printf("[INIT] Attempt %d failed. Retrying in 1s...\n", attempts);
-      delay(1000);
-    }
-
-    if (attempts >= 5) {
-      Serial.println("[ERROR] DFPlayer Mini not detected after 5 attempts!");
-      Serial.println("Troubleshooting Checklist:");
-      Serial.println(" 1. Swap RX and TX wires (ESP32 TX2 GPIO17 -> DFPlayer RX, ESP32 RX2 GPIO16 -> DFPlayer TX).");
-      Serial.println(" 2. Ensure MicroSD card is inserted and formatted FAT32.");
-      Serial.println(" 3. Check 5V VCC and GND connections.");
+    if (!isOnline) {
+      Serial.println("[ERROR] MP3-TF-16P initialization failed!");
     } else {
-      Serial.println("[SUCCESS] DFPlayer Mini Online!");
-      player.volume(currentVolume);
-      delay(200);
+      Serial.println("[SUCCESS] MP3-TF-16P Library Initialized!");
+      delay(300);
+      yield();
+
+      Serial.println("[DIAGNOSTIC] Checking Serial Response & SD Card Files...");
+      int fileCount = player.readFileCounts();
+      delay(300);
+      yield();
+
+      if (fileCount < 0) {
+        Serial.printf("[WARNING] Serial Communication Error: %d\n", fileCount);
+        Serial.println(" -> -1 means ESP32 RX2 (GPIO 16) is NOT receiving serial data from MP3 TX pin.");
+        Serial.println(" -> Check: GPIO 16 -> MP3 Pin 3 (TX), GPIO 17 + 1kΩ -> MP3 Pin 2 (RX), Common GND.");
+      } else if (fileCount == 0) {
+        Serial.println("[WARNING] MP3 Module online, but 0 audio files found on MicroSD card.");
+      } else {
+        Serial.printf("[SUCCESS] Communication Verified! MicroSD Files Found: %d\n", fileCount);
+      }
 
       Serial.println("\n--- CONTROLS ---");
       Serial.println("Send '1' in Serial Monitor -> Play 0001.mp3");
       Serial.println("Send '2' in Serial Monitor -> Play 0002.mp3");
       Serial.println("Send '3' in Serial Monitor -> Play 0003.mp3");
-      Serial.println("Send '+' -> Volume Up");
-      Serial.println("Send '-' -> Volume Down");
+      Serial.println("Send 'f' in Serial Monitor -> Re-check SD Card File Count");
+      Serial.println("Send '+' -> Volume Up | '-' -> Volume Down");
       Serial.println("----------------\n");
-      Serial.println("Ready! Send '1', '2', or '3' in Serial Monitor to test audio.");
+      Serial.println("Ready! Send '1', '2', '3', or 'f' in Serial Monitor.");
     }
   }
 
@@ -82,17 +91,22 @@
       char cmd = Serial.read();
 
       if (cmd == '1') {
-        Serial.println("[PLAY] Playing Track 1: 0001.mp3");
+        Serial.println("[PLAY] Requesting Track 1: 0001.mp3");
         player.play(1);
       } 
       else if (cmd == '2') {
-        Serial.println("[PLAY] Playing Track 2: 0002.mp3");
+        Serial.println("[PLAY] Requesting Track 2: 0002.mp3");
         player.play(2);
       } 
       else if (cmd == '3') {
-        Serial.println("[PLAY] Playing Track 3: 0003.mp3");
+        Serial.println("[PLAY] Requesting Track 3: 0003.mp3");
         player.play(3);
       } 
+      else if (cmd == 'f' || cmd == 'F') {
+        Serial.println("[DIAGNOSTIC] Re-checking MicroSD card file count...");
+        int count = player.readFileCounts();
+        Serial.printf("[DIAGNOSTIC] Total files on SD Card: %d\n", count);
+      }
       else if (cmd == '+') {
         if (currentVolume < 30) currentVolume += 2;
         player.volume(currentVolume);
@@ -105,14 +119,19 @@
       }
     }
 
-    // Print DFPlayer status/messages if any occur
+    // Print MP3 status/messages safely without blocking Watchdog
     if (player.available()) {
       uint8_t type = player.readType();
       int value = player.read();
       if (type == DFPlayerPlayFinished) {
         Serial.printf("[STATUS] Track %d finished playing.\n", value);
       } else if (type == DFPlayerError) {
-        Serial.printf("[ERROR] DFPlayer Error Code: %d\n", value);
+        Serial.printf("[ERROR] MP3 Error Code: %d\n", value);
       }
     }
+
+    // Crucial: yield and delay to feed ESP32 Watchdog Timer (prevents TG1WDT_SYS_RESET)
+    yield();
+    delay(10);
   }
+
