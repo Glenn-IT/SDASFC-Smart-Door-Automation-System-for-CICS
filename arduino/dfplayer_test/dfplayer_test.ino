@@ -32,7 +32,7 @@
   HardwareSerial mp3Serial(2); // Use ESP32 HardwareSerial2
   DFRobotDFPlayerMini player;
 
-  int currentVolume = 25; // Default volume (0 - 30)
+  int currentVolume = 12; // Lower volume (0 - 30) to prevent USB power brownouts
 
   void setup() {
     Serial.begin(115200);
@@ -73,9 +73,7 @@
       Serial.println("Send '+' -> Volume Up");
       Serial.println("Send '-' -> Volume Down");
       Serial.println("----------------\n");
-
-      Serial.println("[PLAY] Auto-playing 0001.mp3 (System Ready)...");
-      player.play(1);
+      Serial.println("Ready! Send '1', '2', or '3' in Serial Monitor to test audio.");
     }
   }
 
