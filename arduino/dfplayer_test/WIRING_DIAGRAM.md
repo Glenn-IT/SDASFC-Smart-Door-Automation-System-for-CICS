@@ -1,6 +1,6 @@
-# ESP32 + DFPlayer Mini Standalone Wiring Diagram & Setup Guide
+# ESP32 + DFPlayer Mini (MP3-TF-16P) Standalone Wiring Diagram & Setup Guide
 
-This guide explains how to connect your extra **ESP32 Dev Module**, **DFPlayer Mini MP3 Module**, and **3W 8Ω Speaker** to test your voice audio prompts (`0001.mp3`, `0002.mp3`, `0003.mp3`) on your MicroSD card.
+This guide explains how to connect your extra **ESP32 Dev Module**, **DFPlayer Mini MP3 Module (MP3-TF-16P)**, and **3W 8Ω Speaker** to test your voice audio prompts (`0001.mp3`, `0002.mp3`, `0003.mp3`) on your MicroSD card.
 
 ---
 

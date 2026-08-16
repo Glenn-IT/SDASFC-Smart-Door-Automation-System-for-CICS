@@ -4,7 +4,7 @@
  * 
  * Hardware Required:
  * - ESP32 Dev Module
- * - DFPlayer Mini Module + MicroSD Card (FAT32, containing 0001.mp3, 0002.mp3, 0003.mp3)
+ * - DFPlayer Mini Module (MP3-TF-16P) + MicroSD Card (FAT32, containing 0001.mp3, 0002.mp3, 0003.mp3)
  * - 3W 8Ω Speaker
  * - 1kΩ Resistor (placed between ESP32 TX2 GPIO 17 and DFPlayer RX)
  * 
