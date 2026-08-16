@@ -62,8 +62,7 @@ Format a MicroSD card (FAT32, max 32GB) and save files in root:
 SD Card Root/
 ├── 0001.mp3  <-- Track 1: System Ready / Welcome prompt
 ├── 0002.mp3  <-- Track 2: Access Granted prompt
-├── 0003.mp3  <-- Track 3: Access Denied prompt
-└── 0004.mp3  <-- Track 4: Door Locked prompt
+└── 0003.mp3  <-- Track 3: Access Denied prompt
 ```
 
 *Note: Since the DFPlayer and speaker are not yet installed on your hardware, the firmware automatically detects this on startup, logs `DFPlayer Mini NOT detected (System running without audio prompts)`, and continues running the RFID access system seamlessly! When you plug them in, audio will activate automatically.*

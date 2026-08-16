@@ -234,24 +234,21 @@ void unlockDoor() {
   digitalWrite(RELAY_PIN, LOW);
   Serial.println("EVENT:DOOR_LOCKED");
 
-  playLocked();
-  delay(1000);
-  playIdle();
+  playIdle(); // Return to idle prompt
 }
 
 // Voice Prompts (Safely guarded by hasDFPlayer flag)
 void playIdle() {
-  if (hasDFPlayer) player.play(1);
+  if (hasDFPlayer) player.play(1); // 0001.mp3 - System Ready / Idle
 }
 
+// 0002.mp3 - Access Granted
 void playGranted() {
   if (hasDFPlayer) player.play(2);
 }
 
+// 0003.mp3 - Access Denied
 void playDenied() {
   if (hasDFPlayer) player.play(3);
 }
 
-void playLocked() {
-  if (hasDFPlayer) player.play(4);
-}
