@@ -73,6 +73,11 @@
 #define TX2_PIN      17
 #define SERIAL_BAUD  115200
 
+// Relay Trigger Mode (Change to LOW/HIGH if relay is Active-LOW)
+#define RELAY_ON     HIGH
+#define RELAY_OFF    LOW
+#define UNLOCK_HOLD_MS 6000 // Door stays unlocked for 6 seconds
+
 // Hardware Objects
 MFRC522 rfid(SS_PIN, RST_PIN);
 HardwareSerial mp3Serial(2); // ESP32 HardwareSerial2
@@ -101,7 +106,7 @@ void setup() {
 
   // 1. Relay Initialization (Default Locked / De-energized)
   pinMode(RELAY_PIN, OUTPUT);
-  digitalWrite(RELAY_PIN, LOW);
+  digitalWrite(RELAY_PIN, RELAY_OFF);
   Serial.println("[HW] Relay initialized (State: LOCKED).");
 
   // 2. IR Exit Sensor Initialization (Active LOW)
@@ -227,6 +232,7 @@ void loop() {
   // Transmit UID to Serial Bridge (e.g. "UID:0A 75 B4 02")
   Serial.print("UID:");
   Serial.println(uidStr);
+  Serial.flush();
 
   // Await decision from Host PC (GRANT or DENY) with 3.5s timeout
   String response = waitForSerialResponse(3500);
@@ -339,19 +345,18 @@ String waitForSerialResponse(unsigned long timeoutMs) {
 
 /**
  * Door Unlock Sequence:
- * - Energize Relay (HIGH) for 5 seconds
- * - De-energize Relay (LOW)
- * - Stay silent (0004.mp3 removed)
- * - Refresh RFID antenna state
+ * - Energizes Relay for 6 seconds
+ * - De-energizes Relay (Locked)
+ * - Refreshes RFID antenna state
  */
 void unlockDoor() {
-  Serial.println("[DOOR] >>> EVENT:DOOR_UNLOCKED (Relay HIGH) <<<");
-  digitalWrite(RELAY_PIN, HIGH);
+  Serial.println("[DOOR] >>> 🔓 RELAY ENERGIZED: Door is UNLOCKED <<<");
+  digitalWrite(RELAY_PIN, RELAY_ON);
 
-  delay(5000); // Keep door unlocked for 5 seconds
+  delay(UNLOCK_HOLD_MS); // Keep door unlocked for 6 seconds
 
-  digitalWrite(RELAY_PIN, LOW);
-  Serial.println("[DOOR] >>> EVENT:DOOR_LOCKED (Relay LOW) <<<");
+  digitalWrite(RELAY_PIN, RELAY_OFF);
+  Serial.println("[DOOR] >>> 🔒 RELAY DE-ENERGIZED: Door is LOCKED <<<");
 
   // Re-initialize RFID antenna after relay de-energizes
   rfid.PCD_Init();
@@ -363,8 +368,7 @@ void unlockDoor() {
 void playGranted() {
   if (!hasDFPlayer) return;
   Serial.println("[AUDIO] Playing 0001.mp3: Access Granted & Welcome");
-  player.playMp3Folder(1); // Plays /MP3/0001.mp3
-  player.play(1);          // Fallback root 0001.mp3
+  player.play(1);
 }
 
 /**
@@ -373,6 +377,5 @@ void playGranted() {
 void playDenied() {
   if (!hasDFPlayer) return;
   Serial.println("[AUDIO] Playing 0002.mp3: Access Denied");
-  player.playMp3Folder(2); // Plays /MP3/0002.mp3
-  player.play(2);          // Fallback root 0002.mp3
+  player.play(2);
 }
