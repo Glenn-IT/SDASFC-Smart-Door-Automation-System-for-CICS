@@ -104,10 +104,9 @@ The DFPlayer Mini plays synchronized voice prompts for each access event.
 
 1. **Card Format:** Format a MicroSD card ($\le 32$GB) as **FAT32** with Master Boot Record (MBR).
 2. **File Structure:** Place audio files directly in the root directory (or in a folder named `MP3`):
-   - `0001.mp3` — **System Ready / Welcome:** Plays when ESP32 powers on.
-   - `0002.mp3` — **Access Granted:** Plays on valid RFID scan or IR Exit wave.
-   - `0003.mp3` — **Access Denied:** Plays on unregistered / inactive card tap.
-   - `0004.mp3` — **Door Secured:** Plays when relay re-locks after 5 seconds.
+   - `0001.mp3` — **Access Granted & Welcome:** *"Access granted you may now open the door. Welcome to the CICS laboratory"* (Plays on valid RFID card tap or IR Exit wave).
+   - `0002.mp3` — **Access Denied:** *"Access Denied"* (Plays on unregistered or inactive/deactivated card taps).
+   - *(Note: `0004.mp3 Door Lock` has been removed from the system. The lock operates silently after 5 seconds).*
 3. Insert the card into the DFPlayer Mini slot.
 
 ---
