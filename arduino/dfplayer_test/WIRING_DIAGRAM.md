@@ -4,61 +4,29 @@ This guide explains how to connect your extra **ESP32 Dev Module**, **DFPlayer M
 
 ---
 
-## 📌 Hardware Pin Mapping Table
+## 📌 Hardware Pin Mapping Table (ESP32 DevKit V1 Board)
 
-### For Board Layout shown in your Image (SPK_1 & SPK_2 on Left Side):
+### ESP32 DevKit V1 Board Pinout (30-Pin Layout):
+- **Left Side Pins:** `VIN`, `GND`, `D13`, `D14`, `D27`, `D26`, `D25`, `D33`, `D32`, `D35`, `D34`, `VN`, `VP`, `EN`
+- **Right Side Pins:** `3V3`, `GND`, `D2`, `D4`, `RX2`, `TX2`, `D5`, `D18`, `D19`, `D21`, `RX0`, `TX0`, `D22`, `D23`
 
-| Component | Pin Label | ESP32 Connection | Notes |
-|-----------|-----------|------------------|-------|
-| **DFPlayer Mini** | **Pin 1 (VCC)** | **5V / VIN** | Connect to ESP32 5V (or USB 5V rail) |
-| | **Pin 2 (RX)** | **GPIO 17 (TX2)** | ⚠️ **MUST put a 1kΩ Resistor in series!** |
-| | **Pin 3 (TX)** | **GPIO 16 (RX2)** | Direct connection to ESP32 RX2 |
+| Component | Pin Label | ESP32 DevKit V1 Connection | Notes |
+|-----------|-----------|----------------------------|-------|
+| **DFPlayer Mini** | **Pin 1 (VCC)** | **External 5V / VIN** | Powered from External 5V Power Supply |
+| | **Pin 2 (RX)** | **Pin TX2** | ⚠️ **Connect through 1kΩ Resistor!** (ESP32 DevKit V1 `TX2` pin) |
+| | **Pin 3 (TX)** | **Pin RX2** | ⚠️ **Connect through 1kΩ Resistor!** (ESP32 DevKit V1 `RX2` pin) |
 | | **Pin 6 (SPK_1)** | **Speaker Lead 1 (+)**| Speaker Output 1 (6th pin on Left) |
-| | **Pin 7 (GND)** | **GND** | Connect to ESP32 GND (7th pin on Left) |
+| | **Pin 7 (GND)** | **GND** | Connect to ESP32 DevKit V1 `GND` (7th pin on Left or Right) |
 | | **Pin 8 (SPK_2)** | **Speaker Lead 2 (-)**| Speaker Output 2 (Bottom Left pin) |
 | **MicroSD Card** | MicroSD Slot | Inserted in DFPlayer | Formatted FAT32 (`0001.mp3`, `0002.mp3`, `0003.mp3`) |
 
-*Note: If your board has `SPK_1` on Pin 9 (Bottom Right) and `SPK_2` on Pin 11 (Right side), connect speaker to Pin 9 and Pin 11 instead.*
-
 ---
 
-## 📐 Visual Schematic & Pinout Diagrams
+## ⚡ Power & Resistor Setup Notes for ESP32 DevKit V1
 
-### 1. Board Layout from your Uploaded Diagram (SPK on Left):
-```text
-               +---|  |---+
-       (VCC) 1 |  v   v   | 16 (BUSY)
-        (RX) 2 |          | 15 (USB-)
-        (TX) 3 |          | 14 (USB+)
-     (DAC_R) 4 | MP3-TF-  | 13 (ADKEY_2)
-     (DAC_L) 5 |   16P    | 12 (ADKEY_1)
-     (SPK_1) 6 |          | 11 (IO_2)  
-       (GND) 7 |          | 10 (GND)
-     (SPK_2) 8 |          | 9  (IO_1)
-               +----------+
-```
-
-### 2. Standard DFPlayer Mini Variant (SPK on Right):
-```text
-               +---|  |---+
-       (VCC) 1 |  v   v   | 16 (BUSY)
-        (RX) 2 |          | 15 (USB-)
-        (TX) 3 |          | 14 (USB+)
-     (DAC_R) 4 | DFPlayer | 13 (ADKEY2)
-     (DAC_L) 5 |   Mini   | 12 (ADKEY1)
-    (LINE_R) 6 |          | 11 (SPK2)  ---> Speaker (-)
-       (GND) 7 |          | 10 (GND)
-    (LINE_L) 8 |          | 9  (SPK1)  ---> Speaker (+)
-               +----------+
-```
-
----
-
-## ⚡ Power & Resistor Setup Notes
-
-1. **Why the 1kΩ Resistor?**
-   - ESP32 uses 3.3V logic signals on its TX pin (GPIO 17), whereas DFPlayer Mini operates on 5V logic.
-   - Placing a **1kΩ inline resistor** between ESP32 GPIO 17 (TX2) and DFPlayer Pin 2 (RX) protects the RX pin and eliminates background clicking/static noise from the speaker.
+1. **Why 1kΩ Resistors on BOTH RX2 and TX2 Pins?**
+   - **ESP32 DevKit V1 Pin `TX2` -> 1kΩ Resistor -> DFPlayer Pin 2 (RX)**: ESP32 outputs 3.3V logic signals. The 1kΩ resistor limits input current into the DFPlayer's 5V logic input and eliminates background static clicking/popping noise.
+   - **DFPlayer Pin 3 (TX) -> 1kΩ Resistor -> ESP32 DevKit V1 Pin `RX2`**: When powered at 5V, the DFPlayer TX pin outputs ~5V logic HIGH levels. ESP32 GPIO pins are strictly 3.3V tolerant! Placing a **1kΩ inline resistor** on the `RX2` line acts as a protective current limiter that prevents over-voltage damage to your ESP32 DevKit V1 board.
 
 2. **Powering DFPlayer Mini**:
    - Connect DFPlayer Pin 1 (VCC) to the **5V / VIN** pin of the ESP32 while powered via USB cable.

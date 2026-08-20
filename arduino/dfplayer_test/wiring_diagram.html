@@ -289,14 +289,14 @@
                     </g>
 
                     <!-- ===================================== -->
-                    <!-- 1. ESP32 DEV MODULE (LEFT)            -->
+                    <!-- 1. ESP32 DEVKIT V1 MODULE (LEFT)      -->
                     <!-- ===================================== -->
                     <g id="esp32-module">
                         <!-- ESP32 Board Base -->
                         <rect x="60" y="80" width="220" height="380" rx="12" fill="#1e293b" stroke="#3b82f6" stroke-width="2.5"/>
                         <!-- Board Header Label -->
                         <rect x="75" y="95" width="190" height="35" rx="6" fill="#0f172a"/>
-                        <text x="170" y="118" fill="#3b82f6" font-size="14" font-weight="700" text-anchor="middle">ESP32 Dev Module</text>
+                        <text x="170" y="118" fill="#3b82f6" font-size="14" font-weight="700" text-anchor="middle">ESP32 DevKit V1</text>
 
                         <!-- Micro USB Connector -->
                         <rect x="130" y="445" width="80" height="20" rx="3" fill="#475569" stroke="#94a3b8" stroke-width="1"/>
@@ -311,13 +311,13 @@
                         <rect x="250" y="190" width="30" height="18" rx="3" fill="#64748b"/>
                         <text x="240" y="203" fill="#ffffff" font-size="11" font-family="JetBrains Mono" text-anchor="end">GND</text>
 
-                        <!-- GPIO16 (RX2) Pin -->
+                        <!-- RX2 (GPIO16) Pin -->
                         <rect x="250" y="270" width="30" height="18" rx="3" fill="#3b82f6"/>
-                        <text x="240" y="283" fill="#ffffff" font-size="11" font-family="JetBrains Mono" text-anchor="end">GPIO16 (RX2)</text>
+                        <text x="240" y="283" fill="#ffffff" font-size="11" font-family="JetBrains Mono" text-anchor="end">RX2 (Pin 16)</text>
 
-                        <!-- GPIO17 (TX2) Pin -->
+                        <!-- TX2 (GPIO17) Pin -->
                         <rect x="250" y="320" width="30" height="18" rx="3" fill="#06b6d4"/>
-                        <text x="240" y="333" fill="#ffffff" font-size="11" font-family="JetBrains Mono" text-anchor="end">GPIO17 (TX2)</text>
+                        <text x="240" y="333" fill="#ffffff" font-size="11" font-family="JetBrains Mono" text-anchor="end">TX2 (Pin 17)</text>
                     </g>
 
                     <!-- ===================================== -->
@@ -361,16 +361,24 @@
                     </g>
 
                     <!-- ===================================== -->
-                    <!-- 3. 1kΩ INLINE RESISTOR & 100uF CAP    -->
+                    <!-- 3. DUAL 1kΩ INLINE RESISTORS & 100uF CAP -->
                     <!-- ===================================== -->
-                    <g id="resistor-component">
-                        <!-- 1k Resistor -->
+                    <g id="resistor-components">
+                        <!-- 1k Resistor on TX Line -->
                         <rect x="330" y="264" width="55" height="22" rx="4" fill="#d97706" stroke="#f59e0b" stroke-width="1.5"/>
                         <rect x="340" y="264" width="5" height="22" fill="#78350f"/>
                         <rect x="350" y="264" width="5" height="22" fill="#000000"/>
                         <rect x="360" y="264" width="5" height="22" fill="#dc2626"/>
                         <rect x="372" y="264" width="5" height="22" fill="#fbbf24"/>
-                        <text x="357" y="258" fill="#fbbf24" font-size="10" font-weight="700" text-anchor="middle">1kΩ Resistor</text>
+                        <text x="357" y="258" fill="#fbbf24" font-size="10" font-weight="700" text-anchor="middle">1kΩ (TX Line)</text>
+
+                        <!-- 1k Resistor on RX Line -->
+                        <rect x="330" y="299" width="55" height="22" rx="4" fill="#1d4ed8" stroke="#3b82f6" stroke-width="1.5"/>
+                        <rect x="340" y="299" width="5" height="22" fill="#78350f"/>
+                        <rect x="350" y="299" width="5" height="22" fill="#000000"/>
+                        <rect x="360" y="299" width="5" height="22" fill="#dc2626"/>
+                        <rect x="372" y="299" width="5" height="22" fill="#fbbf24"/>
+                        <text x="357" y="333" fill="#60a5fa" font-size="10" font-weight="700" text-anchor="middle">1kΩ (RX Line - Protection)</text>
 
                         <!-- 100uF Capacitor Buffer -->
                         <rect x="495" y="260" width="36" height="50" rx="4" fill="#1e293b" stroke="#f43f5e" stroke-width="1.5"/>
@@ -408,17 +416,18 @@
                     <!-- Wire 2: Ground (Black / Slate) -->
                     <path class="wire" d="M 280 199 L 380 199 L 380 395 L 440 395" stroke="#94a3b8" stroke-width="3.5" fill="none"/>
 
-                    <!-- Wire 3: ESP32 GPIO16 (RX2) -> MP3-TF-16P TX (Pin 3) (Blue) -->
-                    <path class="wire" d="M 280 279 L 410 279 L 410 310 L 440 310" stroke="#3b82f6" stroke-width="3" fill="none"/>
+                    <!-- Wire 3: MP3 Pin 3 (TX) -> 1kΩ Resistor -> ESP32 GPIO16 (RX2) (Blue) -->
+                    <path class="wire" d="M 440 310 L 385 310" stroke="#3b82f6" stroke-width="3" fill="none"/>
+                    <path class="wire" d="M 330 310 L 310 310 L 310 279 L 280 279" stroke="#3b82f6" stroke-width="3" fill="none"/>
 
-                    <!-- Wire 4: ESP32 GPIO17 (TX2) -> 1kΩ Resistor -> MP3-TF-16P RX (Pin 2) (Cyan) -->
-                    <path class="wire" d="M 280 329 L 330 329 L 330 275" stroke="#06b6d4" stroke-width="3" fill="none"/>
+                    <!-- Wire 4: ESP32 GPIO17 (TX2) -> 1kΩ Resistor -> MP3 Pin 2 (RX) (Cyan) -->
+                    <path class="wire" d="M 280 329 L 310 329 L 310 275 L 330 275" stroke="#06b6d4" stroke-width="3" fill="none"/>
                     <path class="wire" d="M 385 275 L 440 275" stroke="#06b6d4" stroke-width="3" fill="none"/>
 
-                    <!-- Wire 5: MP3-TF-16P Pin 6 (SPK1) -> Speaker (+) (Amber) -->
+                    <!-- Wire 5: MP3 Pin 6 (SPK1) -> Speaker (+) (Amber) -->
                     <path class="wire" d="M 440 360 L 400 360 L 400 500 L 730 500 L 730 340 L 760 340" stroke="#f59e0b" stroke-width="3" fill="none"/>
 
-                    <!-- Wire 6: MP3-TF-16P Pin 8 (SPK2) -> Speaker (-) (Yellow) -->
+                    <!-- Wire 6: MP3 Pin 8 (SPK2) -> Speaker (-) (Yellow) -->
                     <path class="wire" d="M 440 430 L 390 430 L 390 515 L 745 515 L 745 410 L 760 410" stroke="#fbbf24" stroke-width="3" fill="none"/>
                 </svg>
             </div>
@@ -455,14 +464,14 @@
                             <td>RX (Data Input)</td>
                             <td><span class="pin-tag tag-esp32">ESP32 GPIO 17 (TX2)</span></td>
                             <td><strong style="color: #06b6d4;">Cyan</strong></td>
-                            <td>⚠️ <strong>Connect through 1kΩ Resistor!</strong></td>
+                            <td>⚠️ <strong>Connect through 1kΩ Resistor!</strong> (Prevents TX noise & current overload)</td>
                         </tr>
                         <tr>
                             <td><strong>Pin 3 (3rd Left)</strong></td>
                             <td>TX (Data Output)</td>
                             <td><span class="pin-tag tag-esp32">ESP32 GPIO 16 (RX2)</span></td>
                             <td><strong style="color: #3b82f6;">Blue</strong></td>
-                            <td>Direct Serial connection</td>
+                            <td>⚠️ <strong>Connect through 1kΩ Resistor!</strong> (Protects ESP32 3.3V GPIO 16 from 5V MP3 TX signal)</td>
                         </tr>
                         <tr>
                             <td><strong>Pin 6 (6th Left)</strong></td>
@@ -490,9 +499,9 @@
             </div>
 
             <div class="note-box">
-                <h4>⚡ Anti-Brownout Capacitor & 1kΩ Resistor Notes</h4>
+                <h4>⚡ Anti-Brownout & Dual 1kΩ Resistor Notes</h4>
                 <p><strong>100µF Capacitor:</strong> Place across Pin 1 (VCC) and Pin 7 (GND) of the MP3-TF-16P module to absorb startup current spikes and eliminate ESP32 <code>flash read err, 988</code> boot loops.<br>
-                <strong>1kΩ Resistor:</strong> Placed in series between ESP32 GPIO 17 (TX2) and MP3-TF-16P Pin 2 (RX) to protect the RX pin and eliminate background static/popping noise.</p>
+                <strong>Dual 1kΩ Resistors:</strong> Place a 1kΩ resistor on BOTH RX and TX lines! TX resistor (ESP32 GPIO 17 -> MP3 RX) dampens noise/clicking, while RX resistor (MP3 TX -> ESP32 GPIO 16) protects the 3.3V sensitive ESP32 pin from 5V logic signals!</p>
             </div>
         </div>
 
@@ -506,6 +515,13 @@
             <p style="color: var(--text-secondary); margin-bottom: 1rem;">Open Arduino IDE Serial Monitor, select <strong>115200 baud</strong>, and type these commands:</p>
 
             <div class="cmd-grid">
+                <div class="cmd-card">
+                    <span class="cmd-key">d</span>
+                    <div class="cmd-desc">
+                        <strong>Hardware Scan</strong>
+                        Detect DFPlayer, SD Card & Files
+                    </div>
+                </div>
                 <div class="cmd-card">
                     <span class="cmd-key">1</span>
                     <div class="cmd-desc">

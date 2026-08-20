@@ -7,22 +7,22 @@
 ## 📌 1. Hardware Overview & Pin Mapping
 
 ### Components Used:
-* **Microcontroller:** ESP32 Dev Module
+* **Microcontroller:** ESP32 DevKit V1 (30-pin layout: `RX2`, `TX2`, `GND`, `VIN`)
 * **Audio Player Module:** MP3-TF-16P (16-pin DIP package, 8 pins per side)
 * **Speaker:** 3070 3W 8Ω Mini Rectangular Speaker
-* **Resistor:** 1kΩ (in series on RX line)
+* **Resistors:** 2x 1kΩ (1kΩ on ESP32 `TX2` -> MP3 `RX`, 1kΩ on MP3 `TX` -> ESP32 `RX2`)
 * **Power Supply:** External 5V 2A Power Adapter / Phone Charger (Solution 1 - Power Isolation)
 * **MicroSD Card:** 4GB - 32GB MicroSDHC formatted **FAT32** with **MBR**
 
 ---
 
-### 📐 Physical Pinout Table (MP3-TF-16P Variant Layout)
+### 📐 Physical Pinout Table (ESP32 DevKit V1 + MP3-TF-16P)
 
-| MP3-TF-16P Pin | Label | Target Connection | Notes |
+| MP3-TF-16P Pin | Label | ESP32 DevKit V1 Connection | Notes |
 | :--- | :--- | :--- | :--- |
 | **Pin 1 (Top Left)** | **VCC** | **External 5V (+)** | Direct 5V Power Input |
-| **Pin 2 (2nd Left)** | **RX** | **ESP32 GPIO 17 (TX2)** | ⚠️ **MUST use 1kΩ Inline Resistor!** |
-| **Pin 3 (3rd Left)** | **TX** | **ESP32 GPIO 16 (RX2)** | Direct Serial Data line |
+| **Pin 2 (2nd Left)** | **RX** | **Pin TX2** | ⚠️ **Connect through 1kΩ Resistor!** (Dampens noise & current) |
+| **Pin 3 (3rd Left)** | **TX** | **Pin RX2** | ⚠️ **Connect through 1kΩ Resistor!** (Protects 3.3V ESP32 DevKit `RX2` pin) |
 | **Pin 6 (6th Left)** | **SPK1** | **3070 Speaker Lead 1 (+)** | Audio Output Channel 1 |
 | **Pin 7 (7th Left)** | **GND** | **ESP32 GND & External GND** | **Common Ground Junction (Mandatory)** |
 | **Pin 8 (Bottom Left)**| **SPK2** | **3070 Speaker Lead 2 (-)** | Audio Output Channel 2 |
@@ -36,11 +36,11 @@
        +5V -------------> MP3-TF-16P Pin 1 (VCC)
        GND ---+---------> MP3-TF-16P Pin 7 (GND)
               |
-              +---------> ESP32 GND (Common Ground Junction)
+              +---------> ESP32 DevKit V1 GND (Common Ground Junction)
 
-  [ ESP32 Dev Module ]
-       GPIO 17 (TX2) ---> [ 1kΩ Resistor ] ---> MP3-TF-16P Pin 2 (RX)
-       GPIO 16 (RX2) <-------------------------- MP3-TF-16P Pin 3 (TX)
+  [ ESP32 DevKit V1 Board ]
+       Pin TX2 -------------> [ 1kΩ Resistor ] ---> MP3-TF-16P Pin 2 (RX)
+       Pin RX2 <------------- [ 1kΩ Resistor ] <--- MP3-TF-16P Pin 3 (TX)
 
   [ MP3-TF-16P Module ]
        Pin 6 (SPK1) ---------------------------> 3070 Speaker Lead 1 (+)
@@ -101,6 +101,7 @@ MicroSD Card/
 
 | Command | Action |
 | :---: | :--- |
+| **`d`** | **Run Full Hardware Diagnostic** (DFPlayer Module + SD Card + Audio File Detection) |
 | **`1`** | Play `0001.mp3` |
 | **`2`** | Play `0002.mp3` |
 | **`3`** | Play `0003.mp3` |
