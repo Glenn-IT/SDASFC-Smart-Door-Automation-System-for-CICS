@@ -166,7 +166,34 @@ void loop() {
   }
 
   //==================================================
-  // 3. RFID CARD SCANNING
+  // 3. MANUAL TEST COMMANDS VIA SERIAL (T1, T2, T3, T4, UNLOCK)
+  //==================================================
+  if (Serial.available() > 0) {
+    String cmd = Serial.readStringUntil('\n');
+    cmd.trim();
+    cmd.toUpperCase();
+
+    if (cmd == "T1") {
+      Serial.println("[TEST] Playing Track 1 (0001.mp3)...");
+      playIdle();
+    } else if (cmd == "T2") {
+      Serial.println("[TEST] Playing Track 2 (0002.mp3)...");
+      playGranted();
+    } else if (cmd == "T3") {
+      Serial.println("[TEST] Playing Track 3 (0003.mp3)...");
+      playDenied();
+    } else if (cmd == "T4") {
+      Serial.println("[TEST] Playing Track 4 (0004.mp3)...");
+      playLocked();
+    } else if (cmd == "UNLOCK") {
+      Serial.println("[REMOTE] Manual unlock command received!");
+      playGranted();
+      unlockDoor();
+    }
+  }
+
+  //==================================================
+  // 4. RFID CARD SCANNING
   //==================================================
   if (!rfid.PICC_IsNewCardPresent()) {
     delay(10);
@@ -198,6 +225,11 @@ void loop() {
                   now.hour(), now.minute(), now.second());
   }
 
+  // Clear any residual bytes before sending UID
+  while (Serial.available() > 0) {
+    Serial.read();
+  }
+
   // Transmit UID to Serial Bridge (e.g. "UID:0A 75 B4 02")
   Serial.print("UID:");
   Serial.println(uidStr);
@@ -208,13 +240,11 @@ void loop() {
 
   if (response == "GRANT") {
     playGranted(); // 0002.mp3 - Access Granted
-    delay(1000);
     unlockDoor();
   } else {
     // DENY or TIMEOUT
     playDenied();  // 0003.mp3 - Access Denied
-    delay(2500);
-    playIdle();
+    delay(2000);   // Allow "Access Denied" voice prompt to finish cleanly
   }
 
   // Halt RFID Reader
@@ -313,7 +343,7 @@ String waitForSerialResponse(unsigned long timeoutMs) {
  * Door Unlock Sequence:
  * - Energize Relay (HIGH) for 5 seconds
  * - De-energize Relay (LOW)
- * - Play optional Door Locked prompt and return to Idle
+ * - Play Door Locked prompt cleanly
  */
 void unlockDoor() {
   Serial.println("[DOOR] >>> EVENT:DOOR_UNLOCKED (Relay HIGH) <<<");
@@ -324,14 +354,13 @@ void unlockDoor() {
   digitalWrite(RELAY_PIN, LOW);
   Serial.println("[DOOR] >>> EVENT:DOOR_LOCKED (Relay LOW) <<<");
 
-  playLocked(); // 0004.mp3 (if available)
-  delay(1200);
-  playIdle();   // 0001.mp3
+  playLocked(); // 0004.mp3 - Door Locked
+  delay(1500);  // Allow voice prompt to finish playing cleanly
 }
 
 // Voice Prompts (Safely guarded by hasDFPlayer flag)
 void playIdle() {
-  if (hasDFPlayer) player.play(1); // 0001.mp3 - System Ready / Welcome
+  if (hasDFPlayer) player.play(1); // 0001.mp3 - System Ready / Welcome (Startup only)
 }
 
 void playGranted() {
@@ -345,4 +374,5 @@ void playDenied() {
 void playLocked() {
   if (hasDFPlayer) player.play(4); // 0004.mp3 - Door Locked
 }
+
 

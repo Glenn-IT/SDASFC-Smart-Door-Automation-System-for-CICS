@@ -119,4 +119,14 @@ class AccessLog
 
         return [$where, $params];
     }
+
+    public static function lastScanned(): ?array
+    {
+        $stmt = Database::getConnection()->query(
+            'SELECT rfid_uid, scanned_at, result FROM access_logs ORDER BY id DESC LIMIT 1'
+        );
+        $row = $stmt->fetch();
+
+        return $row ?: null;
+    }
 }

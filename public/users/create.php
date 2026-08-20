@@ -47,13 +47,39 @@ include __DIR__ . '/../partials/header.php';
             <div class="mb-3">
                 <label class="form-label" for="rfid_uid">RFID UID</label>
                 <div class="input-group">
-                    <input type="text" class="form-control" id="rfid_uid" name="rfid_uid" value="<?= htmlspecialchars($rfidUid) ?>" placeholder="e.g. A1B2C3D4" required>
+                    <input type="text" class="form-control font-monospace" id="rfid_uid" name="rfid_uid" value="<?= htmlspecialchars($rfidUid) ?>" placeholder="e.g. 0A 75 B4 02 or A1B2C3D4" required>
+                    <button type="button" class="btn btn-outline-primary" id="btn-fetch-rfid" onclick="fetchLastScannedRfid()">📡 Fetch Last Scanned Card</button>
                     <button type="button" class="btn btn-outline-secondary" onclick="generateRandomRfid()">🎲 Generate</button>
                 </div>
-                <div class="form-text">Enter manually or click Generate to assign a random RFID code.</div>
+                <div class="form-text" id="rfid-help-text">Tap your physical card on the RFID reader, then click <strong>"Fetch Last Scanned Card"</strong> to auto-fill.</div>
             </div>
 
             <script>
+            function fetchLastScannedRfid() {
+                const btn = document.getElementById('btn-fetch-rfid');
+                const help = document.getElementById('rfid-help-text');
+                btn.disabled = true;
+                btn.innerHTML = '⏳ Checking...';
+
+                fetch('../api/last_scanned_rfid.php')
+                    .then(res => res.json())
+                    .then(data => {
+                        btn.disabled = false;
+                        btn.innerHTML = '📡 Fetch Last Scanned Card';
+                        if (data.status === 'success') {
+                            document.getElementById('rfid_uid').value = data.rfid_uid;
+                            help.innerHTML = '<span class="text-success fw-bold">✅ Detected Card UID: ' + data.rfid_uid + ' (Scanned at ' + data.scanned_at + ')</span>';
+                        } else {
+                            help.innerHTML = '<span class="text-warning">⚠️ ' + data.message + '</span>';
+                        }
+                    })
+                    .catch(err => {
+                        btn.disabled = false;
+                        btn.innerHTML = '📡 Fetch Last Scanned Card';
+                        help.innerHTML = '<span class="text-danger">❌ Error connecting to API: ' + err + '</span>';
+                    });
+            }
+
             function generateRandomRfid() {
                 const chars = '0123456789ABCDEF';
                 let uid = '';
