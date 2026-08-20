@@ -1,6 +1,3 @@
-# SDASFC — High Performance Native Windows Serial Bridge for ESP32
-[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-
 param(
     [string]$Port = "",
     [int]$Baud = 115200,
@@ -22,7 +19,7 @@ if ([string]::IsNullOrWhiteSpace($Port)) {
         $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
         exit 1
     }
-    # Pick the highest COM port (usually the USB device, e.g. COM9)
+    # Pick the highest COM port (e.g. COM9)
     $Port = $availablePorts | Sort-Object -Descending | Select-Object -First 1
     Write-Host "[AUTO-DETECT] Found and selected port: $Port" -ForegroundColor Green
 }
@@ -43,11 +40,11 @@ try {
     $serial.Open()
     Write-Host "[STATUS] Connected to $Port successfully!" -ForegroundColor Green
     Write-Host "[STATUS] Web Database Integration: ACTIVE" -ForegroundColor Green
-    Write-Host "[STATUS] Ready! Listening for RFID scans & Exit events..." -ForegroundColor Yellow
-    Write-Host "==================================================`n" -ForegroundColor DarkGray
+    Write-Host "[STATUS] Ready! Listening for RFID scans and Exit events..." -ForegroundColor Yellow
+    Write-Host "==================================================" -ForegroundColor DarkGray
 } catch {
     Write-Host "[ERROR] Could not open $Port : $($_.Exception.Message)" -ForegroundColor Red
-    Write-Host "💡 Note: If Arduino IDE Serial Monitor is open, please CLOSE it." -ForegroundColor Yellow
+    Write-Host "Note: If Arduino IDE Serial Monitor is open, please CLOSE it." -ForegroundColor Yellow
     Write-Host "Press any key to exit..."
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
     exit 1
@@ -75,7 +72,7 @@ function Handle-RfidScan([string]$uid) {
         Write-Host "[ESP32] Sending 'DENY' fallback." -ForegroundColor Red
         $serial.WriteLine("DENY")
     }
-    Write-Host "--------------------------------------------------`n" -ForegroundColor DarkGray
+    Write-Host "--------------------------------------------------" -ForegroundColor DarkGray
 }
 
 try {
@@ -93,10 +90,10 @@ try {
                 Write-Host "[EVENT] No-Touch IR Exit Sensor triggered! (Door Unlocked)" -ForegroundColor Green
             }
             elseif ($line -match "DOOR is UNLOCKED") {
-                Write-Host "[HARDWARE] 🔓 Relay ON: Door is Open" -ForegroundColor Green
+                Write-Host "[HARDWARE] [UNLOCKED] Relay ON: Door is Open" -ForegroundColor Green
             }
             elseif ($line -match "DOOR is LOCKED") {
-                Write-Host "[HARDWARE] 🔒 Relay OFF: Door is Locked" -ForegroundColor DarkGray
+                Write-Host "[HARDWARE] [LOCKED] Relay OFF: Door is Locked" -ForegroundColor DarkGray
             }
             else {
                 Write-Host "[ESP32 LOG] $line" -ForegroundColor DarkCyan

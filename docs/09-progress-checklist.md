@@ -66,12 +66,15 @@ the whole history.
 ## Phase 7 — End-to-End Testing
 - [x] Web API backend verification: registered card (granted) vs unknown card (denied)
 - [x] Hardware Serial Bridge connection verification on COM9 (115200 baud)
-- [ ] Physical tap testing with live door lock assembly
+- [x] Physical tap testing with live door lock assembly (RFID tap, voice prompt, 6s relay hold, and relock)
+- [x] Inactive user denial and real-time database access control verified
+- [x] Optical No-Touch IR Exit sensor wave-to-exit verified
 
 ## Phase 8 — Polish
 - [x] Interactive wiring diagram with non-overlapping color-coded traces (`arduino/wiring_diagram.html`)
-- [ ] UI/styling consistency pass, empty states, validation messages
-- [ ] Responsive check (tablet/mobile widths)
+- [x] Native 1-click Windows batch launcher (`start_bridge.bat`)
+- [x] Comprehensive documentation in `docs/10-system-operation-and-startup-guide.md`
+- [x] Automated RFID card scan detection feature in web portal ("Fetch Last Scanned Card")
 
 ---
 
