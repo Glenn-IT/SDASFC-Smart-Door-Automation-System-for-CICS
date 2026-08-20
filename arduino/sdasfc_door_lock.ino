@@ -233,14 +233,11 @@ void loop() {
   Serial.println(uidStr);
   Serial.flush();
 
-  // Check if UID is locally authorized (Master card fallback for offline use)
-  bool isLocalMaster = (uidStr == "0A 75 B4 02" || uidStr == "0A75B402");
-
-  // Await decision from Host PC (GRANT or DENY) with 2.5s timeout
-  String response = waitForSerialResponse(2500);
+  // Await decision from Host PC (GRANT or DENY) with 3s timeout
+  String response = waitForSerialResponse(3000);
   Serial.printf("[HOST RESPONSE] '%s'\n", response.c_str());
 
-  if (response == "GRANT" || (response == "TIMEOUT" && isLocalMaster)) {
+  if (response == "GRANT") {
     Serial.println("[ACCESS] ✅ GRANTED - Unlocking Door Immediately!");
     // Unlocks relay immediately, then prompts voice for 6 seconds
     unlockDoorAndPrompt();

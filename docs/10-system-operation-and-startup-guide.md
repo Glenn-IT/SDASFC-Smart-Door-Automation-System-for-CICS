@@ -172,25 +172,30 @@ To give a student or faculty member access:
 
 ## 7. Step 5: Launching the Real-Time Serial Bridge
 
-The Serial Bridge connects the ESP32 USB port to the PHP/MySQL database in real time.
+The Serial Bridge connects the ESP32 USB port to the PHP/MySQL database in real time with automatic COM port detection.
 
 1. Ensure the Arduino Serial Monitor is **closed**.
-2. Open PowerShell or Command Prompt.
-3. Run the PHP Serial Bridge command *(replace `COM9` with your COM port)*:
-
-```powershell
-C:\xampp\php\php.exe C:\xampp\htdocs\SDASFC-Smart-Door-Automation-System-for-CICS\hardware\bridge\serial_bridge.php --port=COM9
-```
+2. **Option A (Easiest — 1-Click):** Double-click [`start_bridge.bat`](file:///C:/xampp/htdocs/SDASFC-Smart-Door-Automation-System-for-CICS/start_bridge.bat) in the project folder.
+3. **Option B (PowerShell):** Run:
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File hardware\bridge\serial_bridge.ps1
+   ```
 
 You will see:
 ```text
 ==================================================
- SDASFC PHP CLI Serial Bridge
+   SDASFC SMART DOOR AUTOMATION SYSTEM
+   Native Windows Hardware Serial Bridge (v2.0)
+==================================================
+[AUTO-DETECT] Found and selected port: COM9
  Target Port  : COM9
  Baud Rate    : 115200
  API Endpoint : http://localhost/SDASFC-Smart-Door-Automation-System-for-CICS/public/api/rfid_scan.php
+--------------------------------------------------
+[STATUS] Connected to COM9 successfully!
+[STATUS] Web Database Integration: ACTIVE
+[STATUS] Ready! Listening for RFID scans & Exit events...
 ==================================================
-[STATUS] Serial port opened successfully. Listening for RFID taps...
 ```
 
 ---
@@ -198,64 +203,59 @@ You will see:
 ## 8. Step 6: Daily Operation & Access Workflows
 
 ### Scenario A: Authorized Entry (Valid Card Tap)
-1. User taps their registered RFID card on the reader.
+1. User taps their registered active RFID card on the reader.
 2. ESP32 sends `UID:<HEX_UID>` over USB.
-3. Bridge queries the database $\rightarrow$ Finds active user $\rightarrow$ Replies `GRANT`.
+3. Bridge queries the web database $\rightarrow$ Finds active user $\rightarrow$ Replies `GRANT`.
 4. ESP32 actions:
-   - Plays `0002.mp3` (*"Access Granted"*).
-   - Energizes relay (door unlocks).
-   - Keeps door open for **5 seconds**.
-   - De-energizes relay (door locks).
-   - Plays `0004.mp3` (*"Door Locked"*).
+   - **Immediately energizes relay** (Door unlocks on millisecond 0).
+   - Plays Track 2: *"Access granted you may now open the door. Welcome to the CICS laboratory"*.
+   - Keeps door open for **6 seconds**.
+   - De-energizes relay (door locks silently).
 5. The web portal logs the entry timestamp, user name, and ID number in **Access Logs**.
 
 ### Scenario B: Unauthorized Entry (Unknown / Inactive Card)
-1. User taps an unregistered or inactive card.
-2. Bridge queries the database $\rightarrow$ No active match $\rightarrow$ Replies `DENY`.
+1. User taps an unregistered or deactivated card.
+2. Bridge queries the web database $\rightarrow$ No active match $\rightarrow$ Replies `DENY`.
 3. ESP32 actions:
-   - Plays `0003.mp3` (*"Access Denied"*).
+   - Plays Track 1: *"Access Denied"*.
    - Door remains securely locked.
 4. The web portal logs an unauthorized attempt with `reason: unknown_uid` or `inactive_user`.
 
 ### Scenario C: Exiting the Room (No-Touch Wave-to-Exit)
 1. Person inside the room waves their hand 5–10 cm in front of the optical IR sensor.
 2. ESP32 detects signal on **GPIO 33**:
-   - Plays `0002.mp3` and energizes relay for 5 seconds.
-   - Broadcasts `EVENT:EXIT_BUTTON` over USB.
-   - Automatically relocks after 5 seconds.
+   - **Immediately energizes relay** for 6 seconds.
+   - Plays Track 2: *"Access granted you may now open the door. Welcome to the CICS laboratory"*.
+   - Automatically relocks after 6 seconds.
 
 ---
 
 ## 9. Troubleshooting & Maintenance FAQ
 
-### Q1: The Serial Bridge says `Could not open serial port COM9`
+### Q1: The Serial Bridge says `Could not open serial port`
 - **Cause:** Arduino IDE Serial Monitor or another program is open and locking the port.
-- **Fix:** Close the Serial Monitor in Arduino IDE, then re-run the bridge command.
+- **Fix:** Close the Serial Monitor in Arduino IDE, then re-run `start_bridge.bat`.
 
-### Q2: DFPlayer Mini makes buzzing or clicking noises
-- **Cause:** Missing current-limiting resistors or noisy power rail.
-- **Fix:** Ensure the two **1kΩ resistors** are installed on GPIO 17 (TX2 $\rightarrow$ RX) and GPIO 16 (RX2 $\leftarrow$ TX), and ensure the **1000µF 16V capacitor** is connected across 5V and GND.
+### Q2: DFPlayer Mini plays wrong sound
+- **Cause:** Track index mapping.
+- **Fix:** Firmware maps Track 2 $\rightarrow$ Access Granted/Welcome, Track 1 $\rightarrow$ Access Denied.
 
-### Q3: RFID RC522 does not read cards
-- **Cause:** Wrong SPI pins or connected to 5V.
-- **Fix:** Verify RC522 `3.3V` is connected to ESP32 **3V3 pin** (never 5V). Verify `MOSI` is on **GPIO 23** and `SCK` is on **GPIO 18**.
-
-### Q4: Database connection refused error
+### Q3: Database connection refused error
 - **Cause:** MySQL is stopped in XAMPP.
-- **Fix:** Open XAMPP Control Panel and start MySQL, or ensure `sdasfc` database is imported.
+- **Fix:** Open XAMPP Control Panel and start MySQL.
 
 ---
 
 ## 10. Daily Quick-Start Cheat Sheet
 
 ```powershell
-# 1. Start XAMPP (Ensure Apache & MySQL are running in XAMPP Control Panel)
+# 1. Ensure Apache & MySQL are running in XAMPP Control Panel
 
-# 2. Launch the Hardware Serial Bridge:
-C:\xampp\php\php.exe C:\xampp\htdocs\SDASFC-Smart-Door-Automation-System-for-CICS\hardware\bridge\serial_bridge.php --port=COM9
+# 2. Launch the Hardware Serial Bridge (Auto-detects COM port):
+Double-click start_bridge.bat   (or run: powershell -File hardware\bridge\serial_bridge.ps1)
 
 # 3. Open Admin Web Dashboard in browser:
 http://localhost/SDASFC-Smart-Door-Automation-System-for-CICS/public/
 ```
 
-*System is fully production ready and operational.*
+*System is fully web-integrated, real-time responsive, and production ready.*
