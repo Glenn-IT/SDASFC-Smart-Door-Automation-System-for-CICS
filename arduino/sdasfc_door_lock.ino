@@ -13,9 +13,9 @@
  * - DFPlayer Mini MP3 Module (MP3-TF-16P) + 3W 8Ω Speaker
  * 
  * MicroSD Audio Track Mapping:
- * - 0001.mp3 : "Access granted you may now open the door. Welcome to the CICS laboratory" (Access Granted)
- * - 0002.mp3 : "Access Denied" (Access Denied)
- * (0004.mp3 Door Lock has been removed from SD card; relay operates silently)
+ * - Track 2 (0002.mp3 / 2nd file): "Access granted you may now open the door. Welcome to the CICS laboratory"
+ * - Track 1 (0001.mp3 / 1st file): "Access Denied"
+ * (Door lock is silent; relay opens immediately on tap, then plays voice prompt)
  * 
  * ESP32 Pin Connections:
  * - RFID RC522 (SPI - 3.3V Logic ONLY!):
@@ -73,7 +73,7 @@
 #define TX2_PIN      17
 #define SERIAL_BAUD  115200
 
-// Relay Trigger Mode (Change to LOW/HIGH if relay is Active-LOW)
+// Relay Trigger Mode
 #define RELAY_ON     HIGH
 #define RELAY_OFF    LOW
 #define UNLOCK_HOLD_MS 6000 // Door stays unlocked for 6 seconds
@@ -90,7 +90,7 @@ bool hasRTC = false;
 int defaultVolume = 25; // Safe audio volume (0 - 30)
 
 // Function Prototypes
-void unlockDoor();
+void unlockDoorAndPrompt();
 void playGranted();
 void playDenied();
 bool initDFPlayer();
@@ -153,11 +153,11 @@ void loop() {
   // 2. INFRARED EXIT SENSOR TRIGGER (Wave to Exit)
   //==================================================
   if (digitalRead(EXIT_BUTTON) == LOW) {
-    delay(50); // Debounce check
+    delay(40); // Debounce check
     if (digitalRead(EXIT_BUTTON) == LOW) {
       Serial.println("\n[EVENT:EXIT_BUTTON] IR Exit Sensor Triggered!");
-      playGranted(); // 0001.mp3 - Access Granted & Welcome
-      unlockDoor();  // Unlocks for 5s, relocks silently
+      // Instantly unlock relay, then prompt voice
+      unlockDoorAndPrompt();
 
       // Wait until hand is removed from IR sensor
       unsigned long exitWait = millis();
@@ -178,16 +178,15 @@ void loop() {
     cmd.trim();
     cmd.toUpperCase();
 
-    if (cmd == "T1" || cmd == "GRANT") {
-      Serial.println("[TEST] Playing Track 1 (0001.mp3 - Access Granted / Welcome)...");
+    if (cmd == "T2" || cmd == "GRANT") {
+      Serial.println("[TEST] Playing Track 2 (Access Granted & Welcome)...");
       playGranted();
-    } else if (cmd == "T2" || cmd == "DENY") {
-      Serial.println("[TEST] Playing Track 2 (0002.mp3 - Access Denied)...");
+    } else if (cmd == "T1" || cmd == "DENY") {
+      Serial.println("[TEST] Playing Track 1 (Access Denied)...");
       playDenied();
     } else if (cmd == "UNLOCK") {
       Serial.println("[REMOTE] Manual unlock command received!");
-      playGranted();
-      unlockDoor();
+      unlockDoorAndPrompt();
     }
   }
 
@@ -234,21 +233,24 @@ void loop() {
   Serial.println(uidStr);
   Serial.flush();
 
-  // Await decision from Host PC (GRANT or DENY) with 3.5s timeout
-  String response = waitForSerialResponse(3500);
+  // Check if UID is locally authorized (Master card fallback for offline use)
+  bool isLocalMaster = (uidStr == "0A 75 B4 02" || uidStr == "0A75B402");
+
+  // Await decision from Host PC (GRANT or DENY) with 2.5s timeout
+  String response = waitForSerialResponse(2500);
   Serial.printf("[HOST RESPONSE] '%s'\n", response.c_str());
 
-  if (response == "GRANT") {
-    Serial.println("[ACCESS] ✅ GRANTED - Opening Door...");
-    playGranted(); // 0001.mp3 - Access Granted & Welcome
-    unlockDoor();  // Unlocks 5s, relocks silently
+  if (response == "GRANT" || (response == "TIMEOUT" && isLocalMaster)) {
+    Serial.println("[ACCESS] ✅ GRANTED - Unlocking Door Immediately!");
+    // Unlocks relay immediately, then prompts voice for 6 seconds
+    unlockDoorAndPrompt();
   } else if (response == "DENY") {
     Serial.println("[ACCESS] ❌ DENIED - Card Unauthorized or Inactive.");
-    playDenied();  // 0002.mp3 - Access Denied
-    delay(2000);   // Allow "Access Denied" voice prompt to finish
+    playDenied();
+    delay(2000); // Allow "Access Denied" voice prompt to finish
   } else {
     Serial.println("[ACCESS] ⚠️ TIMEOUT - No response from PC Serial Bridge.");
-    playDenied();  // 0002.mp3 - Access Denied Alert
+    playDenied();
     delay(2000);
   }
 
@@ -275,15 +277,6 @@ bool initDFPlayer() {
   player.volume(defaultVolume);
   delay(200);
   yield();
-
-  int fileCount = player.readFileCounts();
-  if (fileCount > 0) {
-    Serial.printf("[HW] MicroSD Card OK: %d readable audio file(s) found.\n", fileCount);
-  } else if (fileCount == 0) {
-    Serial.println("[HW] ⚠️ MicroSD Card mounted, but 0 audio files found (Ensure FAT32 & 0001.mp3 / 0002.mp3).");
-  } else {
-    Serial.println("[HW] ⚠️ MicroSD Card not detected or read error.");
-  }
 
   return true;
 }
@@ -344,16 +337,22 @@ String waitForSerialResponse(unsigned long timeoutMs) {
 }
 
 /**
- * Door Unlock Sequence:
- * - Energizes Relay for 6 seconds
- * - De-energizes Relay (Locked)
- * - Refreshes RFID antenna state
+ * Immediate Door Unlock & Voice Prompt Sequence:
+ * 1. Energizes Relay IMMEDIATELY (Door unlocks on millisecond 0)
+ * 2. Prompts voice ("Access granted you may now open the door. Welcome to the CICS laboratory")
+ * 3. Holds door unlocked for 6 full seconds
+ * 4. De-energizes Relay (Locked)
+ * 5. Refreshes RFID antenna state
  */
-void unlockDoor() {
+void unlockDoorAndPrompt() {
   Serial.println("[DOOR] >>> 🔓 RELAY ENERGIZED: Door is UNLOCKED <<<");
   digitalWrite(RELAY_PIN, RELAY_ON);
 
-  delay(UNLOCK_HOLD_MS); // Keep door unlocked for 6 seconds
+  // Play Access Granted voice prompt while door is already unlocked
+  playGranted();
+
+  // Hold door unlocked for 6 seconds
+  delay(UNLOCK_HOLD_MS);
 
   digitalWrite(RELAY_PIN, RELAY_OFF);
   Serial.println("[DOOR] >>> 🔒 RELAY DE-ENERGIZED: Door is LOCKED <<<");
@@ -363,19 +362,21 @@ void unlockDoor() {
 }
 
 /**
- * Play 0001.mp3: Access Granted & Welcome to CICS
+ * Play Access Granted & Welcome:
+ * Plays Track 2 ("Access granted you may now open the door. Welcome to the CICS laboratory")
  */
 void playGranted() {
   if (!hasDFPlayer) return;
-  Serial.println("[AUDIO] Playing 0001.mp3: Access Granted & Welcome");
-  player.play(1);
+  Serial.println("[AUDIO] Playing: Access Granted & Welcome (Track 2)");
+  player.play(2);
 }
 
 /**
- * Play 0002.mp3: Access Denied
+ * Play Access Denied:
+ * Plays Track 1 ("Access Denied")
  */
 void playDenied() {
   if (!hasDFPlayer) return;
-  Serial.println("[AUDIO] Playing 0002.mp3: Access Denied");
-  player.play(2);
+  Serial.println("[AUDIO] Playing: Access Denied (Track 1)");
+  player.play(1);
 }

@@ -36,44 +36,37 @@ if (!$handle) {
     die("[ERROR] Could not open serial port {$port}. Ensure Arduino is connected and port is not in use.\n");
 }
 
-stream_set_blocking($handle, false);
 echo "[STATUS] Serial port opened successfully. Listening for RFID taps...\n\n";
 
-$buffer = '';
-
 while (true) {
-    $char = fread($handle, 128);
-    if ($char !== false && strlen($char) > 0) {
-        $buffer .= $char;
-        while (($pos = strpos($buffer, "\n")) !== false) {
-            $line = trim(substr($buffer, 0, $pos));
-            $buffer = substr($buffer, $pos + 1);
+    $line = fgets($handle);
+    if ($line !== false) {
+        $line = trim($line);
+        if ($line === '') continue;
 
-            if ($line === '') continue;
+        echo "[SERIAL RX] {$line}\n";
 
-            echo "[SERIAL RX] {$line}\n";
+        if (preg_match('/UID:\s*([A-F0-9\s]+)/i', $line, $matches)) {
+            $uid = trim($matches[1]);
+            echo " -> Processing scan for UID: '{$uid}'\n";
 
-            if (preg_match('/UID:\s*([A-F0-9\s]+)/i', $line, $matches)) {
-                $uid = trim($matches[1]);
-                echo " -> Processing scan for UID: '{$uid}'\n";
+            $isGranted = verifyRfidUid($apiUrl, $uid);
 
-                $isGranted = verifyRfidUid($apiUrl, $uid);
-
-                if ($isGranted) {
-                    echo " -> ACCESS GRANTED. Replying 'GRANT'\n";
-                    fwrite($handle, "GRANT\n");
-                    fflush($handle);
-                } else {
-                    echo " -> ACCESS DENIED. Replying 'DENY'\n";
-                    fwrite($handle, "DENY\n");
-                    fflush($handle);
-                }
-            } elseif (strpos($line, 'EVENT:') !== false) {
-                echo " -> [SYSTEM EVENT DETECTED]: {$line}\n";
+            if ($isGranted) {
+                echo " -> ACCESS GRANTED. Replying 'GRANT'\n";
+                fwrite($handle, "GRANT\n");
+                fflush($handle);
+            } else {
+                echo " -> ACCESS DENIED. Replying 'DENY'\n";
+                fwrite($handle, "DENY\n");
+                fflush($handle);
             }
+        } elseif (strpos($line, 'EVENT:') !== false) {
+            echo " -> [SYSTEM EVENT DETECTED]: {$line}\n";
         }
+    } else {
+        usleep(20000); // 20ms sleep
     }
-    usleep(50000); // 50ms sleep
 }
 
 function verifyRfidUid(string $apiUrl, string $uid): bool
