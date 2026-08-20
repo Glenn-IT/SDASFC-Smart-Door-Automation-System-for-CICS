@@ -1,5 +1,5 @@
 # Project Progress
 
-progress: 75
+progress: 85
 status: Ongoing
-note: Set up project structure and installed dependencies.
+note: Integrated DFPlayer Mini MP3 module & 3W speaker into ESP32 door lock firmware, updated breadboard wiring documentation, and synchronized audio voice cues with access control operations.

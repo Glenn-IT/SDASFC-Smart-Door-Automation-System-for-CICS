@@ -1,44 +1,60 @@
 /*
  * SDASFC — Smart Door Automation System for CICS
- * Hardware Firmware for ESP32
+ * Hardware Firmware for ESP32 (Production Firmware)
  * 
  * Hardware Components (from note.md):
- * - ESP32 Dev Module
- * - 12V 5A UPS Access Control Power Supply + LM2596 Buck Converter (5V to ESP32/Relay)
- * - 12V Backup Battery
- * - 1-CH 5V Relay Module (Solenoid / Electric Strike Lock)
- * - RFID RC522 (v133) Reader (SPI)
- * - Infrared Sensor Exit Button (No-Touch IR Optical Exit Sensor)
- * - DS3231 AT24C32 RTC Module (I2C)
- * - DFPlayer Mini + 3W 8Ω Speaker (Optional / Auto-detected when attached)
+ * - ESP32 Dev Module (30-pin board layout)
+ * - 12V 5A UPS Access Control Power Supply + 12V Backup Battery
+ * - LM2596 Buck Converter (Step-down 12V to 5V + 1000uF 16V filter capacitor)
+ * - 1-CH 5V Relay Module (Controls 12V Solenoid / Electric Strike / Magnetic Lock)
+ * - RFID RC522 (v133) Reader Module (SPI @ 3.3V Logic)
+ * - Access Control Infrared Optical Exit Sensor (No-Touch IR)
+ * - DS3231 AT24C32 Real-Time Clock Module (I2C)
+ * - DFPlayer Mini MP3 Module (MP3-TF-16P) + 3W 8Ω Speaker
  * 
  * ESP32 Pin Connections:
- * - RFID RC522 (SPI):
+ * - RFID RC522 (SPI - 3.3V Logic ONLY!):
  *   - SS (SDA) -> GPIO 5
- *   - RST      -> GPIO 4
  *   - SCK      -> GPIO 18
  *   - MOSI     -> GPIO 23
  *   - MISO     -> GPIO 19
+ *   - RST      -> GPIO 4
+ *   - 3.3V     -> ESP32 3V3 Pin
+ *   - GND      -> Common GND
+ * 
  * - DS3231 RTC (I2C):
  *   - SDA      -> GPIO 21
  *   - SCL      -> GPIO 22
- * - DFPlayer Mini (HardwareSerial2 - Optional):
- *   - TX       -> GPIO 16 (ESP32 RX2)
- *   - RX       -> GPIO 17 (ESP32 TX2 via 1kΩ resistor)
- *   - VCC      -> 5V / VIN
- *   - GND      -> GND
- * - Relay Module:
+ *   - VCC      -> 5V Rail (Buck Converter Output)
+ *   - GND      -> Common GND
+ * 
+ * - DFPlayer Mini (HardwareSerial2):
+ *   - Pin 1 (VCC)  -> 5V Rail (Buck Converter Output)
+ *   - Pin 2 (RX)   <- [ 1kΩ Resistor ] <- GPIO 17 (ESP32 TX2)
+ *   - Pin 3 (TX)   -> [ 1kΩ Resistor ] -> GPIO 16 (ESP32 RX2)
+ *   - Pin 6 (SPK1) -> 3W 8Ω Speaker Lead 1 (+)
+ *   - Pin 7 (GND)  -> Common GND
+ *   - Pin 8 (SPK2) -> 3W 8Ω Speaker Lead 2 (-)
+ * 
+ * - Relay Module (1-CH 5V):
  *   - IN / SIG -> GPIO 27 (HIGH = Unlocked, LOW = Locked)
+ *   - VCC      -> 5V Rail
+ *   - GND      -> Common GND
+ * 
  * - IR Exit Sensor:
- *   - OUT      -> GPIO 33 (Internal Pull-Up enabled)
+ *   - OUT / NO -> GPIO 33 (Internal Pull-Up enabled)
+ *   - COM      -> Common GND
+ *   - V+ / GND -> 12V Power Supply +12V / GND
  * 
  * USB Serial Protocol (115200 Baud):
- * - Transmits: "UID:<HEX_UID>" on RFID tap
- * - Receives : "GRANT\n" or "DENY\n" from host PC serial bridge
+ * - Transmits : "UID:<HEX_UID>" on RFID card tap
+ * - Receives  : "GRANT\n" or "DENY\n" from Host PC Serial Bridge
+ * - Broadcasts: "EVENT:EXIT_BUTTON", "EVENT:DOOR_UNLOCKED", "EVENT:DOOR_LOCKED"
  */
 
 #include <SPI.h>
 #include <Wire.h>
+#include <HardwareSerial.h>
 #include <MFRC522.h>
 #include <DFRobotDFPlayerMini.h>
 #include <RTClib.h> // Adafruit RTClib for DS3231
@@ -54,13 +70,14 @@
 
 // Hardware Objects
 MFRC522 rfid(SS_PIN, RST_PIN);
-HardwareSerial mp3Serial(2);
+HardwareSerial mp3Serial(2); // ESP32 HardwareSerial2
 DFRobotDFPlayerMini player;
 RTC_DS3231 rtc;
 
-// Status Flags
+// Status Flags & Settings
 bool hasDFPlayer = false;
 bool hasRTC = false;
+int defaultVolume = 25; // Safe audio volume (0 - 30)
 
 // Function Prototypes
 void unlockDoor();
@@ -68,28 +85,31 @@ void playIdle();
 void playGranted();
 void playDenied();
 void playLocked();
+bool initDFPlayer();
 String waitForSerialResponse(unsigned long timeoutMs);
+void handleDFPlayerEvents();
 
 void setup() {
   Serial.begin(SERIAL_BAUD);
   delay(500);
-  Serial.println("\n=================================");
-  Serial.println(" SDASFC ESP32 Door Lock Controller");
-  Serial.println("=================================");
+  Serial.println("\n==================================================");
+  Serial.println("  SDASFC ESP32 SMART DOOR LOCK CONTROLLER");
+  Serial.println("==================================================");
 
-  // 1. Relay Initialization (Default Locked)
+  // 1. Relay Initialization (Default Locked / De-energized)
   pinMode(RELAY_PIN, OUTPUT);
   digitalWrite(RELAY_PIN, LOW);
+  Serial.println("[HW] Relay initialized (State: LOCKED).");
 
-  // 2. IR Exit Sensor Initialization
+  // 2. IR Exit Sensor Initialization (Active LOW)
   pinMode(EXIT_BUTTON, INPUT_PULLUP);
+  Serial.println("[HW] IR Exit Sensor initialized on GPIO 33.");
 
-  // 3. Initialize I2C Wire & DS3231 RTC
+  // 3. Initialize I2C Bus & DS3231 RTC
   Wire.begin(21, 22); // SDA = GPIO 21, SCL = GPIO 22
   if (rtc.begin()) {
     hasRTC = true;
     if (rtc.lostPower()) {
-      // RTC lost power, set to compile date/time
       rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
     }
     DateTime now = rtc.now();
@@ -97,63 +117,67 @@ void setup() {
                   now.year(), now.month(), now.day(),
                   now.hour(), now.minute(), now.second());
   } else {
+    hasRTC = false;
     Serial.println("[HW] RTC DS3231 not found (skipped).");
   }
 
-  // 4. Initialize SPI & RFID Reader
-  SPI.begin(18, 19, 23, SS_PIN); // SCK, MISO, MOSI, SS
+  // 4. Initialize SPI Bus & RFID Reader (RC522)
+  SPI.begin(18, 19, 23, SS_PIN); // SCK = 18, MISO = 19, MOSI = 23, SS = 5
   rfid.PCD_Init();
-  Serial.println("[HW] RFID RC522 Ready.");
+  Serial.println("[HW] RFID RC522 Reader Ready.");
 
-  // 5. Initialize DFPlayer Mini (Non-blocking check)
-  mp3Serial.begin(9600, SERIAL_8N1, RX2_PIN, TX2_PIN);
-  delay(300);
-  
-  if (player.begin(mp3Serial, false, false)) { // Fast init without blocking timeout
-    hasDFPlayer = true;
-    player.volume(25);
-    delay(200);
-    playIdle();
-    Serial.println("[HW] DFPlayer Mini & Speaker Ready.");
-  } else {
-    hasDFPlayer = false;
-    Serial.println("[HW] DFPlayer Mini NOT detected (System running without audio prompts).");
+  // 5. Initialize DFPlayer Mini MP3 Player
+  hasDFPlayer = initDFPlayer();
+
+  Serial.println("--------------------------------------------------");
+  Serial.println("SYS:READY — Awaiting RFID taps or Exit button events.");
+  Serial.println("--------------------------------------------------\n");
+
+  if (hasDFPlayer) {
+    playIdle(); // Play 0001.mp3 (System Ready)
   }
-
-  Serial.println("SYS:READY");
 }
 
 void loop() {
-  //========================
-  // 1. INFRARED EXIT SENSOR
-  //========================
+  // Feed ESP32 Watchdog
+  yield();
+
+  // 1. Process DFPlayer real-time events (insert/remove/errors)
+  handleDFPlayerEvents();
+
+  //==================================================
+  // 2. INFRARED EXIT SENSOR TRIGGER (Wave to Exit)
+  //==================================================
   if (digitalRead(EXIT_BUTTON) == LOW) {
-    delay(50); // Debounce check for IR sensor
+    delay(50); // Debounce check
     if (digitalRead(EXIT_BUTTON) == LOW) {
-      Serial.println("EVENT:EXIT_BUTTON");
+      Serial.println("\n[EVENT] IR Exit Sensor Triggered!");
       playGranted();
-      delay(1000);
+      delay(1000); // Allow initial voice prompt to begin
       unlockDoor();
 
-      // Wait until IR sensor output clears
+      // Wait until hand is removed from IR sensor
       while (digitalRead(EXIT_BUTTON) == LOW) {
+        yield();
         delay(50);
       }
       return;
     }
   }
 
-  //========================
-  // 2. RFID SCAN CHECK
-  //========================
+  //==================================================
+  // 3. RFID CARD SCANNING
+  //==================================================
   if (!rfid.PICC_IsNewCardPresent()) {
+    delay(10);
     return;
   }
   if (!rfid.PICC_ReadCardSerial()) {
+    delay(10);
     return;
   }
 
-  // Format UID string (e.g. "0A 75 B4 02")
+  // Format Card UID string (e.g. "0A 75 B4 02")
   String uidStr = "";
   for (byte i = 0; i < rfid.uid.size; i++) {
     if (rfid.uid.uidByte[i] < 0x10) {
@@ -166,29 +190,30 @@ void loop() {
   }
   uidStr.toUpperCase();
 
-  // Print optional RTC timestamp to Serial log
+  // Print RTC timestamp if available
   if (hasRTC) {
     DateTime now = rtc.now();
-    Serial.printf("[RTC TIME] %04d-%02d-%02d %02d:%02d:%02d | ",
+    Serial.printf("[RTC %04d-%02d-%02d %02d:%02d:%02d] ",
                   now.year(), now.month(), now.day(),
                   now.hour(), now.minute(), now.second());
   }
 
-  // Transmit UID to Host Serial Bridge
+  // Transmit UID to Serial Bridge (e.g. "UID:0A 75 B4 02")
   Serial.print("UID:");
   Serial.println(uidStr);
 
   // Await decision from Host PC (GRANT or DENY) with 3.5s timeout
   String response = waitForSerialResponse(3500);
+  Serial.printf("[HOST RESPONSE] '%s'\n", response.c_str());
 
   if (response == "GRANT") {
-    playGranted();
+    playGranted(); // 0002.mp3 - Access Granted
     delay(1000);
     unlockDoor();
   } else {
-    // DENY or Timeout
-    playDenied();
-    delay(2000);
+    // DENY or TIMEOUT
+    playDenied();  // 0003.mp3 - Access Denied
+    delay(2500);
     playIdle();
   }
 
@@ -196,15 +221,78 @@ void loop() {
   rfid.PICC_HaltA();
   rfid.PCD_StopCrypto1();
 
-  delay(500);
+  delay(400);
 }
 
-// Read line from Serial until newline or timeout
+/**
+ * Initialize DFPlayer Mini with non-blocking check & diagnostics
+ */
+bool initDFPlayer() {
+  mp3Serial.begin(9600, SERIAL_8N1, RX2_PIN, TX2_PIN);
+  delay(500);
+  yield();
+
+  Serial.print("[HW] Detecting DFPlayer Mini... ");
+  if (!player.begin(mp3Serial, false, false)) {
+    Serial.println("❌ NOT DETECTED (Running in silent mode).");
+    return false;
+  }
+
+  Serial.println("✅ Module Online!");
+  player.volume(defaultVolume);
+  delay(200);
+  yield();
+
+  int fileCount = player.readFileCounts();
+  if (fileCount > 0) {
+    Serial.printf("[HW] MicroSD Card OK: %d readable audio file(s) found.\n", fileCount);
+  } else if (fileCount == 0) {
+    Serial.println("[HW] ⚠️ MicroSD Card mounted, but 0 audio files found (Ensure FAT32 & 0001.mp3).");
+  } else {
+    Serial.println("[HW] ⚠️ MicroSD Card not detected or read error.");
+  }
+
+  return true;
+}
+
+/**
+ * Handle real-time hardware status events from DFPlayer Mini
+ */
+void handleDFPlayerEvents() {
+  if (!hasDFPlayer) return;
+
+  if (player.available()) {
+    uint8_t type = player.readType();
+    int value = player.read();
+
+    switch (type) {
+      case DFPlayerCardInserted:
+        Serial.println("[AUDIO 💳] MicroSD Card Inserted.");
+        break;
+      case DFPlayerCardRemoved:
+        Serial.println("[AUDIO ⚠️] MicroSD Card Removed.");
+        break;
+      case DFPlayerPlayFinished:
+        // Audio finished playing
+        break;
+      case DFPlayerError:
+        Serial.printf("[AUDIO ❌] DFPlayer Error Code: %d\n", value);
+        break;
+      default:
+        break;
+    }
+  }
+}
+
+/**
+ * Read line from Serial until newline or timeout
+ */
 String waitForSerialResponse(unsigned long timeoutMs) {
   unsigned long start = millis();
   String response = "";
 
   while (millis() - start < timeoutMs) {
+    yield();
     if (Serial.available() > 0) {
       char c = Serial.read();
       if (c == '\n' || c == '\r') {
@@ -221,34 +309,40 @@ String waitForSerialResponse(unsigned long timeoutMs) {
   return "TIMEOUT";
 }
 
-// Unlock door routine
+/**
+ * Door Unlock Sequence:
+ * - Energize Relay (HIGH) for 5 seconds
+ * - De-energize Relay (LOW)
+ * - Play optional Door Locked prompt and return to Idle
+ */
 void unlockDoor() {
-  Serial.println("EVENT:DOOR_UNLOCKED");
-
-  // Energize Relay (Unlock)
+  Serial.println("[DOOR] >>> EVENT:DOOR_UNLOCKED (Relay HIGH) <<<");
   digitalWrite(RELAY_PIN, HIGH);
 
-  delay(5000); // Keep unlocked for 5 seconds
+  delay(5000); // Keep door unlocked for 5 seconds
 
-  // De-energize Relay (Lock)
   digitalWrite(RELAY_PIN, LOW);
-  Serial.println("EVENT:DOOR_LOCKED");
+  Serial.println("[DOOR] >>> EVENT:DOOR_LOCKED (Relay LOW) <<<");
 
-  playIdle(); // Return to idle prompt
+  playLocked(); // 0004.mp3 (if available)
+  delay(1200);
+  playIdle();   // 0001.mp3
 }
 
 // Voice Prompts (Safely guarded by hasDFPlayer flag)
 void playIdle() {
-  if (hasDFPlayer) player.play(1); // 0001.mp3 - System Ready / Idle
+  if (hasDFPlayer) player.play(1); // 0001.mp3 - System Ready / Welcome
 }
 
-// 0002.mp3 - Access Granted
 void playGranted() {
-  if (hasDFPlayer) player.play(2);
+  if (hasDFPlayer) player.play(2); // 0002.mp3 - Access Granted
 }
 
-// 0003.mp3 - Access Denied
 void playDenied() {
-  if (hasDFPlayer) player.play(3);
+  if (hasDFPlayer) player.play(3); // 0003.mp3 - Access Denied
+}
+
+void playLocked() {
+  if (hasDFPlayer) player.play(4); // 0004.mp3 - Door Locked
 }
 
