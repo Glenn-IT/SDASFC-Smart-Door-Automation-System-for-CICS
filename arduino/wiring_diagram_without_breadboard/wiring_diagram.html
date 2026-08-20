@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SDASFC — Complete Hardware Wiring Diagram (Direct Connection Guide)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #090d16;
+            --bg-card: #131b2e;
+            --bg-card-hover: #1e2942;
+            --border-color: #263352;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-cyan: #06b6d4;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-rose: #f43f5e;
+            --accent-purple: #a855f7;
+            --accent-lime: #84cc16;
+            --accent-pink: #ec4899;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 1.5rem 1rem;
+        }
+
+        .container {
+            max-width: 1650px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .badge-pro {
+            display: inline-block;
+            padding: 0.35rem 0.9rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            background: rgba(6, 182, 212, 0.15);
+            color: var(--accent-cyan);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            margin-bottom: 0.75rem;
+        }
+
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.025em;
+            margin-bottom: 0.5rem;
+        }
+
+        p.subtitle {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Filter Controls */
+        .controls-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .controls-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .controls-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .btn-filter {
+            background: #0f172a;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 0.55rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .btn-filter:hover {
+            border-color: var(--accent-cyan);
+            color: #fff;
+        }
+
+        .btn-filter.active {
+            background: var(--accent-cyan);
+            border-color: var(--accent-cyan);
+            color: #000;
+            font-weight: 700;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        /* Alert Warning Box */
+        .alert-box {
+            background: rgba(244, 63, 94, 0.08);
+            border: 1px solid rgba(244, 63, 94, 0.3);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .alert-icon {
+            background: rgba(244, 63, 94, 0.2);
+            color: var(--accent-rose);
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .alert-text h4 {
+            color: #fda4af;
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 0.2rem;
+        }
+
+        .alert-text p {
+            color: #cbd5e1;
+            font-size: 0.85rem;
+        }
+
+        /* SVG Circuit Container */
+        .canvas-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .canvas-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .canvas-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .zoom-hint {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            background: #0f172a;
+            padding: 0.3rem 0.75rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .svg-wrapper {
+            background: #080c14;
+            border-radius: 12px;
+            border: 1px solid #1a2333;
+            overflow: auto;
+            position: relative;
+        }
+
+        svg.circuit-svg {
+            width: 100%;
+            min-width: 1400px;
+            height: auto;
+            display: block;
+        }
+
+        /* SVG Wire Styles */
+        .wire {
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transition: stroke-width 0.2s ease, opacity 0.2s ease, filter 0.2s ease;
+            cursor: pointer;
+        }
+
+        .wire:hover {
+            stroke-width: 6 !important;
+            filter: drop-shadow(0 0 10px currentColor);
+            opacity: 1 !important;
+        }
+
+        .wire-dimmed {
+            opacity: 0.1 !important;
+        }
+
+        .wire-highlighted {
+            opacity: 1 !important;
+            stroke-width: 5 !important;
+            filter: drop-shadow(0 0 8px currentColor);
+        }
+
+        /* Tooltip */
+        #wire-tooltip {
+            position: absolute;
+            display: none;
+            background: #0f172a;
+            border: 1px solid var(--accent-cyan);
+            color: #fff;
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            font-size: 0.825rem;
+            pointer-events: none;
+            z-index: 100;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+            font-family: 'JetBrains Mono', monospace;
+            max-width: 360px;
+        }
+
+        /* 3-Column Info Section */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 1.25rem;
+        }
+
+        .info-card-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Table */
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table.wire-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.825rem;
+        }
+
+        table.wire-table th {
+            background: #090d16;
+            color: var(--text-secondary);
+            padding: 0.6rem 0.75rem;
+            text-align: left;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        table.wire-table td {
+            padding: 0.65rem 0.75rem;
+            border-bottom: 1px solid #1a2333;
+            color: var(--text-primary);
+        }
+
+        table.wire-table tr:hover td {
+            background: var(--bg-card-hover);
+        }
+
+        .badge-wire {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            padding: 0.15rem 0.45rem;
+            border-radius: 4px;
+            font-size: 0.775rem;
+        }
+
+        .tag-pin {
+            font-family: 'JetBrains Mono', monospace;
+            background: #0f172a;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            font-size: 0.8rem;
+            color: #e2e8f0;
+        }
+
+        /* Checklist */
+        .checklist {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            background: #0f172a;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border: 1px solid #1a2333;
+        }
+
+        .check-num {
+            background: var(--accent-cyan);
+            color: #000;
+            font-weight: 800;
+            font-size: 0.75rem;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .check-text h5 {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.15rem;
+        }
+
+        .check-text p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        footer {
+            text-align: center;
+            padding: 1.5rem 0;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <span class="badge-pro">SDASFC — Direct Connection Architecture</span>
+            <h1>Complete Hardware Wiring Diagram</h1>
+            <p class="subtitle">
+                Every single wire is individually routed with its own distinct curve, dedicated connection pins, and unique color code. Zero bundled or overlapping lines!
+            </p>
+        </header>
+
+        <!-- Newbie Safety Alert -->
+        <div class="alert-box">
+            <div class="alert-icon">⚠️</div>
+            <div class="alert-text">
+                <h4>Crucial Beginner Warnings Before Powering On:</h4>
+                <p>
+                    1. <strong>RC522 RFID Must Connect to 3.3V ONLY:</strong> Connecting RC522 to 5V will permanently burn out the RFID chip.<br>
+                    2. <strong>Calibrate Buck Converter First:</strong> Turn the brass potentiometer screw on the LM2596 until your multimeter reads exactly <strong>5.0V</strong> before connecting to the ESP32.<br>
+                    3. <strong>Common Ground Is Mandatory:</strong> All module GND pins (Power Supply, Buck, ESP32, Relay, Sensor, RTC, DFPlayer) must connect together.<br>
+                    4. <strong>Inline 1kΩ Resistors for DFPlayer:</strong> Insert a 1kΩ resistor on <code>ESP32 GPIO 17 ➔ DFPlayer RX</code> and <code>DFPlayer TX ➔ ESP32 GPIO 16</code> to eliminate static clicking noise.
+                </p>
+            </div>
+        </div>
+
+        <!-- Filter Controls -->
+        <div class="controls-panel">
+            <div class="controls-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                Filter Circuit by Subsystem:
+            </div>
+            <div class="controls-buttons">
+                <button class="btn-filter active" onclick="filterWires('all', event)">Show All Wires</button>
+                <button class="btn-filter" onclick="filterWires('power', event)"><span class="dot" style="background:#f59e0b;"></span> 12V & 5V Power Rails</button>
+                <button class="btn-filter" onclick="filterWires('relay', event)"><span class="dot" style="background:#f43f5e;"></span> Relay & Mag Lock</button>
+                <button class="btn-filter" onclick="filterWires('exit', event)"><span class="dot" style="background:#06b6d4;"></span> IR Exit Sensor</button>
+                <button class="btn-filter" onclick="filterWires('rfid', event)"><span class="dot" style="background:#10b981;"></span> RFID RC522 Reader</button>
+                <button class="btn-filter" onclick="filterWires('rtc', event)"><span class="dot" style="background:#3b82f6;"></span> DS3231 RTC Clock</button>
+                <button class="btn-filter" onclick="filterWires('audio', event)"><span class="dot" style="background:#a855f7;"></span> DFPlayer & Speaker</button>
+            </div>
+        </div>
+
+        <!-- Main SVG Circuit Canvas -->
+        <div class="canvas-card">
+            <div class="canvas-header">
+                <div class="canvas-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                    Interactive Multi-Component Circuit Schematic
+                </div>
+                <div class="zoom-hint">💡 Hover over any wire to inspect endpoints and details</div>
+            </div>
+
+            <div class="svg-wrapper">
+                <!-- Floating Tooltip -->
+                <div id="wire-tooltip"></div>
+
+                <svg class="circuit-svg" viewBox="0 0 1550 1020">
+                    <defs>
+                        <!-- Grid Pattern -->
+                        <pattern id="grid-pattern" width="25" height="25" patternUnits="userSpaceOnUse">
+                            <path d="M 25 0 L 0 0 0 25" fill="none" stroke="#131d2e" stroke-width="0.75"/>
+                        </pattern>
+                    </defs>
+
+                    <!-- Background Grid -->
+                    <rect width="100%" height="100%" fill="url(#grid-pattern)" />
+
+                    <!-- ============================================================== -->
+                    <!-- COMPONENT 1: 12V 5A UPS Power Supply & Battery (Top-Left)     -->
+                    <!-- ============================================================== -->
+                    <g id="box-ps">
+                        <rect x="40" y="40" width="260" height="210" rx="10" fill="#131b2e" stroke="#f59e0b" stroke-width="2"/>
+                        <rect x="55" y="55" width="230" height="35" rx="5" fill="#0f172a" stroke="#263352"/>
+                        <text x="170" y="78" fill="#f59e0b" font-size="13" font-weight="800" text-anchor="middle">12V 5A UPS POWER SUPPLY</text>
+                        <text x="170" y="115" fill="#94a3b8" font-size="11" text-anchor="middle">AC 100-240V Input + 12V Battery</text>
+                        
+                        <!-- Terminals -->
+                        <circle id="pin-ps-12v" cx="280" cy="150" r="7" fill="#ef4444" stroke="#fff" stroke-width="1.5"/>
+                        <text x="265" y="154" fill="#ef4444" font-size="12" font-family="JetBrains Mono" font-weight="700" text-anchor="end">+12V OUT</text>
+                        
+                        <circle id="pin-ps-gnd" cx="280" cy="200" r="7" fill="#64748b" stroke="#fff" stroke-width="1.5"/>
+                        <text x="265" y="204" fill="#94a3b8" font-size="12" font-family="JetBrains Mono" font-weight="700" text-anchor="end">GND (-)</text>
+                    </g>
+
+                    <!-- ============================================================== -->
+                    <!-- COMPONENT 2: LM2596 Buck Converter + Capacitor (Mid-Left)      -->
+                    <!-- ============================================================== -->
+                    <g id="box-buck">
+                        <rect x="40" y="300" width="260" height="170" rx="10" fill="#131b2e" stroke="#3b82f6" stroke-width="2"/>
+                        <rect x="55" y="315" width="230" height="30" rx="5" fill="#0f172a" stroke="#263352"/>
+                        <text x="170" y="335" fill="#3b82f6" font-size="13" font-weight="800" text-anchor="middle">LM2596 BUCK CONVERTER</text>
+                        <text x="170" y="365" fill="#94a3b8" font-size="11" text-anchor="middle">Steps 12V down to 5.0V Regulated</text>
+
+                        <!-- VIN Terminals (Left) -->
+                        <circle id="pin-buck-vin-pos" cx="40" cy="390" r="6" fill="#ef4444"/>
+                        <text x="55" y="394" fill="#ef4444" font-size="10" font-family="JetBrains Mono">VIN (+)</text>
+
+                        <circle id="pin-buck-vin-neg" cx="40" cy="430" r="6" fill="#64748b"/>
+                        <text x="55" y="434" fill="#94a3b8" font-size="10" font-family="JetBrains Mono">VIN (-)</text>
+
+                        <!-- VOUT Terminals (Right) -->
+                        <circle id="pin-buck-vout-pos" cx="300" cy="390" r="7" fill="#f59e0b" stroke="#fff" stroke-width="1.5"/>
+                        <text x="285" y="394" fill="#f59e0b" font-size="11" font-family="JetBrains Mono" font-weight="700" text-anchor="end">VOUT 5V (+)</text>
+
+                        <circle id="pin-buck-vout-neg" cx="300" cy="430" r="7" fill="#64748b" stroke="#fff" stroke-width="1.5"/>
+                        <text x="285" y="434" fill="#94a3b8" font-size="11" font-family="JetBrains Mono" font-weight="700" text-anchor="end">VOUT GND (-)</text>
+                    </g>
+
+                    <!-- Capacitor 1000uF -->
+                    <g id="box-cap">
+                        <rect x="40" y="495" width="260" height="65" rx="8" fill="#0f172a" stroke="#f59e0b" stroke-dasharray="3 3"/>
+                        <text x="170" y="520" fill="#f59e0b" font-size="11" font-weight="700" text-anchor="middle">1000µF 16V Filter Capacitor</text>
+                        <text x="170" y="540" fill="#94a3b8" font-size="10" text-anchor="middle">Smooths 5V rail & prevents brownouts</text>
+                    </g>
+
+                    <!-- ============================================================== -->
+                    <!-- COMPONENT 3: 1-CH 5V Relay Module (Lower-Left)                -->
+                    <!-- ============================================================== -->
+                    <g id="box-relay">
+                        <rect x="40" y="590" width="260" height="190" rx="10" fill="#131b2e" stroke="#f43f5e" stroke-width="2"/>
+                        <rect x="55" y="605" width="230" height="30" rx="5" fill="#0f172a" stroke="#263352"/>
+                        <text x="170" y="625" fill="#f43f5e" font-size="13" font-weight="800" text-anchor="middle">1-CH 5V RELAY MODULE</text>
+
+                        <!-- Low Voltage Control Pins (Right) -->
+                        <circle id="pin-relay-vcc" cx="300" cy="660" r="6" fill="#f59e0b"/>
+                        <text x="285" y="664" fill="#f59e0b" font-size="10" font-family="JetBrains Mono" text-anchor="end">VCC (5V)</text>
+
+                        <circle id="pin-relay-gnd" cx="300" cy="700" r="6" fill="#64748b"/>
+                        <text x="285" y="704" fill="#94a3b8" font-size="10" font-family="JetBrains Mono" text-anchor="end">GND</text>
+
+                        <circle id="pin-relay-in" cx="300" cy="740" r="6" fill="#eab308"/>
+                        <text x="285" y="744" fill="#eab308" font-size="10" font-family="JetBrains Mono" font-weight="700" text-anchor="end">IN (Signal)</text>
+
+                        <!-- High Voltage Contacts (Left) -->
+                        <circle id="pin-relay-com" cx="40" cy="670" r="6" fill="#ef4444"/>
+                        <text x="55" y="674" fill="#ef4444" font-size="10" font-family="JetBrains Mono">COM (12V IN)</text>
+
+                        <circle id="pin-relay-no" cx="40" cy="720" r="6" fill="#f97316"/>
+                        <text x="55" y="724" fill="#f97316" font-size="10" font-family="JetBrains Mono">NO (To Lock)</text>
+                    </g>
+
+                    <!-- ============================================================== -->
+                    <!-- COMPONENT 4: 12V Magnetic Lock / Solenoid (Bottom-Left)       -->
+                    <!-- ============================================================== -->
+                    <g id="box-lock">
+                        <rect x="40" y="820" width="260" height="150" rx="10" fill="#131b2e" stroke="#f97316" stroke-width="2"/>
+                        <rect x="55" y="835" width="230" height="30" rx="5" fill="#0f172a" stroke="#263352"/>
+                        <text x="170" y="855" fill="#f97316" font-size="13" font-weight="800" text-anchor="middle">12V DOOR LOCK / SOLENOID</text>
+                        <text x="170" y="885" fill="#94a3b8" font-size="11" text-anchor="middle">Electric Strike or Magnetic Lock</text>
+
+                        <!-- Lock Terminals -->
+                        <circle id="pin-lock-vcc" cx="40" cy="920" r="6" fill="#f97316"/>
+                        <text x="55" y="924" fill="#f97316" font-size="10" font-family="JetBrains Mono">VCC (+) (from NO)</text>
+
+                        <circle id="pin-lock-gnd" cx="40" cy="950" r="6" fill="#64748b"/>
+                        <text x="55" y="954" fill="#94a3b8" font-size="10" font-family="JetBrains Mono">GND (-)</text>
+                    </g>
+
+                    <!-- ============================================================== -->
+                    <!-- COMPONENT 5: ESP32 Dev Module 30-Pin (CENTER)                 -->
+                    <!-- ============================================================== -->
+                    <g id="box-esp32">
+                        <!-- Board Base -->
+                        <rect x="450" y="80" width="360" height="860" rx="14" fill="#131b2e" stroke="#3b82f6" stroke-width="3"/>
+                        
+                        <!-- ESP32 Shield Metal Can -->
+                        <rect x="510" y="100" width="240" height="110" rx="8" fill="#0f172a" stroke="#263352"/>
+                        <text x="630" y="145" fill="#3b82f6" font-size="18" font-weight="900" text-anchor="middle">ESP32 DEV MODULE</text>
+                        <text x="630" y="170" fill="#94a3b8" font-size="12" text-anchor="middle">Dual-Core Microcontroller</text>
+                        <text x="630" y="190" fill="#06b6d4" font-size="11" font-family="JetBrains Mono" text-anchor="middle">Production Firmware 115200 Baud</text>
+
+                        <!-- LEFT PIN HEADER (ESP32) -->
+                        <circle id="pin-esp-5v" cx="450" cy="250" r="6.5" fill="#f59e0b" stroke="#fff" stroke-width="1.5"/>
+                        <text x="468" y="254" fill="#f59e0b" font-size="11" font-family="JetBrains Mono" font-weight="700">VIN (5V)</text>
+
+                        <circle id="pin-esp-gnd1" cx="450" cy="300" r="6.5" fill="#64748b" stroke="#fff" stroke-width="1.5"/>
+                        <text x="468" y="304" fill="#94a3b8" font-size="11" font-family="JetBrains Mono" font-weight="700">GND</text>
+
+                        <circle id="pin-esp-g27" cx="450" cy="360" r="6.5" fill="#eab308" stroke="#fff" stroke-width="1.5"/>
+                        <text x="468" y="364" fill="#eab308" font-size="11" font-family="JetBrains Mono" font-weight="700">GPIO 27 (Relay IN)</text>
+
+                        <circle id="pin-esp-g33" cx="450" cy="420" r="6.5" fill="#06b6d4" stroke="#fff" stroke-width="1.5"/>
+                        <text x="468" y="424" fill="#06b6d4" font-size="11" font-family="JetBrains Mono" font-weight="700">GPIO 33 (IR Exit)</text>
+
+                        <!-- RIGHT PIN HEADER (ESP32) -->
+                        <circle id="pin-esp-3v3" cx="810" cy="250" r="6.5" fill="#10b981" stroke="#fff" stroke-width="1.5"/>
+                        <text x="792" y="254" fill="#10b981" font-size="11" font-family="JetBrains Mono" font-weight="700" text-anchor="end">3V3 (RC522 ONLY)</text>
+
+                        <circle id="pin-esp-gnd2" cx="810" cy="300" r="6.5" fill="#64748b" stroke="#fff" stroke-width="1.5"/>
+                        <text x="792" y="304" fill="#94a3b8" font-size="11" font-family="JetBrains Mono" font-weight="700" text-anchor="end">GND</text>
+
+                        <circle id="pin-esp-g21" cx="810" cy="360" r="6.5" fill="#3b82f6" stroke="#fff" stroke-width="1.5"/>
+                        <text x="792" y="364" fill="#3b82f6" font-size="11" font-family="JetBrains Mono" font-weight="700" text-anchor="end">GPIO 21 (I2C SDA)</text>
+
+                        <circle id="pin-esp-g22" cx="810" cy="410" r="6.5" fill="#8b5cf6" stroke="#fff" stroke-width="1.5"/>
+                        <text x="792" y="414" fill="#8b5cf6" font-size="11" font-family="JetBrains Mono" font-weight="700" text-anchor="end">GPIO 22 (I2C SCL)</text>
+
+                        <circle id="pin-esp-g5" cx="810" cy="470" r="6.5" fill="#14b8a6" stroke="#fff" stroke-width="1.5"/>
+                        <text x="792" y="474" fill="#14b8a6" font-size="11" font-family="JetBrains Mono" font-weight="700" text-anchor="end">GPIO 5 (SPI SS)</text>
+
+                        <circle id="pin-esp-g18" cx="810" cy="520" r="6.5" fill="#6366f1" stroke="#fff" stroke-width="1.5"/>
+                        <text x="792" y="524" fill="#6366f1" font-size="11" font-family="JetBrains Mono" font-weight="700" text-anchor="end">GPIO 18 (SPI SCK)</text>
+
+                        <circle id="pin-esp-g23" cx="810" cy="570" r="6.5" fill="#84cc16" stroke="#fff" stroke-width="1.5"/>
+                        <text x="792" y="574" fill="#84cc16" font-size="11" font-family="JetBrains Mono" font-weight="700" text-anchor="end">GPIO 23 (SPI MOSI)</text>
+
+                        <circle id="pin-esp-g19" cx="810" cy="620" r="6.5" fill="#22c55e" stroke="#fff" stroke-width="1.5"/>
+                        <text x="792" y="624" fill="#22c55e" font-size="11" font-family="JetBrains Mono" font-weight="700" text-anchor="end">GPIO 19 (SPI MISO)</text>
+
+                        <circle id="pin-esp-g4" cx="810" cy="670" r="6.5" fill="#ec4899" stroke="#fff" stroke-width="1.5"/>
+                        <text x="792" y="674" fill="#ec4899" font-size="11" font-family="JetBrains Mono" font-weight="700" text-anchor="end">GPIO 4 (SPI RST)</text>
+
+                        <circle id="pin-esp-g17" cx="810" cy="740" r="6.5" fill="#d946ef" stroke="#fff" stroke-width="1.5"/>
+                        <text x="792" y="744" fill="#d946ef" font-size="11" font-family="JetBrains Mono" font-weight="700" text-anchor="end">GPIO 17 (TX2)</text>
+
+                        <circle id="pin-esp-g16" cx="810" cy="790" r="6.5" fill="#a855f7" stroke="#fff" stroke-width="1.5"/>
+                        <text x="792" y="794" fill="#a855f7" font-size="11" font-family="JetBrains Mono" font-weight="700" text-anchor="end">GPIO 16 (RX2)</text>
+                    </g>
+
+                    <!-- ============================================================== -->
+                    <!-- COMPONENT 6: No-Touch IR Exit Sensor (Top-Right)              -->
+                    <!-- ============================================================== -->
+                    <g id="box-exit">
+                        <rect x="1000" y="40" width="280" height="190" rx="10" fill="#131b2e" stroke="#06b6d4" stroke-width="2"/>
+                        <rect x="1015" y="55" width="250" height="30" rx="5" fill="#0f172a" stroke="#263352"/>
+                        <text x="1140" y="75" fill="#06b6d4" font-size="13" font-weight="800" text-anchor="middle">NO-TOUCH IR EXIT SENSOR</text>
+
+                        <!-- Exit Sensor Terminals (Left) -->
+                        <circle id="pin-exit-vpos" cx="1000" cy="110" r="6" fill="#ef4444"/>
+                        <text x="1015" y="114" fill="#ef4444" font-size="10" font-family="JetBrains Mono">V+ (+12V)</text>
+
+                        <circle id="pin-exit-gnd" cx="1000" cy="140" r="6" fill="#64748b"/>
+                        <text x="1015" y="144" fill="#94a3b8" font-size="10" font-family="JetBrains Mono">GND (-)</text>
+
+                        <circle id="pin-exit-com" cx="1000" cy="170" r="6" fill="#64748b"/>
+                        <text x="1015" y="174" fill="#94a3b8" font-size="10" font-family="JetBrains Mono">COM (to Common GND)</text>
+
+                        <circle id="pin-exit-no" cx="1000" cy="200" r="6" fill="#06b6d4"/>
+                        <text x="1015" y="204" fill="#06b6d4" font-size="10" font-family="JetBrains Mono" font-weight="700">NO (Signal to GPIO 33)</text>
+                    </g>
+
+                    <!-- ============================================================== -->
+                    <!-- COMPONENT 7: DS3231 I2C RTC Module (Upper-Mid Right)          -->
+                    <!-- ============================================================== -->
+                    <g id="box-rtc">
+                        <rect x="1000" y="260" width="280" height="170" rx="10" fill="#131b2e" stroke="#8b5cf6" stroke-width="2"/>
+                        <rect x="1015" y="275" width="250" height="30" rx="5" fill="#0f172a" stroke="#263352"/>
+                        <text x="1140" y="295" fill="#8b5cf6" font-size="13" font-weight="800" text-anchor="middle">DS3231 RTC CLOCK (I2C)</text>
+
+                        <!-- RTC Terminals (Left) -->
+                        <circle id="pin-rtc-vcc" cx="1000" cy="330" r="6" fill="#f59e0b"/>
+                        <text x="1015" y="334" fill="#f59e0b" font-size="10" font-family="JetBrains Mono">VCC (5V)</text>
+
+                        <circle id="pin-rtc-gnd" cx="1000" cy="360" r="6" fill="#64748b"/>
+                        <text x="1015" y="364" fill="#94a3b8" font-size="10" font-family="JetBrains Mono">GND</text>
+
+                        <circle id="pin-rtc-sda" cx="1000" cy="390" r="6" fill="#3b82f6"/>
+                        <text x="1015" y="394" fill="#3b82f6" font-size="10" font-family="JetBrains Mono">SDA (to GPIO 21)</text>
+
+                        <circle id="pin-rtc-scl" cx="1000" cy="415" r="6" fill="#8b5cf6"/>
+                        <text x="1015" y="419" fill="#8b5cf6" font-size="10" font-family="JetBrains Mono">SCL (to GPIO 22)</text>
+                    </g>
+
+                    <!-- ============================================================== -->
+                    <!-- COMPONENT 8: RFID-RC522 Module 3.3V SPI (Mid-Right)           -->
+                    <!-- ============================================================== -->
+                    <g id="box-rfid">
+                        <rect x="1000" y="460" width="280" height="250" rx="10" fill="#131b2e" stroke="#10b981" stroke-width="2"/>
+                        <rect x="1015" y="475" width="250" height="30" rx="5" fill="#0f172a" stroke="#263352"/>
+                        <text x="1140" y="495" fill="#10b981" font-size="13" font-weight="800" text-anchor="middle">RFID-RC522 (3.3V SPI)</text>
+
+                        <!-- RC522 Terminals (Left) -->
+                        <circle id="pin-rfid-3v3" cx="1000" cy="530" r="6" fill="#10b981"/>
+                        <text x="1015" y="534" fill="#10b981" font-size="10" font-family="JetBrains Mono" font-weight="700">3.3V (⚠️ STRICT)</text>
+
+                        <circle id="pin-rfid-rst" cx="1000" cy="560" r="6" fill="#ec4899"/>
+                        <text x="1015" y="564" fill="#ec4899" font-size="10" font-family="JetBrains Mono">RST (to GPIO 4)</text>
+
+                        <circle id="pin-rfid-gnd" cx="1000" cy="590" r="6" fill="#64748b"/>
+                        <text x="1015" y="594" fill="#94a3b8" font-size="10" font-family="JetBrains Mono">GND</text>
+
+                        <circle id="pin-rfid-miso" cx="1000" cy="620" r="6" fill="#22c55e"/>
+                        <text x="1015" y="624" fill="#22c55e" font-size="10" font-family="JetBrains Mono">MISO (to GPIO 19)</text>
+
+                        <circle id="pin-rfid-mosi" cx="1000" cy="650" r="6" fill="#84cc16"/>
+                        <text x="1015" y="654" fill="#84cc16" font-size="10" font-family="JetBrains Mono">MOSI (to GPIO 23)</text>
+
+                        <circle id="pin-rfid-sck" cx="1000" cy="680" r="6" fill="#6366f1"/>
+                        <text x="1015" y="684" fill="#6366f1" font-size="10" font-family="JetBrains Mono">SCK (to GPIO 18)</text>
+
+                        <circle id="pin-rfid-sda" cx="1000" cy="705" r="6" fill="#14b8a6"/>
+                        <text x="1015" y="709" fill="#14b8a6" font-size="10" font-family="JetBrains Mono">SDA/SS (to GPIO 5)</text>
+                    </g>
+
+                    <!-- ============================================================== -->
+                    <!-- COMPONENT 9: DFPlayer Mini MP3-TF-16P (Bottom-Right)          -->
+                    <!-- ============================================================== -->
+                    <g id="box-dfplayer">
+                        <rect x="940" y="740" width="250" height="240" rx="10" fill="#131b2e" stroke="#a855f7" stroke-width="2"/>
+                        <rect x="955" y="755" width="220" height="30" rx="5" fill="#0f172a" stroke="#263352"/>
+                        <text x="1065" y="775" fill="#a855f7" font-size="13" font-weight="800" text-anchor="middle">DFPLAYER MINI (MP3-TF-16P)</text>
+
+                        <!-- Left DFPlayer Pins -->
+                        <circle id="pin-df-vcc" cx="940" cy="810" r="6" fill="#f59e0b"/>
+                        <text x="955" y="814" fill="#f59e0b" font-size="10" font-family="JetBrains Mono">Pin 1: VCC (5V)</text>
+
+                        <circle id="pin-df-rx" cx="940" cy="850" r="6" fill="#d946ef"/>
+                        <text x="955" y="854" fill="#d946ef" font-size="10" font-family="JetBrains Mono">Pin 2: RX (via 1kΩ)</text>
+
+                        <circle id="pin-df-tx" cx="940" cy="890" r="6" fill="#a855f7"/>
+                        <text x="955" y="894" fill="#a855f7" font-size="10" font-family="JetBrains Mono">Pin 3: TX (via 1kΩ)</text>
+
+                        <circle id="pin-df-gnd" cx="940" cy="940" r="6" fill="#64748b"/>
+                        <text x="955" y="944" fill="#94a3b8" font-size="10" font-family="JetBrains Mono">Pin 7: GND</text>
+
+                        <!-- Right DFPlayer Speaker Pins -->
+                        <circle id="pin-df-spk1" cx="1190" cy="850" r="6" fill="#10b981"/>
+                        <text x="1175" y="854" fill="#10b981" font-size="10" font-family="JetBrains Mono" text-anchor="end">Pin 6: SPK1 (+)</text>
+
+                        <circle id="pin-df-spk2" cx="1190" cy="910" r="6" fill="#f43f5e"/>
+                        <text x="1175" y="914" fill="#f43f5e" font-size="10" font-family="JetBrains Mono" text-anchor="end">Pin 8: SPK2 (-)</text>
+                    </g>
+
+                    <!-- Resistors Graphic on TX2/RX2 lines -->
+                    <g id="resistor-rx">
+                        <rect x="855" y="732" width="45" height="16" rx="3" fill="#d97706" stroke="#78350f"/>
+                        <text x="877" y="725" fill="#f59e0b" font-size="9" font-weight="700" text-anchor="middle">1kΩ</text>
+                    </g>
+                    <g id="resistor-tx">
+                        <rect x="855" y="782" width="45" height="16" rx="3" fill="#d97706" stroke="#78350f"/>
+                        <text x="877" y="775" fill="#f59e0b" font-size="9" font-weight="700" text-anchor="middle">1kΩ</text>
+                    </g>
+
+                    <!-- ============================================================== -->
+                    <!-- COMPONENT 10: 3W 8Ω Speaker (Far-Right)                       -->
+                    <!-- ============================================================== -->
+                    <g id="box-speaker">
+                        <circle cx="1380" cy="870" r="60" fill="#131b2e" stroke="#10b981" stroke-width="3"/>
+                        <circle cx="1380" cy="870" r="35" fill="#0f172a" stroke="#263352" stroke-width="2"/>
+                        <text x="1380" y="874" fill="#ffffff" font-size="12" font-weight="800" text-anchor="middle">3W 8Ω</text>
+                        <text x="1380" y="955" fill="#10b981" font-size="12" font-weight="700" text-anchor="middle">SPEAKER</text>
+
+                        <!-- Terminal Pins -->
+                        <circle id="pin-spk-pos" cx="1320" cy="850" r="5" fill="#10b981"/>
+                        <circle id="pin-spk-neg" cx="1320" cy="910" r="5" fill="#f43f5e"/>
+                    </g>
+
+
+                    <!-- ============================================================== -->
+                    <!-- SEPARATE PHYSICAL WIRES (Every Wire Has Unique Distinct Path)   -->
+                    <!-- ============================================================== -->
+
+                    <!-- 1. Power Supply +12V -> Buck Converter VIN (+) (Red Line) -->
+                    <path class="wire group-power" id="w-ps-buck-12v"
+                          d="M 280 150 C 330 150, 330 390, 40 390" 
+                          stroke="#ef4444" stroke-width="3"
+                          data-info="Power Supply +12V ➔ Buck Converter VIN (+) [12V DC Input]"/>
+
+                    <!-- 2. Power Supply GND -> Buck Converter VIN (-) (Dark Slate Line) -->
+                    <path class="wire group-power" id="w-ps-buck-gnd"
+                          d="M 280 200 C 340 200, 340 430, 40 430" 
+                          stroke="#64748b" stroke-width="3"
+                          data-info="Power Supply GND ➔ Buck Converter VIN (-) [12V DC Return]"/>
+
+                    <!-- 3. Power Supply +12V -> Relay COM (Red Line) -->
+                    <path class="wire group-relay" id="w-ps-relay-12v"
+                          d="M 280 150 C 20 150, 20 670, 40 670" 
+                          stroke="#ef4444" stroke-width="2.5"
+                          data-info="Power Supply +12V ➔ Relay COM (Public End) [12V Constant Power for Lock]"/>
+
+                    <!-- 4. Power Supply GND -> Magnetic Lock GND (-) (Dark Slate Line) -->
+                    <path class="wire group-relay" id="w-ps-lock-gnd"
+                          d="M 280 200 C 10 200, 10 950, 40 950" 
+                          stroke="#64748b" stroke-width="2.5"
+                          data-info="Power Supply GND ➔ Magnetic Lock GND (-) [Lock Ground Return]"/>
+
+                    <!-- 5. Relay NO -> Magnetic Lock VCC (+) (Orange Line) -->
+                    <path class="wire group-relay" id="w-relay-lock-no"
+                          d="M 40 720 C 15 720, 15 920, 40 920" 
+                          stroke="#f97316" stroke-width="3"
+                          data-info="Relay NO (Normally Open) ➔ Magnetic Lock VCC (+) [Switched 12V Power]"/>
+
+                    <!-- 6. Power Supply +12V -> Exit Sensor V+ (Red Line) -->
+                    <path class="wire group-exit" id="w-ps-exit-12v"
+                          d="M 280 150 C 600 30, 800 30, 1000 110" 
+                          stroke="#ef4444" stroke-width="2.5"
+                          data-info="Power Supply +12V ➔ IR Exit Sensor V+ [12V Power for Optical Sensor]"/>
+
+                    <!-- 7. Power Supply GND -> Exit Sensor GND (-) (Dark Slate Line) -->
+                    <path class="wire group-exit" id="w-ps-exit-gnd"
+                          d="M 280 200 C 600 50, 800 50, 1000 140" 
+                          stroke="#64748b" stroke-width="2.5"
+                          data-info="Power Supply GND ➔ IR Exit Sensor GND [Sensor Ground]"/>
+
+                    <!-- 8. Exit Sensor COM -> Common Ground (Dark Slate Line) -->
+                    <path class="wire group-exit" id="w-exit-com-gnd"
+                          d="M 1000 170 C 900 170, 900 300, 810 300" 
+                          stroke="#64748b" stroke-width="2.5"
+                          data-info="IR Exit Sensor COM ➔ ESP32 / Common GND [Ground Reference for Output]"/>
+
+                    <!-- 9. Exit Sensor NO -> ESP32 GPIO 33 (Cyan Line) -->
+                    <path class="wire group-exit" id="w-exit-no-esp"
+                          d="M 1000 200 C 900 200, 400 420, 450 420" 
+                          stroke="#06b6d4" stroke-width="3"
+                          data-info="IR Exit Sensor NO ➔ ESP32 GPIO 33 [Wave Sensor Signal / Active LOW]"/>
+
+                    <!-- 10. Buck Converter 5V Output -> ESP32 VIN (5V Rail) (Amber Line) -->
+                    <path class="wire group-power" id="w-buck-esp-5v"
+                          d="M 300 390 C 370 390, 370 250, 450 250" 
+                          stroke="#f59e0b" stroke-width="3.5"
+                          data-info="Buck Converter 5V (+) ➔ ESP32 VIN (5V Power Input) [Regulated 5.0V]"/>
+
+                    <!-- 11. Buck Converter GND Output -> ESP32 GND (Common GND) (Dark Slate Line) -->
+                    <path class="wire group-power" id="w-buck-esp-gnd"
+                          d="M 300 430 C 370 430, 370 300, 450 300" 
+                          stroke="#64748b" stroke-width="3.5"
+                          data-info="Buck Converter GND (-) ➔ ESP32 GND [Main Common Ground Bus]"/>
+
+                    <!-- 12. Buck 5V Output -> Relay VCC (Amber Line) -->
+                    <path class="wire group-relay" id="w-buck-relay-5v"
+                          d="M 300 390 C 340 390, 340 660, 300 660" 
+                          stroke="#f59e0b" stroke-width="2.5"
+                          data-info="5V Rail (Buck Converter) ➔ Relay Module VCC [5V Relay Coil Power]"/>
+
+                    <!-- 13. Buck GND -> Relay GND (Dark Slate Line) -->
+                    <path class="wire group-relay" id="w-buck-relay-gnd"
+                          d="M 300 430 C 350 430, 350 700, 300 700" 
+                          stroke="#64748b" stroke-width="2.5"
+                          data-info="Common GND ➔ Relay Module GND"/>
+
+                    <!-- 14. ESP32 GPIO 27 -> Relay IN (Yellow Line) -->
+                    <path class="wire group-relay" id="w-esp-relay-in"
+                          d="M 450 360 C 370 360, 370 740, 300 740" 
+                          stroke="#eab308" stroke-width="3"
+                          data-info="ESP32 GPIO 27 ➔ Relay IN [Door Unlock Trigger: HIGH = Unlock (5s)]"/>
+
+                    <!-- 15. ESP32 3V3 -> RFID RC522 3.3V (Emerald Green Line) -->
+                    <path class="wire group-rfid" id="w-esp-rfid-3v3"
+                          d="M 810 250 C 900 250, 900 530, 1000 530" 
+                          stroke="#10b981" stroke-width="3"
+                          data-info="ESP32 3V3 ➔ RFID RC522 3.3V [⚠️ 3.3V Logic ONLY! Never 5V]"/>
+
+                    <!-- 16. ESP32 GND -> RFID RC522 GND (Dark Slate Line) -->
+                    <path class="wire group-rfid" id="w-esp-rfid-gnd"
+                          d="M 810 300 C 890 300, 890 590, 1000 590" 
+                          stroke="#64748b" stroke-width="2.5"
+                          data-info="ESP32 GND ➔ RFID RC522 GND"/>
+
+                    <!-- 17. ESP32 GPIO 4 -> RFID RC522 RST (Pink Line) -->
+                    <path class="wire group-rfid" id="w-esp-rfid-rst"
+                          d="M 810 670 C 890 670, 890 560, 1000 560" 
+                          stroke="#ec4899" stroke-width="2.5"
+                          data-info="ESP32 GPIO 4 ➔ RFID RC522 RST [SPI Reset]"/>
+
+                    <!-- 18. ESP32 GPIO 19 -> RFID RC522 MISO (Green Line) -->
+                    <path class="wire group-rfid" id="w-esp-rfid-miso"
+                          d="M 810 620 L 1000 620" 
+                          stroke="#22c55e" stroke-width="2.5"
+                          data-info="ESP32 GPIO 19 ➔ RFID RC522 MISO [SPI Master In Slave Out]"/>
+
+                    <!-- 19. ESP32 GPIO 23 -> RFID RC522 MOSI (Lime Line) -->
+                    <path class="wire group-rfid" id="w-esp-rfid-mosi"
+                          d="M 810 570 C 910 570, 910 650, 1000 650" 
+                          stroke="#84cc16" stroke-width="2.5"
+                          data-info="ESP32 GPIO 23 ➔ RFID RC522 MOSI [SPI Master Out Slave In]"/>
+
+                    <!-- 20. ESP32 GPIO 18 -> RFID RC522 SCK (Indigo Line) -->
+                    <path class="wire group-rfid" id="w-esp-rfid-sck"
+                          d="M 810 520 C 920 520, 920 680, 1000 680" 
+                          stroke="#6366f1" stroke-width="2.5"
+                          data-info="ESP32 GPIO 18 ➔ RFID RC522 SCK [SPI Clock]"/>
+
+                    <!-- 21. ESP32 GPIO 5 -> RFID RC522 SDA (Teal Line) -->
+                    <path class="wire group-rfid" id="w-esp-rfid-sda"
+                          d="M 810 470 C 930 470, 930 705, 1000 705" 
+                          stroke="#14b8a6" stroke-width="2.5"
+                          data-info="ESP32 GPIO 5 ➔ RFID RC522 SDA/SS [SPI Chip Select]"/>
+
+                    <!-- 22. ESP32 5V Rail -> RTC VCC (Amber Line) -->
+                    <path class="wire group-rtc" id="w-esp-rtc-vcc"
+                          d="M 450 250 C 400 220, 950 220, 1000 330" 
+                          stroke="#f59e0b" stroke-width="2.5"
+                          data-info="5V Rail (Buck Output) ➔ DS3231 RTC VCC [5V Real-Time Clock Power]"/>
+
+                    <!-- 23. Common GND -> RTC GND (Dark Slate Line) -->
+                    <path class="wire group-rtc" id="w-esp-rtc-gnd"
+                          d="M 810 300 C 880 300, 880 360, 1000 360" 
+                          stroke="#64748b" stroke-width="2.5"
+                          data-info="Common GND ➔ DS3231 RTC GND"/>
+
+                    <!-- 24. ESP32 GPIO 21 -> RTC SDA (Blue Line) -->
+                    <path class="wire group-rtc" id="w-esp-rtc-sda"
+                          d="M 810 360 C 890 360, 890 390, 1000 390" 
+                          stroke="#3b82f6" stroke-width="3"
+                          data-info="ESP32 GPIO 21 ➔ DS3231 RTC SDA [I2C Data Line]"/>
+
+                    <!-- 25. ESP32 GPIO 22 -> RTC SCL (Purple Line) -->
+                    <path class="wire group-rtc" id="w-esp-rtc-scl"
+                          d="M 810 410 C 890 410, 890 415, 1000 415" 
+                          stroke="#8b5cf6" stroke-width="3"
+                          data-info="ESP32 GPIO 22 ➔ DS3231 RTC SCL [I2C Clock Line]"/>
+
+                    <!-- 26. 5V Rail -> DFPlayer Pin 1 VCC (Amber Line) -->
+                    <path class="wire group-audio" id="w-df-vcc"
+                          d="M 450 250 C 380 250, 380 810, 940 810" 
+                          stroke="#f59e0b" stroke-width="3"
+                          data-info="5V Rail (Buck Converter Output) ➔ DFPlayer Pin 1 (VCC) [Filtered 5V Power]"/>
+
+                    <!-- 27. Common GND -> DFPlayer Pin 7 GND (Dark Slate Line) -->
+                    <path class="wire group-audio" id="w-df-gnd"
+                          d="M 450 300 C 390 300, 390 940, 940 940" 
+                          stroke="#64748b" stroke-width="3"
+                          data-info="Common GND ➔ DFPlayer Pin 7 (GND)"/>
+
+                    <!-- 28. ESP32 GPIO 17 (TX2) -> 1k Resistor -> DFPlayer Pin 2 RX (Magenta Line) -->
+                    <path class="wire group-audio" id="w-df-rx"
+                          d="M 810 740 L 855 740 M 900 740 C 920 740, 920 850, 940 850" 
+                          stroke="#d946ef" stroke-width="3"
+                          data-info="ESP32 GPIO 17 (TX2) ➔ [ 1kΩ Resistor ] ➔ DFPlayer Pin 2 (RX) [Dampens Serial Noise]"/>
+
+                    <!-- 29. DFPlayer Pin 3 (TX) -> 1k Resistor -> ESP32 GPIO 16 (RX2) (Violet Line) -->
+                    <path class="wire group-audio" id="w-df-tx"
+                          d="M 940 890 C 920 890, 920 790, 900 790 M 855 790 L 810 790" 
+                          stroke="#a855f7" stroke-width="3"
+                          data-info="DFPlayer Pin 3 (TX) ➔ [ 1kΩ Resistor ] ➔ ESP32 GPIO 16 (RX2) [Protects ESP32 3.3V Logic]"/>
+
+                    <!-- 30. DFPlayer Pin 6 (SPK1) -> Speaker Lead 1 (+) (Emerald Green Line) -->
+                    <path class="wire group-audio" id="w-df-spk1"
+                          d="M 1190 850 L 1320 850" 
+                          stroke="#10b981" stroke-width="3.5"
+                          data-info="DFPlayer Pin 6 (SPK1) ➔ 3W 8Ω Speaker Lead 1 (Red Wire / +)"/>
+
+                    <!-- 31. DFPlayer Pin 8 (SPK2) -> Speaker Lead 2 (-) (Rose Red Line) -->
+                    <path class="wire group-audio" id="w-df-spk2"
+                          d="M 1190 910 L 1320 910" 
+                          stroke="#f43f5e" stroke-width="3.5"
+                          data-info="DFPlayer Pin 8 (SPK2) ➔ 3W 8Ω Speaker Lead 2 (Black Wire / -)"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- 3-Column Info Panel -->
+        <div class="info-grid">
+            <!-- 1. Color Coded Wiring Matrix Table -->
+            <div class="info-card">
+                <div class="info-card-title">
+                    <span>🎨 Wire Color Code & Pin Matrix</span>
+                </div>
+                <div class="table-wrap">
+                    <table class="wire-table">
+                        <thead>
+                            <tr>
+                                <th>Color</th>
+                                <th>Signal / Connection</th>
+                                <th>Voltage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge-wire" style="background:rgba(239, 68, 68, 0.2); color:#ef4444;"><span class="dot" style="background:#ef4444;"></span> RED</span></td>
+                                <td>12V Power & Relay COM / Sensor V+</td>
+                                <td>+12.0V DC</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-wire" style="background:rgba(245, 158, 11, 0.2); color:#f59e0b;"><span class="dot" style="background:#f59e0b;"></span> AMBER</span></td>
+                                <td>Buck 5V Output ➔ ESP32 VIN / Relay / RTC / DFP</td>
+                                <td>+5.0V Reg.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-wire" style="background:rgba(100, 116, 139, 0.2); color:#94a3b8;"><span class="dot" style="background:#64748b;"></span> SLATE</span></td>
+                                <td>Common Ground (All Modules)</td>
+                                <td>0V GND</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-wire" style="background:rgba(16, 185, 129, 0.2); color:#10b981;"><span class="dot" style="background:#10b981;"></span> EMERALD</span></td>
+                                <td>ESP32 3V3 ➔ RFID RC522 Power</td>
+                                <td>+3.3V Logic</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-wire" style="background:rgba(234, 179, 8, 0.2); color:#eab308;"><span class="dot" style="background:#eab308;"></span> YELLOW</span></td>
+                                <td>ESP32 GPIO 27 ➔ Relay IN (Unlock Trigger)</td>
+                                <td>3.3V Logic</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-wire" style="background:rgba(6, 182, 212, 0.2); color:#06b6d4;"><span class="dot" style="background:#06b6d4;"></span> CYAN</span></td>
+                                <td>IR Exit Sensor NO ➔ ESP32 GPIO 33</td>
+                                <td>Active LOW</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-wire" style="background:rgba(59, 130, 246, 0.2); color:#3b82f6;"><span class="dot" style="background:#3b82f6;"></span> BLUE</span></td>
+                                <td>ESP32 GPIO 21 ➔ DS3231 RTC SDA</td>
+                                <td>I2C Data</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-wire" style="background:rgba(139, 92, 246, 0.2); color:#8b5cf6;"><span class="dot" style="background:#8b5cf6;"></span> PURPLE</span></td>
+                                <td>ESP32 GPIO 22 ➔ DS3231 RTC SCL</td>
+                                <td>I2C Clock</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-wire" style="background:rgba(217, 70, 239, 0.2); color:#d946ef;"><span class="dot" style="background:#d946ef;"></span> MAGENTA</span></td>
+                                <td>ESP32 GPIO 17 ➔ [ 1kΩ ] ➔ DFPlayer RX (Pin 2)</td>
+                                <td>UART TX2</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-wire" style="background:rgba(168, 85, 247, 0.2); color:#a855f7;"><span class="dot" style="background:#a855f7;"></span> VIOLET</span></td>
+                                <td>DFPlayer TX (Pin 3) ➔ [ 1kΩ ] ➔ ESP32 GPIO 16</td>
+                                <td>UART RX2</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 2. Step-by-Step Newbie Wiring Sequence -->
+            <div class="info-card">
+                <div class="info-card-title">
+                    <span>📋 Step-by-Step Assembly Checklist</span>
+                </div>
+                <ul class="checklist">
+                    <li class="checklist-item">
+                        <div class="check-num">1</div>
+                        <div class="check-text">
+                            <h5>Calibrate LM2596 Buck Converter</h5>
+                            <p>Connect 12V to Buck VIN. Turn potentiometer screw until VOUT measures exactly <strong>5.0V</strong>.</p>
+                        </div>
+                    </li>
+                    <li class="checklist-item">
+                        <div class="check-num">2</div>
+                        <div class="check-text">
+                            <h5>Wire Common Ground & 5V Rails</h5>
+                            <p>Connect Buck 5V to ESP32 VIN, Relay VCC, RTC VCC, and DFPlayer Pin 1. Tie all GNDs together.</p>
+                        </div>
+                    </li>
+                    <li class="checklist-item">
+                        <div class="check-num">3</div>
+                        <div class="check-text">
+                            <h5>Connect RFID-RC522 Module (3.3V Only!)</h5>
+                            <p>Connect RC522 3.3V to <strong>ESP32 3V3</strong>. Connect SS➔G5, SCK➔G18, MOSI➔G23, MISO➔G19, RST➔G4.</p>
+                        </div>
+                    </li>
+                    <li class="checklist-item">
+                        <div class="check-num">4</div>
+                        <div class="check-text">
+                            <h5>Connect DS3231 RTC Clock</h5>
+                            <p>Connect SDA to <strong>GPIO 21</strong>, and SCL to <strong>GPIO 22</strong>.</p>
+                        </div>
+                    </li>
+                    <li class="checklist-item">
+                        <div class="check-num">5</div>
+                        <div class="check-text">
+                            <h5>Wire DFPlayer Mini & 3W Speaker</h5>
+                            <p>GPIO 17 ➔ 1kΩ ➔ RX (Pin 2). TX (Pin 3) ➔ 1kΩ ➔ GPIO 16. SPK1 & SPK2 to 3W speaker.</p>
+                        </div>
+                    </li>
+                    <li class="checklist-item">
+                        <div class="check-num">6</div>
+                        <div class="check-text">
+                            <h5>Wire Relay, IR Exit Sensor & 12V Lock</h5>
+                            <p>ESP32 GPIO 27 to Relay IN. IR Exit NO to GPIO 33. Relay NO/COM switches 12V to Door Lock.</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 3. MicroSD Audio Setup Card -->
+            <div class="info-card">
+                <div class="info-card-title">
+                    <span>🎵 MicroSD Card MP3 Checklist</span>
+                </div>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+                    Format card as <strong>FAT32 (MBR)</strong>, max capacity 32GB. Place files directly in root directory:
+                </p>
+                <div style="background:#090d16; border:1px dashed var(--accent-purple); border-radius:8px; padding:0.85rem; font-family:'JetBrains Mono',monospace; font-size:0.8rem;">
+                    <div style="display:flex; justify-content:space-between; padding:0.3rem 0; border-bottom:1px solid #1e293b;">
+                        <span style="color:var(--accent-cyan);">0001.mp3</span>
+                        <span style="color:var(--text-secondary);">System Ready / Welcome</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; padding:0.3rem 0; border-bottom:1px solid #1e293b;">
+                        <span style="color:var(--accent-cyan);">0002.mp3</span>
+                        <span style="color:var(--text-secondary);">Access Granted Voice</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; padding:0.3rem 0; border-bottom:1px solid #1e293b;">
+                        <span style="color:var(--accent-cyan);">0003.mp3</span>
+                        <span style="color:var(--text-secondary);">Access Denied Voice</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; padding:0.3rem 0;">
+                        <span style="color:var(--accent-cyan);">0004.mp3</span>
+                        <span style="color:var(--text-secondary);">Door Locked Prompt</span>
+                    </div>
+                </div>
+                <div style="margin-top: 1rem; padding: 0.75rem; background: #0f172a; border-radius: 8px; font-size: 0.8rem; color: #cbd5e1; border: 1px solid #1a2333;">
+                    🚀 <strong>Firmware Ready:</strong> Open <code>arduino/sdasfc_door_lock.ino</code> in Arduino IDE and upload to your ESP32 at <strong>115200 baud</strong>!
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            SDASFC (Smart Door Automation System for CICS) &bull; ESP32 Hardware Integration Guide &bull; Production Ready
+        </footer>
+    </div>
+
+    <!-- Interactive Script -->
+    <script>
+        const tooltip = document.getElementById('wire-tooltip');
+        const wires = document.querySelectorAll('.wire');
+
+        wires.forEach(wire => {
+            wire.addEventListener('mouseenter', (e) => {
+                const info = wire.getAttribute('data-info');
+                if (info) {
+                    tooltip.innerHTML = info;
+                    tooltip.style.display = 'block';
+                }
+            });
+
+            wire.addEventListener('mousemove', (e) => {
+                const wrapper = document.querySelector('.svg-wrapper');
+                const wrapperRect = wrapper.getBoundingClientRect();
+                tooltip.style.left = (e.clientX - wrapperRect.left + 15) + 'px';
+                tooltip.style.top = (e.clientY - wrapperRect.top + 15) + 'px';
+            });
+
+            wire.addEventListener('mouseleave', () => {
+                tooltip.style.display = 'none';
+            });
+        });
+
+        // Filter wires by subsystem
+        function filterWires(category, e) {
+            document.querySelectorAll('.btn-filter').forEach(btn => btn.classList.remove('active'));
+            if (e && e.target) {
+                const btn = e.target.closest('.btn-filter');
+                if (btn) btn.classList.add('active');
+            }
+
+            wires.forEach(wire => {
+                if (category === 'all') {
+                    wire.classList.remove('wire-dimmed', 'wire-highlighted');
+                } else if (wire.classList.contains('group-' + category)) {
+                    wire.classList.remove('wire-dimmed');
+                    wire.classList.add('wire-highlighted');
+                } else {
+                    wire.classList.add('wire-dimmed');
+                    wire.classList.remove('wire-highlighted');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
