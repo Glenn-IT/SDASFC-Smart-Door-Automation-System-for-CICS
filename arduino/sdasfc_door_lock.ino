@@ -239,19 +239,22 @@ void loop() {
   Serial.printf("[HOST RESPONSE] '%s'\n", response.c_str());
 
   if (response == "GRANT") {
+    Serial.println("[ACCESS] ✅ GRANTED - Opening Door...");
     playGranted(); // 0002.mp3 - Access Granted
     unlockDoor();
-  } else {
-    // DENY or TIMEOUT
+  } else if (response == "DENY") {
+    Serial.println("[ACCESS] ❌ DENIED - Card Unauthorized or Inactive.");
     playDenied();  // 0003.mp3 - Access Denied
     delay(2000);   // Allow "Access Denied" voice prompt to finish cleanly
+  } else {
+    Serial.println("[ACCESS] ⚠️ TIMEOUT - No response from PC Serial Bridge.");
+    playDenied();  // Play Alert
+    delay(2000);
   }
 
-  // Halt RFID Reader
+  // Safely halt card and refresh RFID antenna state
   rfid.PICC_HaltA();
-  rfid.PCD_StopCrypto1();
-
-  delay(400);
+  delay(150);
 }
 
 /**
@@ -315,25 +318,26 @@ void handleDFPlayerEvents() {
 }
 
 /**
- * Read line from Serial until newline or timeout
+ * Read response from Serial stream (instant GRANT/DENY detection)
  */
 String waitForSerialResponse(unsigned long timeoutMs) {
   unsigned long start = millis();
-  String response = "";
+  String buffer = "";
 
   while (millis() - start < timeoutMs) {
     yield();
-    if (Serial.available() > 0) {
-      char c = Serial.read();
-      if (c == '\n' || c == '\r') {
-        response.trim();
-        if (response.length() > 0) {
-          return response;
-        }
-      } else {
-        response += c;
+    while (Serial.available() > 0) {
+      char c = (char)Serial.read();
+      buffer += c;
+
+      if (buffer.indexOf("GRANT") >= 0) {
+        return "GRANT";
+      }
+      if (buffer.indexOf("DENY") >= 0) {
+        return "DENY";
       }
     }
+    delay(10);
   }
 
   return "TIMEOUT";
@@ -344,6 +348,7 @@ String waitForSerialResponse(unsigned long timeoutMs) {
  * - Energize Relay (HIGH) for 5 seconds
  * - De-energize Relay (LOW)
  * - Play Door Locked prompt cleanly
+ * - Refresh RFID antenna state
  */
 void unlockDoor() {
   Serial.println("[DOOR] >>> EVENT:DOOR_UNLOCKED (Relay HIGH) <<<");
@@ -356,6 +361,9 @@ void unlockDoor() {
 
   playLocked(); // 0004.mp3 - Door Locked
   delay(1500);  // Allow voice prompt to finish playing cleanly
+
+  // Re-initialize RFID antenna after relay de-energizes
+  rfid.PCD_Init();
 }
 
 // Voice Prompts (Safely guarded by hasDFPlayer flag)

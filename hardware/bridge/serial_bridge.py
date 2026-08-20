@@ -77,8 +77,10 @@ def main():
                 
                 print(f"[SERIAL RX] {line}")
 
-                if line.startswith("UID:"):
-                    uid = line[4:].strip()
+                import re
+                match = re.search(r"UID:\s*([A-F0-9\s]+)", line, re.IGNORECASE)
+                if match:
+                    uid = match.group(1).strip()
                     print(f" -> Processing RFID scan: '{uid}'")
                     
                     is_granted = send_api_request(args.url, uid)
@@ -86,9 +88,13 @@ def main():
                     if is_granted:
                         print(" -> Decision: ACCESS GRANTED. Sending 'GRANT' to ESP32.")
                         ser.write(b"GRANT\n")
+                        ser.flush()
                     else:
                         print(" -> Decision: ACCESS DENIED. Sending 'DENY' to ESP32.")
                         ser.write(b"DENY\n")
+                        ser.flush()
+                elif "EVENT:" in line:
+                    print(f" -> [HARDWARE EVENT]: {line}")
             time.sleep(0.05)
         except KeyboardInterrupt:
             print("\n[STATUS] Stopping Serial Bridge.")

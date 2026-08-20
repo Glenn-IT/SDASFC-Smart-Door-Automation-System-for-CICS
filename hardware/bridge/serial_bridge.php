@@ -23,7 +23,7 @@ echo "==================================================\n\n";
 
 if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
     // Configure Windows COM Port mode
-    exec("mode {$port} BAUD={$baud} PARITY=n DATA=8 STOP=1 xon=off to=on");
+    exec("mode {$port}: BAUD={$baud} PARITY=n DATA=8 STOP=1 to=off rts=on dtr=on octs=off odsr=off idsr=off");
     $device = "\\\\.\\{$port}";
 } else {
     // Linux / Mac port path
@@ -62,9 +62,11 @@ while (true) {
                 if ($isGranted) {
                     echo " -> ACCESS GRANTED. Replying 'GRANT'\n";
                     fwrite($handle, "GRANT\n");
+                    fflush($handle);
                 } else {
                     echo " -> ACCESS DENIED. Replying 'DENY'\n";
                     fwrite($handle, "DENY\n");
+                    fflush($handle);
                 }
             } elseif (strpos($line, 'EVENT:') !== false) {
                 echo " -> [SYSTEM EVENT DETECTED]: {$line}\n";
