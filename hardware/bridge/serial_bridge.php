@@ -11,7 +11,7 @@ if (php_sapi_name() !== 'cli') {
 
 $options = getopt("", ["port::", "baud::", "url::"]);
 $port = $options['port'] ?? 'COM3';
-$baud = (int)($options['baud'] ?? 9600);
+$baud = (int)($options['baud'] ?? 115200);
 $apiUrl = $options['url'] ?? 'http://localhost/SDASFC-Smart-Door-Automation-System-for-CICS/public/api/rfid_scan.php';
 
 echo "==================================================\n";
@@ -53,8 +53,8 @@ while (true) {
 
             echo "[SERIAL RX] {$line}\n";
 
-            if (strpos($line, 'UID:') === 0) {
-                $uid = trim(substr($line, 4));
+            if (preg_match('/UID:\s*([A-F0-9\s]+)/i', $line, $matches)) {
+                $uid = trim($matches[1]);
                 echo " -> Processing scan for UID: '{$uid}'\n";
 
                 $isGranted = verifyRfidUid($apiUrl, $uid);
@@ -66,6 +66,8 @@ while (true) {
                     echo " -> ACCESS DENIED. Replying 'DENY'\n";
                     fwrite($handle, "DENY\n");
                 }
+            } elseif (strpos($line, 'EVENT:') !== false) {
+                echo " -> [SYSTEM EVENT DETECTED]: {$line}\n";
             }
         }
     }

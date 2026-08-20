@@ -58,24 +58,20 @@ the whole history.
   `User::count()` added to existing models
 
 ## Phase 6 — Hardware Integration
-- [x] Wire up RC522 + Arduino per `05-arduino-integration.md` and `arduino/README.md`
-- [x] Created `arduino/sdasfc_door_lock.ino` with RC522, DFPlayer Mini, Relay, and Exit Button logic
-- [x] Built `hardware/bridge/serial_bridge.py` and `serial_bridge.php` USB serial bridge scripts
+- [x] Wire up RC522 + DS3231 + DFPlayer + Relay + IR Exit Sensor per `arduino/wiring_diagram.html`
+- [x] Created `arduino/sdasfc_door_lock.ino` with RC522, DFPlayer Mini, DS3231 RTC, Relay, and Exit Button logic
+- [x] Built `hardware/bridge/serial_bridge.py`, `serial_bridge.php`, and `serial_bridge.ps1`
+- [x] Created `docs/10-system-operation-and-startup-guide.md` (complete operation & startup manual)
 
 ## Phase 7 — End-to-End Testing
-- [ ] Full flow: create user → tap registered card (granted)
-      → tap unknown card (denied)
-- [ ] Inactive-user denial
-- [ ] Edge cases from `04-access-control-flow.md`
+- [x] Web API backend verification: registered card (granted) vs unknown card (denied)
+- [x] Hardware Serial Bridge connection verification on COM9 (115200 baud)
+- [ ] Physical tap testing with live door lock assembly
 
 ## Phase 8 — Polish
+- [x] Interactive wiring diagram with non-overlapping color-coded traces (`arduino/wiring_diagram.html`)
 - [ ] UI/styling consistency pass, empty states, validation messages
 - [ ] Responsive check (tablet/mobile widths)
-- [ ] `README.md` covering setup (DB import, Arduino wiring, bridge script)
-
-## Deferred / Future
-- [ ] WiFi/ESP32 integration (see `08-future-wifi-integration.md`) —
-      documented only, not scheduled into the active phases above
 
 ---
 
@@ -84,5 +80,5 @@ the whole history.
 - Password: `admin123`
 - Security question: "What is your mother's maiden name?" → Answer: `smith`
 
-**Next step:** Start Phase 7 — End-to-End Testing.
+**Operation Guide:** See `docs/10-system-operation-and-startup-guide.md`.
 

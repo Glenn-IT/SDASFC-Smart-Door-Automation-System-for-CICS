@@ -103,7 +103,7 @@ class User
 
     public static function findByRfidUid(string $rfidUid, ?int $excludeId = null): ?array
     {
-        $sql = 'SELECT * FROM users WHERE LOWER(TRIM(rfid_uid)) = LOWER(TRIM(?))';
+        $sql = "SELECT * FROM users WHERE REPLACE(LOWER(TRIM(rfid_uid)), ' ', '') = REPLACE(LOWER(TRIM(?)), ' ', '')";
         $params = [trim($rfidUid)];
 
         if ($excludeId !== null) {
