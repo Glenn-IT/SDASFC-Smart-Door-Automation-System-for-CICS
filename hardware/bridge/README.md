@@ -1,52 +1,41 @@
-# SDASFC Host Serial Bridge
+# SDASFC Hybrid Serial Bridge
 
-The **Serial Bridge** acts as the communication link between the physical Arduino door controller (connected via USB) and the SDASFC Web Application API (`public/api/rfid_scan.php`).
+The **Serial Bridge** acts as the communication link between the physical ESP32 door controller (connected via USB) and the SDASFC Web Application API (`public/api/rfid_scan.php` & `public/api/whitelist.php`).
 
-## How It Works
+## How It Works in Hybrid Mode
 
 ```
-┌─────────────────┐       USB Serial       ┌──────────────────────┐       HTTP POST        ┌─────────────────────────┐
+┌─────────────────┐       USB Serial       ┌──────────────────────┐       HTTP POST / GET  ┌─────────────────────────┐
 │                 │ ──── UID:XX XX XX ───> │                      │ ── {"rfid_uid": ...} ─> │  SDASFC Web Application │
-│  Arduino Uno    │                        │ Serial Bridge Script │                        │  (XAMPP / PHP / MySQL)  │
-│                 │ <──── GRANT / DENY ──── │ (Python or PHP CLI)  │ <── {"access": ...} ── │  public/api/rfid_scan.php │
-└─────────────────┘                        └──────────────────────┘                        └─────────────────────────┘
+│  ESP32 Dev      │ <──── GRANT / DENY ─── │ Hybrid Serial Bridge │                        │  (XAMPP / PHP / MySQL)  │
+│  Door Lock      │ <── SYNC_WHITELIST: ── │ (PowerShell, Python, │ <── {"uids": [...] } ── │  public/api/            │
+└─────────────────┘                        └────── or PHP CLI ────┘                        └─────────────────────────┘
 ```
 
-1. When a user scans an RFID card at the reader, the Arduino prints `UID:XX XX XX XX` over the USB serial interface.
-2. The serial bridge script reads the serial line, extracts the UID string, and sends an HTTP POST request to the web API endpoint.
-3. The Web API checks if the UID exists in the database `users` table and whether the user is active, logging the event in `access_logs`.
-4. The Web API returns JSON `{"access": "granted"}` or `{"access": "denied"}`.
-5. The serial bridge receives the HTTP response and immediately sends `GRANT\n` or `DENY\n` back to the Arduino.
-6. The Arduino receives the command, plays the corresponding voice prompt via DFPlayer Mini, and triggers the relay if granted.
+1. **Automatic Whitelist Syncing**:
+   - Whenever the Serial Bridge starts up, it queries `public/api/whitelist.php` and transmits all active registered user UIDs to the ESP32.
+   - The ESP32 saves them into **Non-Volatile Flash Memory (Preferences / NVS)**.
+2. **Live Tap Processing**:
+   - When a card is scanned with USB connected, it logs the access to MySQL and makes real-time decisions (`GRANT` / `DENY`).
+3. **Standalone Fallback**:
+   - If the USB cable is unplugged or the PC is off, the ESP32 checks its local Flash storage. If the card is registered, the door unlocks immediately!
 
 ---
 
-## Option 1: Running the Python Serial Bridge (Recommended)
+## How to Run the Bridge
 
-### Requirements
-- Python 3.6 or higher
-- `pyserial` package:
-  ```bash
-  pip install pyserial
-  ```
+### Option 1: Quick Start (Windows PowerShell / Batch - Default)
+Double click [`hardware/bridge/start_bridge.bat`](file:///C:/xampp/htdocs/SDASFC-Smart-Door-Automation-System-for-CICS/hardware/bridge/start_bridge.bat) or run in PowerShell:
+```powershell
+powershell -ExecutionPolicy Bypass -File hardware/bridge/serial_bridge.ps1
+```
 
-### Usage
-Run the script from your terminal:
+### Option 2: Python Serial Bridge
 ```bash
 python hardware/bridge/serial_bridge.py --port COM3
 ```
 
-Parameters:
-- `--port`: The COM port assigned to the Arduino (e.g. `COM3`, `COM4` on Windows, `/dev/ttyUSB0` on Linux).
-- `--baud`: Serial baud rate (default: `9600`).
-- `--url`: API URL (default: `http://localhost/SDASFC-Smart-Door-Automation-System-for-CICS/public/api/rfid_scan.php`).
-
----
-
-## Option 2: Running the PHP CLI Serial Bridge
-
-If Python is not installed, you can run the PHP CLI bridge directly using XAMPP's PHP executable:
-
+### Option 3: PHP CLI Serial Bridge
 ```bash
 php hardware/bridge/serial_bridge.php --port=COM3
 ```
@@ -56,8 +45,6 @@ php hardware/bridge/serial_bridge.php --port=COM3
 ## Troubleshooting
 
 1. **"Could not open serial port COM3"**:
-   - Ensure the Arduino Serial Monitor window in Arduino IDE is **closed** (only one application can open the COM port at a time).
-   - Check Device Manager (Windows) to verify the correct COM port number.
+   - Close the Arduino IDE Serial Monitor (only one program can use the COM port at a time).
 2. **"Failed to connect to Web API"**:
-   - Verify XAMPP Apache is running.
-   - Check that `http://localhost/SDASFC-Smart-Door-Automation-System-for-CICS/public/api/rfid_scan.php` is accessible in your web browser.
+   - Ensure XAMPP Apache & MySQL are running.

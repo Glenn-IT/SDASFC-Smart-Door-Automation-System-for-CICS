@@ -2,13 +2,26 @@
 
 This directory contains the production firmware for the **SDASFC (Smart Door Automation System for CICS)** hardware setup.
 
+## Firmware Operation: Hybrid Mode (Online & Standalone Offline)
+
+The firmware ([`arduino/sdasfc_door_lock.ino`](file:///C:/xampp/htdocs/SDASFC-Smart-Door-Automation-System-for-CICS/arduino/sdasfc_door_lock.ino)) supports **Hybrid Operation**:
+
+1. **Connected via USB Serial / Wi-Fi**:
+   - Live authorization checks against the MySQL database (`rfid_scan.php`).
+   - Active user whitelists are automatically synchronized to ESP32 Flash memory on startup and tap.
+2. **Standalone Offline (USB Unplugged & No Wi-Fi)**:
+   - When the USB cable is unplugged, the ESP32 automatically falls back to its Non-Volatile Flash (`Preferences` / NVS) storage and hardcoded master list.
+   - Any registered user will **unlock the door immediately** with the voice prompt even when running standalone!
+
+---
+
 ## Full Hardware Components List
 
 1. **Microcontroller**: ESP32 Dev Module (30-pin board layout)
 2. **Power System**:
    - 12V 5A UPS Access Control Power Supply Board (with 12V backup battery connection)
    - 12V Lead-Acid / Lithium Backup Battery
-   - LM2596 Buck Converter (Step-down 12V to 5V to power ESP32, RFID, RTC, DFPlayer, & Relay)
+   - LM2596 Buck Converter (Step-down 12V to 5V to power ESP32 VIN, RFID, RTC, DFPlayer, & Relay)
    - 1000µF 16V Power Decoupling & Smoothing Capacitor (across 5V and GND)
 3. **RFID Reader**: MFRC522 (RC522 v133) 13.56MHz SPI Module
 4. **Real-Time Clock (RTC)**: DS3231 AT24C32 I2C RTC Module
@@ -19,7 +32,7 @@ This directory contains the production firmware for the **SDASFC (Smart Door Aut
 
 ---
 
-## ESP32 Pin Connections & Breadboard Wiring
+## ESP32 Pin Connections & Wiring
 
 | Component | Pin Label | ESP32 GPIO Pin / Target | Notes |
 |-----------|-----------|-------------------------|-------|
@@ -37,7 +50,7 @@ This directory contains the production firmware for the **SDASFC (Smart Door Aut
 | **Infrared Exit Sensor** | OUT / NO | **GPIO 33** | Active LOW (Hand wave detection) |
 | | COM | Common GND | Ground Reference |
 | | V+ / GND | Power Supply (+12V / GND) | Powered by 12V supply |
-| **1-CH 5V Relay** | IN / SIG | **GPIO 27** | HIGH = Unlocked (5s), LOW = Locked |
+| **1-CH 5V Relay** | IN / SIG | **GPIO 27** | HIGH = Unlocked (6s), LOW = Locked |
 | | VCC | 5V Rail (Buck Converter) | 5V Relay Coil Power |
 | | GND | Common GND | Ground |
 | | COM / NO | 12V Door Lock Loop | Switched 12V Power |
@@ -65,10 +78,8 @@ Format a MicroSD card ($\le$ 32GB) to **FAT32 (MBR)** and place the following fi
 
 ```text
 MicroSD Card Root/
-├── 0001.mp3  <-- Track 1: System Ready / Welcome prompt
-├── 0002.mp3  <-- Track 2: Access Granted prompt
-├── 0003.mp3  <-- Track 3: Access Denied prompt
-└── 0004.mp3  <-- Track 4: Door Locked prompt (Optional)
+├── 0001.mp3  <-- Track 1: Access Denied prompt
+└── 0002.mp3  <-- Track 2: Access Granted & Welcome to CICS Laboratory prompt
 ```
 
 ---
@@ -77,11 +88,7 @@ MicroSD Card Root/
 
 1. Open [`arduino/sdasfc_door_lock.ino`](file:///C:/xampp/htdocs/SDASFC-Smart-Door-Automation-System-for-CICS/arduino/sdasfc_door_lock.ino) in Arduino IDE.
 2. Select Board: **ESP32 Dev Module**, select your COM port, and upload.
-3. Open **Serial Monitor** at **`115200 baud`**.
-4. The system will run hardware diagnostics, play `0001.mp3`, and report `SYS:READY`.
-5. Run the Serial Bridge on your host computer:
-   ```bash
-   python hardware/bridge/serial_bridge.py
-   ```
-6. Tap an RFID card on the reader or wave in front of the IR sensor to test audio prompts and door lock operations!
-
+3. Start the Serial Bridge:
+   - Double-click [`hardware/bridge/start_bridge.bat`](file:///C:/xampp/htdocs/SDASFC-Smart-Door-Automation-System-for-CICS/hardware/bridge/start_bridge.bat) or run PowerShell / Python / PHP CLI bridge.
+   - It will automatically synchronize all active users from MySQL into ESP32 Flash memory.
+4. **Standalone Test**: Unplug the USB cable (ensure ESP32 is powered via 5V from the LM2596 buck converter). Tap a registered card — the door will unlock immediately!

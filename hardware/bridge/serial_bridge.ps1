@@ -1,13 +1,14 @@
 param(
     [string]$Port = "",
     [int]$Baud = 115200,
-    [string]$ApiUrl = "http://localhost/SDASFC-Smart-Door-Automation-System-for-CICS/public/api/rfid_scan.php"
+    [string]$ApiUrl = "http://localhost/SDASFC-Smart-Door-Automation-System-for-CICS/public/api/rfid_scan.php",
+    [string]$WhitelistUrl = "http://localhost/SDASFC-Smart-Door-Automation-System-for-CICS/public/api/whitelist.php"
 )
 
 Clear-Host
 Write-Host "==================================================" -ForegroundColor Cyan
 Write-Host "   SDASFC SMART DOOR AUTOMATION SYSTEM" -ForegroundColor Yellow
-Write-Host "   Native Windows Hardware Serial Bridge (v2.0)" -ForegroundColor Cyan
+Write-Host "   Hybrid Serial & Database Bridge (v3.0)" -ForegroundColor Cyan
 Write-Host "==================================================" -ForegroundColor Cyan
 
 # Auto-detect COM port if not specified
@@ -24,9 +25,10 @@ if ([string]::IsNullOrWhiteSpace($Port)) {
     Write-Host "[AUTO-DETECT] Found and selected port: $Port" -ForegroundColor Green
 }
 
-Write-Host " Target Port  : $Port" -ForegroundColor White
-Write-Host " Baud Rate    : $Baud" -ForegroundColor White
-Write-Host " API Endpoint : $ApiUrl" -ForegroundColor White
+Write-Host " Target Port    : $Port" -ForegroundColor White
+Write-Host " Baud Rate      : $Baud" -ForegroundColor White
+Write-Host " Scan API URL   : $ApiUrl" -ForegroundColor White
+Write-Host " Whitelist URL  : $WhitelistUrl" -ForegroundColor White
 Write-Host "--------------------------------------------------" -ForegroundColor DarkGray
 
 $serial = New-Object System.IO.Ports.SerialPort($Port, $Baud, [System.IO.Ports.Parity]::None, 8, [System.IO.Ports.StopBits]::One)
@@ -36,11 +38,33 @@ $serial.DtrEnable = $true
 $serial.RtsEnable = $true
 $serial.NewLine = "`n"
 
+function Sync-WhitelistToEsp32() {
+    try {
+        Write-Host "[SYNC] Fetching active authorized cards from database..." -ForegroundColor Cyan
+        $response = Invoke-RestMethod -Uri $WhitelistUrl -Method Get -TimeoutSec 4
+        if ($response.status -eq "success" -and $response.uids) {
+            $uidList = $response.uids -join ","
+            $syncCmd = "SYNC_WHITELIST:$uidList"
+            $serial.WriteLine($syncCmd)
+            Write-Host "[SYNC] ✅ Synced $($response.count) active card(s) to ESP32 Flash Memory!" -ForegroundColor Green
+        } else {
+            Write-Host "[SYNC] ⚠️ No active cards found in database or invalid response." -ForegroundColor Yellow
+        }
+    } catch {
+        Write-Host "[SYNC ERROR] Failed to fetch whitelist from $WhitelistUrl : $($_.Exception.Message)" -ForegroundColor Red
+    }
+}
+
 try {
     $serial.Open()
     Write-Host "[STATUS] Connected to $Port successfully!" -ForegroundColor Green
     Write-Host "[STATUS] Web Database Integration: ACTIVE" -ForegroundColor Green
-    Write-Host "[STATUS] Ready! Listening for RFID scans and Exit events..." -ForegroundColor Yellow
+    
+    # Wait 1.5s for ESP32 boot/reset then send initial whitelist
+    Start-Sleep -Milliseconds 1500
+    Sync-WhitelistToEsp32
+
+    Write-Host "[STATUS] Ready! Listening for RFID scans, Exit events, and Sync requests..." -ForegroundColor Yellow
     Write-Host "==================================================" -ForegroundColor DarkGray
 } catch {
     Write-Host "[ERROR] Could not open $Port : $($_.Exception.Message)" -ForegroundColor Red
@@ -60,7 +84,7 @@ function Handle-RfidScan([string]$uid) {
 
         if ($response.access -eq "granted") {
             Write-Host "[WEB API]  Decision: ACCESS GRANTED (Reason: $($response.reason))" -ForegroundColor Green
-            Write-Host "[ESP32]    Sending 'GRANT' command -> Unlocking Door..." -ForegroundColor Green
+            Write-Host "[ESP32]    Sending 'GRANT' command -> Unlocking Door & Caching UID..." -ForegroundColor Green
             $serial.WriteLine("GRANT")
         } else {
             Write-Host "[WEB API]  Decision: ACCESS DENIED (Reason: $($response.reason))" -ForegroundColor Red
@@ -85,6 +109,10 @@ try {
             if ($line -match "UID\s*:\s*([A-F0-9\s]+)") {
                 $scannedUid = $matches[1].Trim()
                 Handle-RfidScan -uid $scannedUid
+            }
+            elseif ($line -match "REQ:SYNC" -or $line -eq "SYNC") {
+                Write-Host "[ESP32 REQUEST] Whitelist synchronization requested." -ForegroundColor Cyan
+                Sync-WhitelistToEsp32
             }
             elseif ($line -match "EVENT:EXIT_BUTTON") {
                 Write-Host "[EVENT] No-Touch IR Exit Sensor triggered! (Door Unlocked)" -ForegroundColor Green
