@@ -33,8 +33,7 @@ $appJsVer = @filemtime(__DIR__ . '/assets/js/app.js') ?: time();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login - Smart Door Automation System for CICS</title>
     <link rel="icon" type="image/jpeg" href="assets/img/logo.jpg">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
     <link href="assets/css/login.css?v=<?= $loginCssVer ?>" rel="stylesheet">
 </head>
 <body class="login-body">
