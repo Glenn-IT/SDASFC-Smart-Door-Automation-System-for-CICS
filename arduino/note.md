@@ -48,7 +48,9 @@
 
 Format a MicroSD card ($\le$ 32GB) to **FAT32 (MBR)** and place the following files in root:
 - `0001.mp3` : Access Denied prompt (triggers on invalid / unauthorized RFID scan or timeout)
-- `0002.mp3` : Access Granted & Welcome prompt (triggers on valid RFID tap or IR Exit wave)
+- `0002.mp3` : Access Granted & Welcome prompt (triggers on valid RFID card tap ONLY)
+- IR Exit Button : Unlocks door SILENTLY for 6 seconds without welcome voice prompt.
+- Anti-Loop Safety: State-machine edge-triggering prevents close-open looping if sensor is held or wired NC.
 - Playback Volume: Set to **`30` (Maximum hardware volume)** in firmware.
 - Relay Unlock Hold Duration: 6 seconds (`UNLOCK_HOLD_MS 6000`)
 - Silent Door Lock: Door relocks automatically after 6 seconds without intrusive audio.

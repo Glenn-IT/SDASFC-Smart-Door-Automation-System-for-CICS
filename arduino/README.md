@@ -89,11 +89,14 @@ Format a MicroSD card ($\le$ 32GB) to **FAT32 (MBR)** and place the following fi
 ```text
 MicroSD Card Root/
 ├── 0001.mp3  <-- Track 1: Access Denied prompt (triggers on invalid RFID or timeout)
-└── 0002.mp3  <-- Track 2: Access Granted & Welcome prompt (triggers on valid tap or IR wave)
+└── 0002.mp3  <-- Track 2: Access Granted & Welcome prompt (triggers on valid RFID card tap ONLY)
 ```
 
-- Audio Volume: Set to **`30` (Maximum hardware volume)** in firmware.
-- Door Relock: Operates silently after 6 seconds (`UNLOCK_HOLD_MS 6000`).
+- **Exit Button Behavior:** Unlocks door **SILENTLY** for 6 seconds without playing the welcome voice prompt.
+- **Anti-Loop & Stuck Sensor Protection:** Firmware employs edge-triggered state detection with 2.5s lockout cooldown, preventing open-close loops even if sensor is held or wired NC.
+- **Brownout Reset Immunity:** Hardware brownout detector is masked in software to prevent inductive relay click reboot loops.
+- **Audio Volume:** Set to **`30` (Maximum hardware volume)** in firmware.
+- **Door Relock:** Operates silently after 6 seconds (`UNLOCK_HOLD_MS 6000`).
 
 ---
 

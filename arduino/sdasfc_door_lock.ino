@@ -1,6 +1,6 @@
 /*
  * SDASFC — Smart Door Automation System for CICS
- * Hardware Firmware for ESP32 (Production Firmware v3.0 - WiFi + Serial Hybrid + Offline Master Key)
+ * Hardware Firmware for ESP32 (Production Firmware v3.1 - WiFi + Serial Hybrid + Offline Master Key + Anti-Loop Protection)
  * 
  * Hardware Components:
  * - ESP32 Dev Module (30-pin board layout)
@@ -13,18 +13,22 @@
  * - DFPlayer Mini MP3 Module (MP3-TF-16P) + 3W 8Ω Speaker
  * 
  * MicroSD Audio Track Mapping:
- * - Track 2 (0002.mp3): "Access granted you may now open the door. Welcome to the CICS laboratory"
- * - Track 1 (0001.mp3): "Access Denied"
+ * - Track 2 (0002.mp3): "Access granted you may now open the door. Welcome to the CICS laboratory" (Card tap only)
+ * - Track 1 (0001.mp3): "Access Denied" (Card tap rejected / timeout)
+ * - IR Exit Button: SILENT UNLOCK (No welcome voice prompt on exit)
  * 
  * Master Emergency Key (Brownout / Offline Hardware Bypass):
  * - UID: "93 39 6E 1B" (Works 100% offline, during power failure/brownouts, or server downtime)
  * 
  * Network Operation:
- * - Local Wi-Fi Direct: Sends HTTP POST directly to Host Laptop XAMPP API
+ * - Local Wi-Fi Direct: Sends HTTP POST directly to Host Laptop XAMPP API (No internet needed)
  * - USB Serial Fallback: Bridges via serial_bridge.ps1 / .py / .php if Wi-Fi is unavailable
- * - Relay stays locked during power brownout unless Master Key Card is tapped
+ * - Anti-Loop Protection: Software state-machine prevents continuous open-close cycling
+ * - Brownout Detector Protection: Prevents ESP32 reboot loops during relay/lock inductive inrush
  */
 
+#include "soc/soc.h"
+#include "soc/rtc_cntl_reg.h"
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include <SPI.h>
@@ -37,11 +41,11 @@
 //==================================================
 // 1. Wi-Fi & Local Server Configuration
 //==================================================
-// Replace with your router's Wi-Fi credentials
+// Wi-Fi credentials for presentation router (No internet required)
 const char* WIFI_SSID     = "PLDT_Home_1D000";
 const char* WIFI_PASSWORD = "pldthome";
 
-// Local Laptop IP running XAMPP Apache/MySQL (Presentation Router IP: 192.168.1.208)
+// Local Laptop IP running XAMPP Apache/MySQL (Presentation Router IP)
 const char* API_URL       = "http://192.168.1.208/SDASFC-Smart-Door-Automation-System-for-CICS/public/api/rfid_scan.php";
 
 // Wi-Fi Connection Settings
@@ -81,8 +85,14 @@ bool hasDFPlayer = false;
 bool hasRTC = false;
 int defaultVolume = 30; // Maximum audio volume (0 - 30)
 
+// Anti-Loop & Debounce State Tracking for Exit Sensor
+bool lastExitState = HIGH;
+unsigned long lastExitTriggerTime = 0;
+const unsigned long EXIT_COOLDOWN_MS = 2500; // 2.5-second cooldown after relocking to prevent looping
+
 // Function Prototypes
 void unlockDoorAndPrompt();
+void unlockDoorExitSilent();
 void playGranted();
 void playDenied();
 bool initDFPlayer();
@@ -92,10 +102,13 @@ void handleDFPlayerEvents();
 void connectToWiFi();
 
 void setup() {
+  // Disable ESP32 Brownout Detector to prevent inductive relay click reboot loops
+  WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);
+
   Serial.begin(SERIAL_BAUD);
   delay(500);
   Serial.println("\n==================================================");
-  Serial.println("  SDASFC ESP32 SMART DOOR LOCK CONTROLLER (v3.0)");
+  Serial.println("  SDASFC ESP32 SMART DOOR LOCK CONTROLLER (v3.1)");
   Serial.println("  Wi-Fi + Serial Hybrid & Offline Master Key Ready");
   Serial.println("==================================================");
 
@@ -104,9 +117,29 @@ void setup() {
   digitalWrite(RELAY_PIN, RELAY_OFF);
   Serial.println("[HW] Relay initialized (State: LOCKED).");
 
-  // 2. IR Exit Sensor Initialization (Active LOW)
+  // 2. IR Exit Sensor Initialization (Active LOW / Internal Pullup)
   pinMode(EXIT_BUTTON, INPUT_PULLUP);
-  Serial.println("[HW] IR Exit Sensor initialized on GPIO 33.");
+  delay(100);
+
+  // Safety Boot Check: Verify Exit Sensor State on Startup
+  if (digitalRead(EXIT_BUTTON) == LOW) {
+    Serial.println("[HW ALERT] ⚠️ IR Exit Sensor (GPIO 33) is LOW on startup!");
+    Serial.println("          Checking for stuck sensor or NC wiring...");
+    unsigned long bootWait = millis();
+    while (digitalRead(EXIT_BUTTON) == LOW && (millis() - bootWait < 2000)) {
+      delay(50);
+    }
+    if (digitalRead(EXIT_BUTTON) == LOW) {
+      Serial.println("[HW ALERT] ⚠️ Sensor is continuously LOW. Please verify it is wired to NO (Normally Open) and COM, not NC.");
+    } else {
+      Serial.println("[HW] Sensor cleared to HIGH.");
+    }
+  } else {
+    Serial.println("[HW] IR Exit Sensor initialized on GPIO 33 (State: IDLE / HIGH).");
+  }
+
+  // Initialize previous state
+  lastExitState = digitalRead(EXIT_BUTTON);
 
   // 3. Initialize I2C Bus & DS3231 RTC
   Wire.begin(21, 22); // SDA = GPIO 21, SCL = GPIO 22
@@ -149,24 +182,37 @@ void loop() {
   handleDFPlayerEvents();
 
   //==================================================
-  // 2. INFRARED EXIT SENSOR TRIGGER (Wave to Exit)
+  // 2. INFRARED EXIT SENSOR TRIGGER (Edge-Triggered Anti-Loop)
   //==================================================
-  if (digitalRead(EXIT_BUTTON) == LOW) {
-    delay(40); // Debounce check
+  int currentExitState = digitalRead(EXIT_BUTTON);
+
+  // Trigger ONLY on HIGH -> LOW transition AND after cooldown period has elapsed
+  if (currentExitState == LOW && lastExitState == HIGH && (millis() - lastExitTriggerTime > EXIT_COOLDOWN_MS)) {
+    delay(50); // Debounce confirmation
     if (digitalRead(EXIT_BUTTON) == LOW) {
       Serial.println("\n[EVENT:EXIT_BUTTON] IR Exit Sensor Triggered!");
-      unlockDoorAndPrompt();
+      
+      // Unlock door SILENTLY without welcome prompt!
+      unlockDoorExitSilent();
+      lastExitTriggerTime = millis();
 
-      // Wait until hand is removed from IR sensor
-      unsigned long exitWait = millis();
-      while (digitalRead(EXIT_BUTTON) == LOW && (millis() - exitWait < 3000)) {
+      // Wait until hand / object is removed from sensor before re-arming
+      unsigned long waitRelease = millis();
+      while (digitalRead(EXIT_BUTTON) == LOW) {
         yield();
         delay(50);
+        if (millis() - waitRelease > 5000) {
+          Serial.println("[HW ALERT] Exit Sensor is continuously active! Check if wired to NC instead of NO, or adjust sensor sensitivity.");
+          break;
+        }
       }
+      delay(200); // Post-release stabilization
       rfid.PCD_Init();
+      lastExitState = digitalRead(EXIT_BUTTON);
       return;
     }
   }
+  lastExitState = currentExitState;
 
   //==================================================
   // 3. MANUAL TEST COMMANDS VIA SERIAL (T1, T2, UNLOCK)
@@ -339,7 +385,7 @@ String verifyViaWiFi(String uid) {
   HTTPClient http;
   http.begin(API_URL);
   http.addHeader("Content-Type", "application/json");
-  http.addHeader("User-Agent", "SDASFC-ESP32-WiFi/3.0");
+  http.addHeader("User-Agent", "SDASFC-ESP32-WiFi/3.1");
   http.setTimeout(3500);
 
   String payload = "{\"rfid_uid\":\"" + uid + "\"}";
@@ -437,7 +483,7 @@ String waitForSerialResponse(unsigned long timeoutMs) {
 }
 
 /**
- * Immediate Door Unlock & Voice Prompt Sequence:
+ * Card Tap Unlock & Voice Prompt Sequence:
  * 1. Energizes Relay IMMEDIATELY (Door unlocks on millisecond 0)
  * 2. Prompts voice ("Access granted you may now open the door. Welcome to the CICS laboratory")
  * 3. Holds door unlocked for 6 full seconds
@@ -452,6 +498,28 @@ void unlockDoorAndPrompt() {
   playGranted();
 
   // Hold door unlocked for 6 seconds
+  delay(UNLOCK_HOLD_MS);
+
+  digitalWrite(RELAY_PIN, RELAY_OFF);
+  Serial.println("[DOOR] >>> 🔒 RELAY DE-ENERGIZED: Door is LOCKED <<<");
+
+  // Re-initialize RFID antenna after relay de-energizes
+  rfid.PCD_Init();
+}
+
+/**
+ * Silent Door Unlock Sequence for Exit Sensor:
+ * 1. Energizes Relay IMMEDIATELY (Door unlocks on millisecond 0)
+ * 2. NO VOICE PROMPT (Silent exit operation — no welcome message)
+ * 3. Holds door unlocked for 6 full seconds
+ * 4. De-energizes Relay (Locked)
+ * 5. Refreshes RFID antenna state
+ */
+void unlockDoorExitSilent() {
+  Serial.println("[DOOR] >>> 🔓 RELAY ENERGIZED: Exit Wave Detected (Silent Unlock) <<<");
+  digitalWrite(RELAY_PIN, RELAY_ON);
+
+  // Hold door unlocked for 6 seconds WITHOUT voice prompt
   delay(UNLOCK_HOLD_MS);
 
   digitalWrite(RELAY_PIN, RELAY_OFF);

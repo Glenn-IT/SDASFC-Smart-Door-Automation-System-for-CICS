@@ -29,11 +29,12 @@
 2. Baud rate: **`115200 baud`**.
 3. **Master Emergency Key (`93 39 6E 1B`):** Verified locally by ESP32 firmware. Bypasses network and unlocks the door immediately for 6s during power brownouts or server downtime.
 4. **Dual Transport Mode:**
-   - **Wi-Fi Mode (Primary):** Sends HTTP POST directly to `http://192.168.1.13/.../rfid_scan.php`. No serial bridge needed when connected to router.
+   - **Wi-Fi Mode (Primary):** Sends HTTP POST directly to `http://192.168.1.208/.../rfid_scan.php`. No serial bridge needed when connected to router.
    - **Serial Mode (Fallback):** If Wi-Fi is disconnected, sends `UID:<HEX>` over USB Serial to `start_bridge.bat`.
 5. On `GRANT`: Relay energized for 6000ms (`UNLOCK_HOLD_MS 6000`), DFPlayer plays Track 2 (`0002.mp3` - Access Granted & Welcome) at maximum volume (30).
 6. On `DENY` or offline timeout: Relay remains locked, DFPlayer plays Track 1 (`0001.mp3` - Access Denied).
-7. On Exit IR Sensor: Relay opens immediately for 6s and plays Track 2.
+7. On Exit IR Sensor: Relay opens immediately for 6s **SILENTLY** (no welcome voice prompt) with edge-triggered anti-loop protection.
+8. **Relay Inductive Immunity:** ESP32 brownout detector is disabled in software to prevent reboot/click-click loops during inductive load switching.
  
 ## Host PC Serial Bridge (`hardware/bridge/serial_bridge.ps1`, `.py`, `.php`)
 Optional fallback when not using Wi-Fi: launched via [`start_bridge.bat`](file:///C:/xampp/htdocs/SDASFC-Smart-Door-Automation-System-for-CICS/start_bridge.bat) on the host computer:

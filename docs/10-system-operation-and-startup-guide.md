@@ -228,10 +228,10 @@ You will see:
 
 ### Scenario C: Exiting the Room (No-Touch Wave-to-Exit)
 1. Person inside the room waves their hand 5–10 cm in front of the optical IR sensor.
-2. ESP32 detects signal on **GPIO 33**:
-   - **Immediately energizes relay** for 6 seconds.
-   - Plays Track 2: *"Access granted you may now open the door. Welcome to the CICS laboratory"*.
-   - Automatically relocks after 6 seconds.
+2. ESP32 detects edge-triggered signal on **GPIO 33**:
+   - **Immediately energizes relay** for 6 seconds (`UNLOCK_HOLD_MS = 6000`).
+   - **Silent Exit:** No welcome voice prompt is played (voice prompt is reserved exclusively for card entry).
+   - Automatically relocks after 6 seconds with a 2.5-second anti-loop debounce cooldown.
 
 ---
 
@@ -243,9 +243,18 @@ You will see:
 
 ### Q2: DFPlayer Mini plays wrong sound
 - **Cause:** Track index mapping.
-- **Fix:** Firmware maps Track 2 $\rightarrow$ Access Granted/Welcome, Track 1 $\rightarrow$ Access Denied.
+- **Fix:** Firmware maps Track 2 $\rightarrow$ Access Granted/Welcome (Card Entry), Track 1 $\rightarrow$ Access Denied. Exit button unlocks silently.
 
-### Q3: Database connection refused error
+### Q3: The relay clicks open and close in an infinite loop upon powering on
+- **Cause 1 (Wiring):** The IR exit sensor output wire is connected to the **NC (Normally Closed)** terminal instead of **NO (Normally Open)**, keeping GPIO 33 pulled LOW permanently.
+- **Cause 2 (Sensitivity):** The IR exit sensor potentiometer is set too sensitive or pointing directly at a close reflective surface.
+- **Cause 3 (Brownout Reset):** Power supply voltage dipping when the relay coil energizes, causing an ESP32 reboot cycle.
+- **Fix:**
+  1. Verify the IR exit sensor is wired to **NO** and **COM** (or `OUT` active LOW only when hand is present).
+  2. Adjust the sensitivity potentiometer on the IR sensor until the onboard indicator LED turns OFF when no hand is in front.
+  3. The latest firmware includes brownout detector suppression (`WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0)`), edge-triggered activation, and a stuck-sensor safety release check.
+
+### Q4: Database connection refused error
 - **Cause:** MySQL is stopped in XAMPP.
 - **Fix:** Open XAMPP Control Panel and start MySQL.
 
