@@ -1,11 +1,12 @@
 # SDASFC — High Performance Native Windows Serial Bridge for ESP32
-[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
 param(
     [string]$Port = "",
     [int]$Baud = 115200,
     [string]$ApiUrl = "http://localhost/SDASFC-Smart-Door-Automation-System-for-CICS/public/api/rfid_scan.php"
 )
+
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
 Clear-Host
 Write-Host "==================================================" -ForegroundColor Cyan
@@ -47,7 +48,7 @@ try {
     Write-Host "==================================================`n" -ForegroundColor DarkGray
 } catch {
     Write-Host "[ERROR] Could not open $Port : $($_.Exception.Message)" -ForegroundColor Red
-    Write-Host "💡 Note: If Arduino IDE Serial Monitor is open, please CLOSE it." -ForegroundColor Yellow
+    Write-Host "[NOTE] If Arduino IDE Serial Monitor is open, please CLOSE it." -ForegroundColor Yellow
     Write-Host "Press any key to exit..."
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
     exit 1
@@ -93,10 +94,10 @@ try {
                 Write-Host "[EVENT] No-Touch IR Exit Sensor triggered! (Door Unlocked)" -ForegroundColor Green
             }
             elseif ($line -match "DOOR is UNLOCKED") {
-                Write-Host "[HARDWARE] 🔓 Relay ON: Door is Open" -ForegroundColor Green
+                Write-Host "[HARDWARE] [OPEN] Relay ON: Door is Open" -ForegroundColor Green
             }
             elseif ($line -match "DOOR is LOCKED") {
-                Write-Host "[HARDWARE] 🔒 Relay OFF: Door is Locked" -ForegroundColor DarkGray
+                Write-Host "[HARDWARE] [LOCKED] Relay OFF: Door is Locked" -ForegroundColor DarkGray
             }
             else {
                 Write-Host "[ESP32 LOG] $line" -ForegroundColor DarkCyan
