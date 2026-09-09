@@ -21,7 +21,7 @@
 
 ## 1. System Architecture Overview
 
-The SDASFC integrates an **ESP32 microcontroller**, a local **PHP/MySQL web portal**, and an automatic **USB Serial Bridge**:
+The SDASFC integrates an **ESP32 microcontroller**, a local **PHP/MySQL web portal**, **Wi-Fi Direct HTTP**, and an automatic **USB Serial Bridge Fallback**:
 
 ```
  ┌────────────────────────────────────────────────────────┐
@@ -34,26 +34,31 @@ The SDASFC integrates an **ESP32 microcontroller**, a local **PHP/MySQL web port
  │         │                               │              │
  │         ▼                               │              │
  │  [ ESP32 Microcontroller (115200 Baud) ]               │
+ │    ├─► Master Emergency Key (93 39 6E 1B) Offline Bypass│
  │    ├─► 1-CH 5V Relay ──► 12V Mag Lock / Solenoid       │
  │    ├─► DS3231 RTC Module (I2C Real-Time Clock)         │
- │    └─► DFPlayer Mini ──► 3W 8Ω Speaker (Voice Prompts) │
- └───────────────────────┬────────────────────────────────┘
-                         │ USB Serial Cable
-                         │ ("UID:<HEX_UID>" / "GRANT" / "DENY")
-                         ▼
+ │    └─► DFPlayer Mini ──► 3W 8Ω Speaker (Volume 30)     │
+ └───────────┬────────────────────────────────┬───────────┘
+             │                                │
+             │ (Wi-Fi Direct HTTP)            │ (USB Serial Fallback)
+             │ "POST {"rfid_uid":"..."}"      │ ("UID:<HEX_UID>")
+             ▼                                ▼
+ ┌────────────────────────┐       ┌────────────────────────┐
+ │  ROUTER LOCAL NETWORK  │       │ Hardware Serial Bridge │
+ └───────────┬────────────┘       │ (start_bridge.bat)     │
+             │                    └───────────┬────────────┘
+             │ POST JSON                      │ POST JSON
+             ▼                                ▼
  ┌────────────────────────────────────────────────────────┐
  │                 HOST PC / SERVER                       │
  │                                                        │
- │  [ Hardware Serial Bridge ] (serial_bridge.php / .ps1) │
- │         │                                              │
- │         ▼ POST JSON                                    │
  │  [ Web API: public/api/rfid_scan.php ]                 │
  │         │                                              │
  │         ▼                                              │
  │  [ MySQL Database: `sdasfc` (Users & Access Logs) ]    │
  │         │                                              │
  │         ▼                                              │
- │  [ Admin Web Dashboard: http://localhost/.../public/ ] │
+ │  [ Admin Web Dashboard: http://192.168.1.13/.../ ]     │
  └────────────────────────────────────────────────────────┘
 ```
 

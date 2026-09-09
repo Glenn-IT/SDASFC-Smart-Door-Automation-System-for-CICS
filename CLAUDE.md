@@ -14,4 +14,6 @@ Full reference contract: [`docs/ARDUINO_SYNC_CONTRACT.md`](file:///C:/xampp/htdo
 4. **Data Models:** `app/models/User.php`, `app/models/AccessLog.php`
 5. **Registration UI:** `public/users/create.php`, `public/users/edit.php`
 6. **Wiring Diagrams & UI:** `arduino/wiring_diagram_*/`, `public/wiring.php`
-7. **Hardware Docs:** `arduino/README.md`, `arduino/note.md`, `docs/05-arduino-integration.md`, `docs/10-system-operation-and-startup-guide.md`
+7. **Hardware Docs:** `arduino/README.md`, `arduino/note.md`, `docs/05-arduino-integration.md`, `docs/08-future-wifi-integration.md`, `docs/10-system-operation-and-startup-guide.md`
+8. **Master Key Bypass & Brownout:** `arduino/sdasfc_door_lock.ino`, `database/seed.sql` (UID: `93 39 6E 1B`)
+9. **Wi-Fi Direct HTTP Integration:** `arduino/sdasfc_door_lock.ino`, `docs/08-future-wifi-integration.md`

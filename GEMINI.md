@@ -77,9 +77,23 @@ Full reference contract: [`docs/ARDUINO_SYNC_CONTRACT.md`](file:///C:/xampp/htdo
    - Update constant in `arduino/sdasfc_door_lock.ino`.
    - Update descriptions in `arduino/README.md`, `arduino/note.md`, `docs/05-arduino-integration.md`, and `docs/10-system-operation-and-startup-guide.md`.
 
+7. **Master Emergency Key Changed** (`MASTER_CARD_UID = "93 39 6E 1B"`):
+   - Update `arduino/sdasfc_door_lock.ino` (hardware offline bypass).
+   - Update `database/seed.sql` and database `users` table.
+   - Update `arduino/README.md`, `arduino/note.md`, and `docs/08-future-wifi-integration.md`.
+
+8. **Wi-Fi Network / Router IP Changed** (`WIFI_SSID`, `API_URL`):
+   - Update `arduino/sdasfc_door_lock.ino` Wi-Fi parameters.
+   - Update `docs/08-future-wifi-integration.md` and `docs/10-system-operation-and-startup-guide.md`.
+
+9. **Audio Volume Setting Changed** (`defaultVolume = 30`):
+   - Update `arduino/sdasfc_door_lock.ino` constant.
+   - Update `arduino/README.md` and `arduino/note.md`.
+
 ---
 
 ## 🔒 Code Style & Operational Rules
 - Never break the `GRANT` / `DENY` serial response contract between the bridge and ESP32.
 - Preserve backward compatibility for both space-separated (`0A 75 B4 02`) and non-spaced (`0A75B402`) RFID UIDs.
+- Master Key Card `93 39 6E 1B` MUST ALWAYS have an offline hardware-level bypass in the firmware so the door can be opened during power brownouts / network loss.
 - Always keep PowerShell (`serial_bridge.ps1`), Python (`serial_bridge.py`), and PHP (`serial_bridge.php`) feature-parity identical.

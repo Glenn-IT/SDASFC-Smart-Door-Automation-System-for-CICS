@@ -155,12 +155,49 @@ Whenever an edit occurs in `arduino/`, consult the corresponding trigger below a
 
 ---
 
+### Trigger H: Master Emergency Key & Brownout Bypass
+*Example: Changing `MASTER_CARD_UID` in firmware.*
+| # | File Path | What to Synchronize |
+|---|---|---|
+| 1 | `arduino/sdasfc_door_lock.ino` | Constant `MASTER_CARD_UID` and `MASTER_CARD_UID_NO_SPACE` |
+| 2 | `arduino/README.md` | Section "Master Key Card & Brownout Protection" |
+| 3 | `arduino/note.md` | Section 3 "Master Emergency Key & Brownout Safety" |
+| 4 | `docs/08-future-wifi-integration.md` | Section 3 "Brownout & Power Failure Safety" |
+| 5 | `database/seed.sql` | Master Emergency Key user record |
+| 6 | Database `users` table | Registration record for Master Emergency Key (`93 39 6E 1B`) |
+
+---
+
+### Trigger I: Wi-Fi Network & Router Configuration
+*Example: Updating `WIFI_SSID`, `WIFI_PASSWORD`, or host laptop IP (`192.168.1.13`).*
+| # | File Path | What to Synchronize |
+|---|---|---|
+| 1 | `arduino/sdasfc_door_lock.ino` | Constants `WIFI_SSID`, `WIFI_PASSWORD`, `API_URL` |
+| 2 | `arduino/README.md` | Wi-Fi setup instructions |
+| 3 | `docs/08-future-wifi-integration.md` | Wi-Fi configuration guide |
+| 4 | `docs/10-system-operation-and-startup-guide.md` | Architecture diagram & IP address notes |
+
+---
+
+### Trigger J: Audio Playback Volume
+*Example: Adjusting `defaultVolume` (0 - 30).*
+| # | File Path | What to Synchronize |
+|---|---|---|
+| 1 | `arduino/sdasfc_door_lock.ino` | Constant `int defaultVolume = 30;` |
+| 2 | `arduino/README.md` | MicroSD Card Audio Setup volume note |
+| 3 | `arduino/note.md` | Audio track note |
+
+---
+
 ## 3. Mandatory Checklist for AI Agents & Developers
 
 Before completing any task that edits `arduino/`:
 - [ ] 1. Did you change baud rate? -> Verify and sync all 3 serial bridge scripts (`.ps1`, `.py`, `.php`) and docs.
 - [ ] 2. Did you change pin assignments? -> Verify and sync `README.md`, `note.md`, wiring diagrams, and `docs/05` & `docs/10`.
-- [ ] 3. Did you change audio tracks? -> Verify and sync `note.md`, `arduino/README.md`, and `docs/10`.
+- [ ] 3. Did you change audio tracks or volume? -> Verify and sync `note.md`, `arduino/README.md`, and `docs/10`.
 - [ ] 4. Did you change relay timing? -> Verify and sync `arduino/README.md`, `note.md`, and documentation.
 - [ ] 5. Did you change serial input/output commands? -> Verify and sync all 3 serial bridges, `AccessController.php`, `rfid_scan.php`, and `User.php`.
-- [ ] 6. Did you check `public/wiring.php`? -> Ensure diagram paths remain intact and reachable.
+- [ ] 6. Did you change Master Key UID? -> Verify and sync firmware, `database/seed.sql`, and database `users` table.
+- [ ] 7. Did you change Wi-Fi settings or IP? -> Verify and sync `arduino/sdasfc_door_lock.ino`, `docs/08`, and `docs/10`.
+- [ ] 8. Did you check `public/wiring.php`? -> Ensure diagram paths remain intact and reachable.
+

@@ -1,42 +1,49 @@
-# Future Enhancement — WiFi (Local Network) Arduino Integration
+# WiFi Local Network Integration & Offline Master Key Guide
 
-> Status: not part of the current build. USB Serial + bridge script
-> (`05-arduino-integration.md`) is the active design for v1. This doc captures
-> the plan for a future upgrade once the core system is working.
+> **Status: IMPLEMENTED & ACTIVE (Firmware v3.0)**  
+> The ESP32 firmware [`arduino/sdasfc_door_lock.ino`](file:///C:/xampp/htdocs/SDASFC-Smart-Door-Automation-System-for-CICS/arduino/sdasfc_door_lock.ino) natively supports Wi-Fi Direct HTTP requests to the host laptop's XAMPP API, with automatic USB Serial Bridge fallback and hardware-level offline Master Key protection.
 
-## Idea
-Replace the USB-tethered Arduino Uno + serial bridge script with an
-ESP8266/ESP32-based reader that joins the **same local WiFi network** as the
-laptop running XAMPP, and calls the backend API directly over HTTP — no
-serial bridge, no internet exposure, no USB cable running to the door.
+---
 
-## Why local WiFi, not public/online hosting
-- This is a physical access-control system for one building/door — there's no
-  need for it to be reachable from the internet.
-- Staying on the local network avoids the security exposure of putting an
-  RFID access system on a public server, avoids hosting costs, and avoids
-  depending on internet uptime for something that should keep working even if
-  the internet connection drops.
-- Online hosting would only make sense if the admin needed to check the
-  dashboard from outside the local network — not a stated requirement.
+## 1. How It Works
 
-## What changes vs. the current design
-- **Hardware:** Arduino Uno/Nano → ESP8266 (e.g., NodeMCU) or ESP32, which has
-  built-in WiFi. RC522 wiring stays conceptually the same (SPI), pin numbers
-  differ per board.
-- **Sketch behavior:** instead of writing `UID:...` to Serial, the ESP
-  connects to the WiFi network (SSID/password stored in the sketch) and sends
-  an HTTP POST directly to `http://<laptop-local-ip>/SDASFC.../app/api/rfid_scan.php`
-  with the UID, then parses the JSON response (`granted`/`denied`) to drive
-  the relay — no PC bridge script needed at all.
-- **Network requirement:** the laptop running XAMPP must have a fixed/known
-  local IP (or use mDNS/hostname) on the WiFi router so the ESP always knows
-  where to send requests.
-- **Removed component:** `hardware/bridge/serial_bridge.php` (or `.py`) is no
-  longer needed in this design — delete once migrated.
+The ESP32 and the host laptop connect to the **same local Wi-Fi router network**:
 
-## Migration trigger
-Revisit this once Phases 1–6 in `07-development-plan.md` are complete and the
-USB-Serial version works end-to-end. Swapping the transport layer at that
-point only touches the Arduino sketch and removes the bridge script — the
-backend API (`app/api/rfid_scan.php`) and all admin panel logic stay the same.
+```
+[ ESP32 Door Controller ]
+   │
+   ├─► (Wi-Fi Online) ────────► Direct HTTP POST to http://192.168.1.13/.../rfid_scan.php
+   │                               └─► No Serial Bridge Needed!
+   │
+   ├─► (Wi-Fi Offline/Dropped) ► Fallback: Transmits UID over USB Serial to start_bridge.bat
+   │
+   └─► (Brownout / Server Off) ► Offline Master Key ("93 39 6E 1B")
+                                   └─► Bypasses network and unlocks door immediately!
+```
+
+---
+
+## 2. Configuration Parameters
+
+In [`arduino/sdasfc_door_lock.ino`](file:///C:/xampp/htdocs/SDASFC-Smart-Door-Automation-System-for-CICS/arduino/sdasfc_door_lock.ino):
+
+```cpp
+// Wi-Fi Credentials
+const char* WIFI_SSID     = "YOUR_ROUTER_SSID";
+const char* WIFI_PASSWORD = "YOUR_ROUTER_PASSWORD";
+
+// Local Laptop IP running XAMPP Apache/MySQL
+const char* API_URL       = "http://192.168.1.13/SDASFC-Smart-Door-Automation-System-for-CICS/public/api/rfid_scan.php";
+
+// Master Emergency Key (Works 100% offline, during power outages/brownouts)
+const String MASTER_CARD_UID = "93 39 6E 1B";
+```
+
+---
+
+## 3. Brownout & Power Failure Safety
+
+1. **Lock State:** The 12V UPS power supply and battery backup keep the ESP32 and lock powered. During a building power outage, the relay remains **locked** (`digitalWrite(RELAY_PIN, LOW)`).
+2. **Offline Security:** Unauthorized cards and normal cards are rejected when the server/router is unreachable.
+3. **Master Key Hardware Override:** Tapping the Master Key Card (`93 39 6E 1B`) triggers an immediate hardware-level bypass on the ESP32, unlocking the door for 6 seconds and playing the Access Granted voice prompt at maximum volume (30).
+

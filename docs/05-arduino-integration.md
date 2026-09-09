@@ -25,16 +25,18 @@
 | **DFPlayer Mini** | RX / TX | **GPIO 17 / 16** | TX2 / RX2 via 1kΩ resistors |
  
 ## ESP32 Firmware Sketch (`arduino/sdasfc_door_lock.ino`)
-1. Initialize RC522, RTC DS3231, DFPlayer Mini, Relay, and Exit sensor.
+1. Initialize RC522, RTC DS3231, DFPlayer Mini (Volume 30), Relay, IR Exit sensor, and Wi-Fi.
 2. Baud rate: **`115200 baud`**.
-3. On card tap, format hex string UID: `UID:<HEX_UID>` (e.g. `UID:0A 75 B4 02\n`).
-4. Wait with 3000ms timeout for response from Host PC Serial Bridge: `GRANT\n` or `DENY\n`.
-5. On `GRANT`: Relay energized for 6000ms (`UNLOCK_HOLD_MS 6000`), DFPlayer plays Track 2 (`0002.mp3` - Access Granted & Welcome).
-6. On `DENY` or timeout: Relay remains off, DFPlayer plays Track 1 (`0001.mp3` - Access Denied).
+3. **Master Emergency Key (`93 39 6E 1B`):** Verified locally by ESP32 firmware. Bypasses network and unlocks the door immediately for 6s during power brownouts or server downtime.
+4. **Dual Transport Mode:**
+   - **Wi-Fi Mode (Primary):** Sends HTTP POST directly to `http://192.168.1.13/.../rfid_scan.php`. No serial bridge needed when connected to router.
+   - **Serial Mode (Fallback):** If Wi-Fi is disconnected, sends `UID:<HEX>` over USB Serial to `start_bridge.bat`.
+5. On `GRANT`: Relay energized for 6000ms (`UNLOCK_HOLD_MS 6000`), DFPlayer plays Track 2 (`0002.mp3` - Access Granted & Welcome) at maximum volume (30).
+6. On `DENY` or offline timeout: Relay remains locked, DFPlayer plays Track 1 (`0001.mp3` - Access Denied).
 7. On Exit IR Sensor: Relay opens immediately for 6s and plays Track 2.
  
 ## Host PC Serial Bridge (`hardware/bridge/serial_bridge.ps1`, `.py`, `.php`)
-Launched via [`start_bridge.bat`](file:///C:/xampp/htdocs/SDASFC-Smart-Door-Automation-System-for-CICS/start_bridge.bat) on the host computer:
+Optional fallback when not using Wi-Fi: launched via [`start_bridge.bat`](file:///C:/xampp/htdocs/SDASFC-Smart-Door-Automation-System-for-CICS/start_bridge.bat) on the host computer:
 1. Opens serial COM port at `115200 baud` (auto-detects COM port in PowerShell bridge).
 2. Listens for lines matching `UID:\s*([A-F0-9\s]+)`.
 3. Sends POST request to Web API: `http://localhost/SDASFC-Smart-Door-Automation-System-for-CICS/public/api/rfid_scan.php` with `{ "rfid_uid": "<uid>" }`.

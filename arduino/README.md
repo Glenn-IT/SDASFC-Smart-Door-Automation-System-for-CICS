@@ -50,12 +50,34 @@ This directory contains the production firmware for the **SDASFC (Smart Door Aut
 
 ---
 
+## Master Key Card & Brownout Protection
+
+- **Master Key Card UID:** `93 39 6E 1B` (or `93396E1B`)
+- **Brownout / Power Loss Behavior:** The lock is powered by a 12V 5A UPS with 12V backup battery. During a building power outage, the relay stays securely locked. If network/Wi-Fi/PC goes down, only the Master Key Card can unlock the door locally via hardware bypass.
+
+---
+
+## Wi-Fi & Local Server Configuration
+
+The ESP32 can connect directly to your local Wi-Fi router to send access queries directly to the laptop's XAMPP Web API:
+1. In [`arduino/sdasfc_door_lock.ino`](file:///C:/xampp/htdocs/SDASFC-Smart-Door-Automation-System-for-CICS/arduino/sdasfc_door_lock.ino), update:
+   ```cpp
+   const char* WIFI_SSID     = "YOUR_ROUTER_SSID";
+   const char* WIFI_PASSWORD = "YOUR_ROUTER_PASSWORD";
+   const char* API_URL       = "http://192.168.1.13/SDASFC-Smart-Door-Automation-System-for-CICS/public/api/rfid_scan.php";
+   ```
+2. When connected to Wi-Fi, no USB serial bridge is required!
+3. If Wi-Fi is not connected or drops, the ESP32 automatically falls back to USB Serial Bridge mode (`start_bridge.bat`).
+
+---
+
 ## Required Arduino IDE Libraries
 
 Before uploading [`arduino/sdasfc_door_lock.ino`](file:///C:/xampp/htdocs/SDASFC-Smart-Door-Automation-System-for-CICS/arduino/sdasfc_door_lock.ino), open Arduino IDE (`Tools` -> `Manage Libraries...`) and install:
 1. **MFRC522** by GithubCommunity
 2. **RTClib** by Adafruit (for DS3231 RTC)
 3. **DFRobotDFPlayerMini** by DFRobot
+4. *(ESP32 Board Package includes built-in `WiFi.h` and `HTTPClient.h`)*
 
 ---
 
@@ -69,7 +91,8 @@ MicroSD Card Root/
 └── 0002.mp3  <-- Track 2: Access Granted & Welcome prompt (triggers on valid tap or IR wave)
 ```
 
-*(Door relocks silently after 6 seconds).*
+- Audio Volume: Set to **`30` (Maximum hardware volume)** in firmware.
+- Door Relock: Operates silently after 6 seconds (`UNLOCK_HOLD_MS 6000`).
 
 ---
 
@@ -78,11 +101,6 @@ MicroSD Card Root/
 1. Open [`arduino/sdasfc_door_lock.ino`](file:///C:/xampp/htdocs/SDASFC-Smart-Door-Automation-System-for-CICS/arduino/sdasfc_door_lock.ino) in Arduino IDE.
 2. Select Board: **ESP32 Dev Module**, select your COM port, and upload.
 3. Open **Serial Monitor** at **`115200 baud`**.
-4. The system will run hardware diagnostics and report `SYS:READY`.
-5. Run the Serial Bridge on your host computer:
-   ```bash
-   start_bridge.bat
-   ```
-   *(or `powershell hardware/bridge/serial_bridge.ps1` / `python hardware/bridge/serial_bridge.py`)*
-6. Tap an RFID card on the reader or wave in front of the IR sensor to test audio prompts and door lock operations!
+4. The system will run hardware diagnostics, connect to Wi-Fi (if configured), and report `SYS:READY`.
+5. Tap the Master Key Card (`93 39 6E 1B`) or registered user cards to verify immediate unlock and audio prompts!
 

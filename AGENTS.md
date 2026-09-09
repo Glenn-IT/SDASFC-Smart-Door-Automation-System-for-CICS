@@ -38,4 +38,13 @@ Whenever you edit code or documentation inside **`arduino/`**, you **MUST** sync
 6. **Relay Hold Timing (`UNLOCK_HOLD_MS = 6000`)**:
    - Synchronize across `arduino/sdasfc_door_lock.ino`, `arduino/README.md`, `arduino/note.md`, `docs/05-arduino-integration.md`, `docs/10-system-operation-and-startup-guide.md`
 
+7. **Master Emergency Key Card (`93 39 6E 1B`) & Brownout Safety**:
+   - Synchronize across `arduino/sdasfc_door_lock.ino`, `database/seed.sql`, database `users` table, and `docs/08-future-wifi-integration.md`
+
+8. **Wi-Fi Direct HTTP Integration (`WIFI_SSID`, `API_URL`)**:
+   - Synchronize across `arduino/sdasfc_door_lock.ino`, `docs/08-future-wifi-integration.md`, and `docs/10-system-operation-and-startup-guide.md`
+
+9. **Speaker Volume (`defaultVolume = 30`)**:
+   - Synchronize across `arduino/sdasfc_door_lock.ino`, `arduino/README.md`, and `arduino/note.md`
+
 For complete matrix, see [`docs/ARDUINO_SYNC_CONTRACT.md`](file:///C:/xampp/htdocs/SDASFC-Smart-Door-Automation-System-for-CICS/docs/ARDUINO_SYNC_CONTRACT.md).
