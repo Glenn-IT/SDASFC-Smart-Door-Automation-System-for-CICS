@@ -64,10 +64,11 @@ The ESP32 can connect directly to your local Wi-Fi router to send access queries
    ```cpp
    const char* WIFI_SSID     = "YOUR_ROUTER_SSID";
    const char* WIFI_PASSWORD = "YOUR_ROUTER_PASSWORD";
-   const char* API_URL       = "http://192.168.1.13/SDASFC-Smart-Door-Automation-System-for-CICS/public/api/rfid_scan.php";
+   const char* API_URL       = "http://192.168.1.208/SDASFC-Smart-Door-Automation-System-for-CICS/public/api/rfid_scan.php";
    ```
-2. When connected to Wi-Fi, no USB serial bridge is required!
-3. If Wi-Fi is not connected or drops, the ESP32 automatically falls back to USB Serial Bridge mode (`start_bridge.bat`).
+2. Note: The presentation router does not need internet access; all requests travel over the local Wi-Fi subnet!
+3. When connected to Wi-Fi, no USB serial bridge is required!
+4. If Wi-Fi is not connected or drops, the ESP32 automatically falls back to USB Serial Bridge mode (`start_bridge.bat`).
 
 ---
 

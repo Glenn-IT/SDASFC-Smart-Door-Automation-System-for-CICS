@@ -58,7 +58,7 @@ The SDASFC integrates an **ESP32 microcontroller**, a local **PHP/MySQL web port
  │  [ MySQL Database: `sdasfc` (Users & Access Logs) ]    │
  │         │                                              │
  │         ▼                                              │
- │  [ Admin Web Dashboard: http://192.168.1.13/.../ ]     │
+ │  [ Admin Web Dashboard: http://192.168.1.208/.../ ]    │
  └────────────────────────────────────────────────────────┘
 ```
 

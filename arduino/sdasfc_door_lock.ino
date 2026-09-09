@@ -41,8 +41,8 @@
 const char* WIFI_SSID     = "PLDT_Home_1D000";
 const char* WIFI_PASSWORD = "pldthome";
 
-// Local Laptop IP running XAMPP Apache/MySQL (Laptop IPv4: 192.168.1.13)
-const char* API_URL       = "http://192.168.1.13/SDASFC-Smart-Door-Automation-System-for-CICS/public/api/rfid_scan.php";
+// Local Laptop IP running XAMPP Apache/MySQL (Presentation Router IP: 192.168.1.208)
+const char* API_URL       = "http://192.168.1.208/SDASFC-Smart-Door-Automation-System-for-CICS/public/api/rfid_scan.php";
 
 // Wi-Fi Connection Settings
 const unsigned long WIFI_TIMEOUT_MS = 8000; // 8 seconds timeout for Wi-Fi association on boot
