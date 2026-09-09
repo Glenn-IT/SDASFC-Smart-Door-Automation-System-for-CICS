@@ -38,10 +38,10 @@
 // 1. Wi-Fi & Local Server Configuration
 //==================================================
 // Replace with your router's Wi-Fi credentials
-const char* WIFI_SSID     = "YOUR_WIFI_SSID";
-const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
+const char* WIFI_SSID     = "PLDT_Home_1D000";
+const char* WIFI_PASSWORD = "pldthome";
 
-// Local Laptop IP running XAMPP Apache/MySQL (e.g. 192.168.1.13)
+// Local Laptop IP running XAMPP Apache/MySQL (Laptop IPv4: 192.168.1.13)
 const char* API_URL       = "http://192.168.1.13/SDASFC-Smart-Door-Automation-System-for-CICS/public/api/rfid_scan.php";
 
 // Wi-Fi Connection Settings
