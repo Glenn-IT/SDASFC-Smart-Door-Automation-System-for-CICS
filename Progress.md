@@ -1,5 +1,5 @@
 # Project Progress
 
-progress: 90
+progress: 95
 status: Ongoing
-note: Created complete system operation and startup manual in docs/10-system-operation-and-startup-guide.md, verified database and Web API endpoints, and prepared hardware Serial Bridge for live production use.
+note: Established full-system Arduino synchronization memory (GEMINI.md, AGENTS.md, CLAUDE.md, docs/ARDUINO_SYNC_CONTRACT.md), synchronized all hardware docs with production firmware, and added interactive wiring diagram switching to the admin portal.

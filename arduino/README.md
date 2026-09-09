@@ -37,7 +37,7 @@ This directory contains the production firmware for the **SDASFC (Smart Door Aut
 | **Infrared Exit Sensor** | OUT / NO | **GPIO 33** | Active LOW (Hand wave detection) |
 | | COM | Common GND | Ground Reference |
 | | V+ / GND | Power Supply (+12V / GND) | Powered by 12V supply |
-| **1-CH 5V Relay** | IN / SIG | **GPIO 27** | HIGH = Unlocked (5s), LOW = Locked |
+| **1-CH 5V Relay** | IN / SIG | **GPIO 27** | HIGH = Unlocked (6s hold), LOW = Locked |
 | | VCC | 5V Rail (Buck Converter) | 5V Relay Coil Power |
 | | GND | Common GND | Ground |
 | | COM / NO | 12V Door Lock Loop | Switched 12V Power |
@@ -65,11 +65,11 @@ Format a MicroSD card ($\le$ 32GB) to **FAT32 (MBR)** and place the following fi
 
 ```text
 MicroSD Card Root/
-├── 0001.mp3  <-- Track 1: System Ready / Welcome prompt
-├── 0002.mp3  <-- Track 2: Access Granted prompt
-├── 0003.mp3  <-- Track 3: Access Denied prompt
-└── 0004.mp3  <-- Track 4: Door Locked prompt (Optional)
+├── 0001.mp3  <-- Track 1: Access Denied prompt (triggers on invalid RFID or timeout)
+└── 0002.mp3  <-- Track 2: Access Granted & Welcome prompt (triggers on valid tap or IR wave)
 ```
+
+*(Door relocks silently after 6 seconds).*
 
 ---
 
@@ -78,10 +78,11 @@ MicroSD Card Root/
 1. Open [`arduino/sdasfc_door_lock.ino`](file:///C:/xampp/htdocs/SDASFC-Smart-Door-Automation-System-for-CICS/arduino/sdasfc_door_lock.ino) in Arduino IDE.
 2. Select Board: **ESP32 Dev Module**, select your COM port, and upload.
 3. Open **Serial Monitor** at **`115200 baud`**.
-4. The system will run hardware diagnostics, play `0001.mp3`, and report `SYS:READY`.
+4. The system will run hardware diagnostics and report `SYS:READY`.
 5. Run the Serial Bridge on your host computer:
    ```bash
-   python hardware/bridge/serial_bridge.py
+   start_bridge.bat
    ```
+   *(or `powershell hardware/bridge/serial_bridge.ps1` / `python hardware/bridge/serial_bridge.py`)*
 6. Tap an RFID card on the reader or wave in front of the IR sensor to test audio prompts and door lock operations!
 

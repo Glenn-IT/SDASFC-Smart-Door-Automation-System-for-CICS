@@ -1,55 +1,43 @@
-# Arduino Integration
-
-## Hardware
-- **Microcontroller:** Arduino Uno or Nano
-- **RFID Reader:** MFRC522 (RC522) module, SPI interface
-- **Door Actuator:** relay module driving an electric strike lock or solenoid
-  lock (or a servo for a latch-style mechanism)
-- **Optional feedback:** LED (green/red) + buzzer for granted/denied indication
-- **Power:** Arduino via USB (also serves as the data link to the PC)
-
-## Wiring (RC522 → Arduino Uno, standard SPI pinout)
-| RC522 Pin | Arduino Uno Pin |
-|-----------|------------------|
-| SDA (SS)  | D10              |
-| SCK       | D13              |
-| MOSI      | D11              |
-| MISO      | D12              |
-| IRQ       | not connected    |
-| GND       | GND              |
-| RST       | D9               |
-| 3.3V      | 3.3V             |
-
-Relay module signal pin → e.g. D7 (drives door lock). LED/buzzer on spare
-digital pins (e.g., D6 green, D5 red, D4 buzzer).
-
-## Arduino sketch responsibilities (`hardware/arduino/rfid_door_lock.ino`)
-1. Initialize RC522 + Serial (baud rate e.g. 9600).
-2. Loop: check for a new card; if present, read UID, format as hex string.
-3. Send UID to Serial as a single line, e.g. `UID:A1B2C3D4\n`.
-4. Wait (with timeout) for a response line from Serial, e.g. `GRANT\n` or `DENY\n`.
-5. On `GRANT`: energize relay for N seconds (e.g. 5s) to unlock, light green
-   LED/short beep.
-6. On `DENY` or timeout: keep relay off, light red LED/long beep.
-
-## Serial bridge script (`hardware/bridge/serial_bridge.php` or `.py`)
-Runs continuously on the host PC (the same machine running XAMPP, or one that
-can reach it over LAN):
-1. Open the serial port (e.g., `COM3` on Windows) at the same baud rate.
-2. On each line received matching `UID:...`, extract the UID.
-3. Call the backend: `POST http://localhost/SDASFC.../app/api/rfid_scan.php`
-   with `{ "rfid_uid": "<uid>" }`.
-4. Parse the JSON response; write `GRANT\n` or `DENY\n` back to the serial port.
-5. Log errors (connection failures, malformed UID) to a local log file.
-
-A Python script (using `pyserial` + `requests`) is usually simpler to prototype
-than PHP CLI for serial I/O; can migrate to PHP CLI later if we want a
-single-language stack. Decision can be deferred to the hardware-integration
-milestone (see `07-development-plan.md`).
-
-## Why USB Serial (not WiFi) for v1
-Matches the decision to keep hardware simple: Arduino Uno/Nano + RC522 has no
-built-in WiFi, avoiding the need for an ESP8266/ESP32 and the network
-configuration that comes with it. The trade-off is the door reader must stay
-tethered near the host PC. This can be revisited later by swapping the bridge
-script for direct HTTP calls from an ESP32-based reader.
+# Arduino / ESP32 Hardware Integration
+ 
+## Hardware Components
+- **Microcontroller:** ESP32 Dev Module (30-pin board layout)
+- **RFID Reader:** MFRC522 (RC522 v133) 13.56MHz SPI module (3.3V Logic)
+- **Door Actuator:** 1-Channel 5V Relay Module driving a 12V Solenoid / Mag Lock (GPIO 27)
+- **Exit Sensor:** Access Control Infrared Optical Sensor Exit Button (GPIO 33, Active LOW)
+- **Real-Time Clock:** DS3231 AT24C32 I2C RTC Module (SDA GPIO 21, SCL GPIO 22)
+- **Audio Feedback:** DFPlayer Mini (MP3-TF-16P) + 3W 8Ω Speaker (HardwareSerial2: RX2 GPIO 16, TX2 GPIO 17)
+- **Power System:** 12V 5A UPS Power Supply + 12V Battery + LM2596 Buck Converter (Step-down to 5.0V) with 1000µF capacitor
+ 
+## Pin Mapping & Wiring (ESP32)
+| Module / Line | Module Pin | ESP32 GPIO Pin | Description / Notes |
+|:---|:---|:---|:---|
+| **RC522 RFID** | SS (SDA) | **GPIO 5** | SPI Chip Select |
+| | SCK | **GPIO 18** | SPI Clock |
+| | MOSI | **GPIO 23** | SPI Master Out |
+| | MISO | **GPIO 19** | SPI Master In |
+| | RST | **GPIO 4** | Reset |
+| | 3.3V | **3V3 Pin** | ⚠️ 3.3V ONLY! Never connect to 5V |
+| | GND | Common GND | Ground |
+| **Relay (1-CH 5V)** | IN / SIG | **GPIO 27** | HIGH = Unlocked (6s hold), LOW = Locked |
+| **Exit Sensor (IR)**| NO / OUT | **GPIO 33** | Active LOW (Internal pullup) |
+| **DS3231 RTC** | SDA / SCL | **GPIO 21 / 22** | I2C Bus |
+| **DFPlayer Mini** | RX / TX | **GPIO 17 / 16** | TX2 / RX2 via 1kΩ resistors |
+ 
+## ESP32 Firmware Sketch (`arduino/sdasfc_door_lock.ino`)
+1. Initialize RC522, RTC DS3231, DFPlayer Mini, Relay, and Exit sensor.
+2. Baud rate: **`115200 baud`**.
+3. On card tap, format hex string UID: `UID:<HEX_UID>` (e.g. `UID:0A 75 B4 02\n`).
+4. Wait with 3000ms timeout for response from Host PC Serial Bridge: `GRANT\n` or `DENY\n`.
+5. On `GRANT`: Relay energized for 6000ms (`UNLOCK_HOLD_MS 6000`), DFPlayer plays Track 2 (`0002.mp3` - Access Granted & Welcome).
+6. On `DENY` or timeout: Relay remains off, DFPlayer plays Track 1 (`0001.mp3` - Access Denied).
+7. On Exit IR Sensor: Relay opens immediately for 6s and plays Track 2.
+ 
+## Host PC Serial Bridge (`hardware/bridge/serial_bridge.ps1`, `.py`, `.php`)
+Launched via [`start_bridge.bat`](file:///C:/xampp/htdocs/SDASFC-Smart-Door-Automation-System-for-CICS/start_bridge.bat) on the host computer:
+1. Opens serial COM port at `115200 baud` (auto-detects COM port in PowerShell bridge).
+2. Listens for lines matching `UID:\s*([A-F0-9\s]+)`.
+3. Sends POST request to Web API: `http://localhost/SDASFC-Smart-Door-Automation-System-for-CICS/public/api/rfid_scan.php` with `{ "rfid_uid": "<uid>" }`.
+4. Parses JSON response `{ "access": "granted" | "denied", "reason": "..." }`.
+5. Writes `GRANT\n` or `DENY\n` back to ESP32 over serial.
+6. Web API registers recent scan in `access_logs`, enabling live tap auto-fill on user registration forms via [`public/api/last_scanned_rfid.php`](file:///C:/xampp/htdocs/SDASFC-Smart-Door-Automation-System-for-CICS/public/api/last_scanned_rfid.php).

@@ -104,9 +104,9 @@ The DFPlayer Mini plays synchronized voice prompts for each access event.
 
 1. **Card Format:** Format a MicroSD card ($\le 32$GB) as **FAT32** with Master Boot Record (MBR).
 2. **File Structure:** Place audio files directly in the root directory (or in a folder named `MP3`):
-   - `0001.mp3` — **Access Granted & Welcome:** *"Access granted you may now open the door. Welcome to the CICS laboratory"* (Plays on valid RFID card tap or IR Exit wave).
-   - `0002.mp3` — **Access Denied:** *"Access Denied"* (Plays on unregistered or inactive/deactivated card taps).
-   - *(Note: `0004.mp3 Door Lock` has been removed from the system. The lock operates silently after 5 seconds).*
+   - `0001.mp3` — **Access Denied (Track 1):** *"Access Denied"* (Plays on unregistered or inactive/deactivated card taps, or serial timeouts).
+   - `0002.mp3` — **Access Granted & Welcome (Track 2):** *"Access granted you may now open the door. Welcome to the CICS laboratory"* (Plays on valid RFID card tap or IR Exit wave).
+   - *(Note: `0004.mp3 Door Lock` has been removed from the system. The lock operates silently after 6 seconds).*
 3. Insert the card into the DFPlayer Mini slot.
 
 ---
@@ -129,7 +129,7 @@ The DFPlayer Mini plays synchronized voice prompts for each access event.
    [HW] RTC DS3231 Ready: 2026-08-20 18:30:00
    [HW] RFID RC522 Reader Ready.
    [HW] Detecting DFPlayer Mini... ✅ Module Online!
-   [HW] MicroSD Card OK: 4 readable audio file(s) found.
+   [HW] MicroSD Card OK: 2 readable audio file(s) found.
    --------------------------------------------------
    SYS:READY — Awaiting RFID taps or Exit button events.
    --------------------------------------------------
@@ -137,7 +137,7 @@ The DFPlayer Mini plays synchronized voice prompts for each access event.
 
 ### Quick Manual Test:
 - **Tap a Card:** The monitor prints `UID:XX XX XX XX`.
-- **Wave at IR Sensor:** The relay clicks open for 5 seconds and prints `[EVENT] IR Exit Sensor Triggered!`.
+- **Wave at IR Sensor:** The relay clicks open for 6 seconds (`UNLOCK_HOLD_MS 6000`) and prints `[EVENT:EXIT_BUTTON] IR Exit Sensor Triggered!`.
 
 > ⚠️ **IMPORTANT:** Close the Serial Monitor tab before proceeding to Step 5!
 

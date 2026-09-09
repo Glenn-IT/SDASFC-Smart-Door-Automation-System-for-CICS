@@ -47,7 +47,7 @@
 ## 2. MicroSD Card Audio Tracks Setup
 
 Format a MicroSD card ($\le$ 32GB) to **FAT32 (MBR)** and place the following files in root:
-- `0001.mp3` : System Ready / Welcome prompt
-- `0002.mp3` : Access Granted prompt (triggers on valid RFID or IR Exit wave)
-- `0003.mp3` : Access Denied prompt (triggers on invalid RFID or timeout)
-- `0004.mp3` : Door Locked prompt (optional confirmation sound)
+- `0001.mp3` : Access Denied prompt (triggers on invalid / unauthorized RFID scan or timeout)
+- `0002.mp3` : Access Granted & Welcome prompt (triggers on valid RFID tap or IR Exit wave)
+- Relay Unlock Hold Duration: 6 seconds (`UNLOCK_HOLD_MS 6000`)
+- Silent Door Lock: Door relocks automatically after 6 seconds without intrusive audio.
