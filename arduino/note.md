@@ -6,6 +6,8 @@
 | :--- | :--- | :--- | :--- |
 | **Power Supply (12V/5A UPS)** - GND | — | Magnetic Lock - GND | 12V Common Return |
 | **Magnetic Lock** - VCC | — | Relay - NO (Normally Open) | Switched 12V Power |
+| **1N4007 Flyback Diode** - Cathode (Silver Band) | — | **Lock (+) / Relay NO** | ⚠️ **Silver band MUST face +12V (Absorbs inductive back-EMF spikes)** |
+| **1N4007 Flyback Diode** - Anode (Black End) | — | **Lock (-) / Common GND** | Reverse-bias clamping prevents ESP32 crashes & reboot loops |
 | **Relay** - COM (Public end) | — | Power Supply - +12V | 12V Constant Input |
 | **Relay** - VCC | G1 / Row 50 | 5V Rail (Buck Converter) | 5V Power for Relay Coil |
 | **Relay** - GND | G1 / Row 33 | Common GND Rail | Ground |
@@ -16,12 +18,12 @@
 | **Exit Module** - NO | — | **ESP32 - GPIO 33** | Wave to Exit (Active LOW / Internal Pull-Up) |
 | **Buck Converter (LM2596)** - VIN (+) | — | Power Supply - +12V | 12V Input to Step-Down |
 | **Buck Converter** - VIN (-) | — | Power Supply - GND | 12V Return |
-| **Buck Converter** - VOUT (+) [5V] | G1 / Row 58 | 5V Main Power Rail | Regulated 5.0V Output |
+| **Buck Converter** - VOUT (+) [5V] | G1 / Row 58 | 5V Main Power Rail | Regulated 5.0V Output (Calibrated with multimeter) |
 | **Buck Converter** - VOUT (-) [GND] | G1 / Row 30 | Main Common GND Rail | Regulated GND Return |
 | G1 / Row 58 (5V Rail) | G1 / Row 50 | ESP32 - 5V (VIN) / Relay / RTC / DFPlayer | 5V Distribution Bus |
 | G1 / Row 30 (GND Rail) | G1 / Row 33 | G1 / Row 40 / ESP32 GND / Power GND | Common Ground Distribution Bus |
-| **Capacitor (1000µF 16V)** - Positive | G2 / Row 5 | G1 / Row 58 (5V Rail) | 5V Power Rail Smoothing & Decoupling |
-| **Capacitor (1000µF 16V)** - Negative | G2 / Row 10 | G1 / Row 30 (GND Rail) | Filter Ground Return |
+| **Capacitor (1000µF 16V)** - Positive | G2 / Row 5 | G1 / Row 58 (5V Rail) | 5V Power Rail Smoothing & Inrush Buffer |
+| **Capacitor (1000µF 16V)** - Negative | G2 / Row 10 | G1 / Row 30 (GND Rail) | Filter Ground Return (Negative stripe to GND) |
 | **DS3231 RTC Module** - GND | G1 / Row 40 | Common GND Rail | Ground |
 | **DS3231 RTC Module** - VCC | G1 / Row 50 | 5V Rail | 5V Power |
 | **DS3231 RTC Module** - SDA | G2 / Row 30 | **ESP32 - GPIO 21** | I2C Data Line |
@@ -60,4 +62,6 @@ Format a MicroSD card ($\le$ 32GB) to **FAT32 (MBR)** and place the following fi
 ## 3. Master Emergency Key & Brownout Safety
 
 - **Master Key Card UID:** `93 39 6E 1B`
-- **Brownout / Power Loss Behavior:** In case of a building power outage or server network loss, the 12V UPS keeps the door locked for security. The Master Key Card `93 39 6E 1B` is programmed in ESP32 firmware as a direct hardware bypass and will immediately unlock the door locally even if Wi-Fi and the PC server are offline.
+- **Brownout / Power Loss Behavior:** In case of a building power outage or server network loss, the 12V UPS keeps the door locked for security. The Master Key Card `93 39 6E 1B` is programmed in ESP32 firmware as a direct hardware bypass and will immediately unlock the door locally even if Wi-Fi and the PC server are offline.
+- **Snubber / Anti-Crash Protection:** The 1N4007 flyback diode across the lock and 1000µF capacitor on the 5V rail prevent inductive voltage drops and back-EMF from resetting the ESP32 when the master card activates the relay.
+- **Visual Interactive Guide:** [`arduino/wiring_diagram_protection/wiring_diagram_protection.html`](file:///C:/xampp/htdocs/SDASFC-Smart-Door-Automation-System-for-CICS/arduino/wiring_diagram_protection/wiring_diagram_protection.html) or via web browser at [`public/wiring.php`](file:///C:/xampp/htdocs/SDASFC-Smart-Door-Automation-System-for-CICS/public/wiring.php).

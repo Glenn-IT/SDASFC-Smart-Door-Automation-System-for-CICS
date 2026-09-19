@@ -22,7 +22,8 @@ The firmware ([`arduino/sdasfc_door_lock.ino`](file:///C:/xampp/htdocs/SDASFC-Sm
    - 12V 5A UPS Access Control Power Supply Board (with 12V backup battery connection)
    - 12V Lead-Acid / Lithium Backup Battery
    - LM2596 Buck Converter (Step-down 12V to 5V to power ESP32 VIN, RFID, RTC, DFPlayer, & Relay)
-   - 1000µF 16V Power Decoupling & Smoothing Capacitor (across 5V and GND)
+   - 1000µF 16V Power Decoupling & Smoothing Capacitor (across 5V and GND rails to prevent brownouts)
+   - 1N4007 Flyback Diode (clamped across 12V lock terminals to eliminate inductive back-EMF spikes)
 3. **RFID Reader**: MFRC522 (RC522 v133) 13.56MHz SPI Module
 4. **Real-Time Clock (RTC)**: DS3231 AT24C32 I2C RTC Module
 5. **Exit Sensor**: Access Control Infrared Optical Sensor Exit Button (No-Touch IR)
@@ -54,12 +55,18 @@ The firmware ([`arduino/sdasfc_door_lock.ino`](file:///C:/xampp/htdocs/SDASFC-Sm
 | | VCC | 5V Rail (Buck Converter) | 5V Relay Coil Power |
 | | GND | Common GND | Ground |
 | | COM / NO | 12V Door Lock Loop | Switched 12V Power |
+| **1N4007 Diode (Snubber)** | Cathode (Silver Band) | Lock (+) / Relay NO | ⚠️ **Silver band MUST face +12V!** |
+| | Anode (Black End) | Lock (-) / Common GND | Clamps back-EMF inductive voltage spikes |
+| **1000µF 16V Capacitor** | Long Lead (+) | 5V Buck Converter Rail | Buffers voltage inrush |
+| | Short Lead (-) | Common GND Rail | Negative stripe to Ground |
 | **DFPlayer Mini (MP3-TF-16P)** | Pin 1 (VCC) | 5V Rail (Buck Converter) | Regulated 5V Power |
 | | Pin 2 (RX) | **GPIO 17** (TX2) | ⚠️ **Connect via 1kΩ Resistor!** (Dampens noise) |
 | | Pin 3 (TX) | **GPIO 16** (RX2) | ⚠️ **Connect via 1kΩ Resistor!** (Protects ESP32 3.3V logic) |
 | | Pin 6 (SPK1)| Speaker Lead 1 (+) | 3W 8Ω Speaker |
 | | Pin 7 (GND) | Common GND | Ground |
 | | Pin 8 (SPK2)| Speaker Lead 2 (-) | 3W 8Ω Speaker |
+
+> 📖 **Visual Protection Wiring Diagram:** Open [`arduino/wiring_diagram_protection/wiring_diagram_protection.html`](file:///C:/xampp/htdocs/SDASFC-Smart-Door-Automation-System-for-CICS/arduino/wiring_diagram_protection/wiring_diagram_protection.html) or navigate to the web portal at [`public/wiring.php`](file:///C:/xampp/htdocs/SDASFC-Smart-Door-Automation-System-for-CICS/public/wiring.php) and click **"🛡️ Lock Protection & Diode Guide"**.
 
 ---
 

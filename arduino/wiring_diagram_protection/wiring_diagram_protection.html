@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SDASFC — Door Lock Protection & Anti-Crash Wiring Guide</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #090d16;
+            --bg-card: #131b2e;
+            --bg-card-hover: #1e2942;
+            --border-color: #263352;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-cyan: #06b6d4;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-rose: #f43f5e;
+            --accent-purple: #a855f7;
+            --accent-lime: #84cc16;
+            --accent-silver: #cbd5e1;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 1.5rem 1rem;
+        }
+
+        .container {
+            max-width: 1650px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .badge-pro {
+            display: inline-block;
+            padding: 0.35rem 0.9rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--accent-amber);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            margin-bottom: 0.75rem;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.025em;
+            margin-bottom: 0.5rem;
+        }
+
+        p.subtitle {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            max-width: 950px;
+            margin: 0 auto;
+        }
+
+        /* Problem vs Solution Banner */
+        .diag-banner {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 900px) {
+            .diag-banner {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .banner-card {
+            border-radius: 14px;
+            padding: 1.25rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .banner-bad {
+            background: rgba(244, 63, 94, 0.08);
+            border-color: rgba(244, 63, 94, 0.3);
+        }
+
+        .banner-good {
+            background: rgba(16, 185, 129, 0.08);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .banner-title {
+            font-size: 1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 0.6rem;
+        }
+
+        .banner-bad .banner-title { color: #fda4af; }
+        .banner-good .banner-title { color: #6ee7b7; }
+
+        .banner-desc {
+            font-size: 0.88rem;
+            color: #cbd5e1;
+            line-height: 1.5;
+        }
+
+        .banner-code {
+            font-family: 'JetBrains Mono', monospace;
+            background: #080c14;
+            padding: 0.4rem 0.6rem;
+            border-radius: 6px;
+            color: #f43f5e;
+            display: block;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        /* Filter Controls */
+        .controls-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .controls-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .controls-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .btn-filter {
+            background: #0f172a;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 0.55rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .btn-filter:hover {
+            border-color: var(--accent-cyan);
+            color: #fff;
+        }
+
+        .btn-filter.active {
+            background: var(--accent-cyan);
+            border-color: var(--accent-cyan);
+            color: #000;
+            font-weight: 700;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        /* Canvas Card */
+        .canvas-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .canvas-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .canvas-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .zoom-hint {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            background: #0f172a;
+            padding: 0.3rem 0.75rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .svg-wrapper {
+            background: #080c14;
+            border-radius: 12px;
+            border: 1px solid #1a2333;
+            overflow: auto;
+            position: relative;
+        }
+
+        svg.circuit-svg {
+            width: 100%;
+            min-width: 1350px;
+            height: auto;
+            display: block;
+        }
+
+        /* SVG Wire Styles */
+        .wire {
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transition: stroke-width 0.2s ease, opacity 0.2s ease, filter 0.2s ease;
+            cursor: pointer;
+        }
+
+        .wire:hover {
+            stroke-width: 6 !important;
+            filter: drop-shadow(0 0 10px currentColor);
+            opacity: 1 !important;
+        }
+
+        .wire-dimmed {
+            opacity: 0.12 !important;
+        }
+
+        .wire-highlighted {
+            opacity: 1 !important;
+            stroke-width: 5 !important;
+            filter: drop-shadow(0 0 8px currentColor);
+        }
+
+        /* Floating Tooltip */
+        #wire-tooltip {
+            position: absolute;
+            display: none;
+            background: #0f172a;
+            border: 1px solid var(--accent-cyan);
+            color: #fff;
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            font-size: 0.825rem;
+            pointer-events: none;
+            z-index: 100;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+            font-family: 'JetBrains Mono', monospace;
+            max-width: 360px;
+        }
+
+        /* 3-Card Component Spotlight */
+        .spotlight-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .spotlight-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 1.25rem;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .spotlight-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-cyan);
+        }
+
+        .spotlight-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .spotlight-num {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.95rem;
+        }
+
+        .spotlight-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .spotlight-sub {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .spotlight-body {
+            font-size: 0.875rem;
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+
+        .spotlight-body strong {
+            color: #fff;
+        }
+
+        .polarity-callout {
+            margin-top: 0.75rem;
+            padding: 0.6rem 0.8rem;
+            border-radius: 8px;
+            background: #080c14;
+            border-left: 3px solid var(--accent-amber);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+        }
+
+        /* Table of Connections */
+        .table-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .table-card h3 {
+            font-size: 1.15rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        table.pinout-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+
+        table.pinout-table th {
+            text-align: left;
+            padding: 0.75rem 1rem;
+            background: #0f172a;
+            color: var(--text-secondary);
+            font-weight: 700;
+            border-bottom: 2px solid var(--border-color);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        table.pinout-table td {
+            padding: 0.85rem 1rem;
+            border-bottom: 1px solid #1a2333;
+            color: #e2e8f0;
+        }
+
+        table.pinout-table tr:hover {
+            background: rgba(6, 182, 212, 0.04);
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .tag-diode { background: rgba(244, 63, 94, 0.2); color: #fda4af; border: 1px solid rgba(244, 63, 94, 0.4); }
+        .tag-cap { background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.4); }
+        .tag-relay { background: rgba(245, 158, 11, 0.2); color: #fde68a; border: 1px solid rgba(245, 158, 11, 0.4); }
+        .tag-esp { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="badge-pro">🛡️ HARDWARE PROTECTION & ANTI-BROWNOUT GUIDE</div>
+        <h1>SDASFC Door Lock Anti-Crash & Wiring Guide</h1>
+        <p class="subtitle">Where and how to connect the <strong>1N4007 Flyback Diode</strong>, <strong>1000µF Filter Capacitor</strong>, and <strong>Relay Optical Isolation</strong> to permanently eliminate ESP32 serial corruption and brownout reboot loops when tapping the Master Card.</p>
+    </header>
+
+    <!-- Problem vs Solution Banner -->
+    <div class="diag-banner">
+        <div class="banner-card banner-bad">
+            <div class="banner-title">
+                <span>💥 What Happened on your Serial Monitor:</span>
+            </div>
+            <div class="banner-desc">
+                When other cards were tapped, access was denied so the relay never switched ON. But when the <strong>Master Card</strong> was tapped, the ESP32 commanded the relay to unlock the door immediately:
+                <span class="banner-code">[DOOR] >>> 🔓 RELAY ENERGIZErƨ E8rX ^&屧f dpRBbcb~&... rst:0x1 (POWERON_RESET)</span>
+                Switching the 12V lock created a massive inductive reverse spike (Back-EMF) and collapsed the 5V rail (Brownout), causing the ESP32 CPU registers to glitch and restart.
+            </div>
+        </div>
+        <div class="banner-card banner-good">
+            <div class="banner-title">
+                <span>✅ The 3-Step Permanent Hardware Solution:</span>
+            </div>
+            <div class="banner-desc">
+                1. <strong>1N4007 Flyback Diode:</strong> Clamped directly across the 12V Lock wires to swallow inductive back-EMF in &lt;1 microsecond.<br>
+                2. <strong>1000µF 16V Capacitor:</strong> Positioned across the 5V and GND rail to buffer against inrush voltage dips.<br>
+                3. <strong>Common Ground & Buck Calibration:</strong> Solid shared GND and 5.0V regulated power ensures rock-steady operation.
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Buttons -->
+    <div class="controls-panel">
+        <div class="controls-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+            </svg>
+            Interactive Wire Highlighter:
+        </div>
+        <div class="controls-buttons">
+            <button class="btn-filter active" onclick="filterWires('all', event)">Show Full Protection Circuit</button>
+            <button class="btn-filter" onclick="filterWires('diode', event)">
+                <span class="dot" style="background:#f43f5e;"></span> 1. 1N4007 Diode (Lock Terminals)
+            </button>
+            <button class="btn-filter" onclick="filterWires('capacitor', event)">
+                <span class="dot" style="background:#3b82f6;"></span> 2. 1000µF Capacitor (5V Buffer)
+            </button>
+            <button class="btn-filter" onclick="filterWires('relay', event)">
+                <span class="dot" style="background:#f59e0b;"></span> 3. Relay & GPIO 27 Control
+            </button>
+            <button class="btn-filter" onclick="filterWires('power12v', event)">
+                <span class="dot" style="background:#e11d48;"></span> 4. 12V Switched Power Path
+            </button>
+        </div>
+    </div>
+
+    <!-- Tooltip -->
+    <div id="wire-tooltip"></div>
+
+    <!-- Main Circuit Canvas Card -->
+    <div class="canvas-card">
+        <div class="canvas-header">
+            <div class="canvas-title">
+                <span>🔌 Visual Wiring Diagram: Where to Insert the Protection Components</span>
+            </div>
+            <div class="zoom-hint">💡 Hover over any wire, diode, or component terminal to inspect connections</div>
+        </div>
+
+        <div class="svg-wrapper">
+            <svg class="circuit-svg" viewBox="0 0 1450 780">
+                <defs>
+                    <!-- Component Drop Shadows -->
+                    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+                        <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#000" flood-opacity="0.6"/>
+                    </filter>
+                    <linearGradient id="silverBand" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#94a3b8"/>
+                        <stop offset="50%" stop-color="#ffffff"/>
+                        <stop offset="100%" stop-color="#94a3b8"/>
+                    </linearGradient>
+                    <linearGradient id="diodeBody" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#262626"/>
+                        <stop offset="50%" stop-color="#171717"/>
+                        <stop offset="100%" stop-color="#0a0a0a"/>
+                    </linearGradient>
+                    <linearGradient id="capBody" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#1e3a8a"/>
+                        <stop offset="70%" stop-color="#1d4ed8"/>
+                        <stop offset="100%" stop-color="#172554"/>
+                    </linearGradient>
+                </defs>
+
+                <!-- ============================================================== -->
+                <!-- 1. 12V 5A UPS POWER SUPPLY (LEFT-TOP)                          -->
+                <!-- ============================================================== -->
+                <g transform="translate(60, 60)" filter="url(#shadow)">
+                    <rect width="240" height="150" rx="12" fill="#131b2e" stroke="#263352" stroke-width="2"/>
+                    <rect x="0" y="0" width="240" height="32" rx="12" fill="#1e2942"/>
+                    <rect x="0" y="20" width="240" height="12" fill="#1e2942"/>
+                    <text x="120" y="21" fill="#f8fafc" font-size="13" font-weight="700" text-anchor="middle">12V 5A UPS Power Supply</text>
+                    
+                    <!-- Terminals -->
+                    <circle cx="50" cy="125" r="10" fill="#0f172a" stroke="#e11d48" stroke-width="3"/>
+                    <text x="50" y="100" fill="#f43f5e" font-size="11" font-weight="700" text-anchor="middle">+12V OUT</text>
+                    
+                    <circle cx="120" cy="125" r="10" fill="#0f172a" stroke="#64748b" stroke-width="3"/>
+                    <text x="120" y="100" fill="#94a3b8" font-size="11" font-weight="700" text-anchor="middle">GND (-)</text>
+
+                    <circle cx="190" cy="125" r="10" fill="#0f172a" stroke="#f59e0b" stroke-width="3"/>
+                    <text x="190" y="100" fill="#f59e0b" font-size="11" font-weight="700" text-anchor="middle">BATTERY</text>
+                </g>
+
+                <!-- ============================================================== -->
+                <!-- 2. LM2596 BUCK CONVERTER (CENTER-TOP)                          -->
+                <!-- ============================================================== -->
+                <g transform="translate(370, 60)" filter="url(#shadow)">
+                    <rect width="250" height="150" rx="12" fill="#064e3b" stroke="#059669" stroke-width="2"/>
+                    <rect x="0" y="0" width="250" height="32" rx="12" fill="#047857"/>
+                    <rect x="0" y="20" width="250" height="12" fill="#047857"/>
+                    <text x="125" y="21" fill="#ecfdf5" font-size="13" font-weight="700" text-anchor="middle">LM2596 Step-Down (12V → 5V)</text>
+                    
+                    <!-- Brass Trimpot -->
+                    <rect x="100" y="55" width="40" height="30" rx="4" fill="#3b82f6" stroke="#1d4ed8"/>
+                    <circle cx="120" cy="70" r="7" fill="#f59e0b"/>
+                    <line x1="115" y1="70" x2="125" y2="70" stroke="#78350f" stroke-width="2"/>
+                    <text x="120" y="100" fill="#6ee7b7" font-size="10" font-weight="600" text-anchor="middle">Multimeter = 5.0V</text>
+
+                    <!-- In Terminals -->
+                    <circle cx="30" cy="70" r="8" fill="#0f172a" stroke="#e11d48" stroke-width="2"/>
+                    <text x="30" y="52" fill="#fca5a5" font-size="10" font-weight="700" text-anchor="middle">IN+</text>
+                    
+                    <circle cx="30" cy="120" r="8" fill="#0f172a" stroke="#64748b" stroke-width="2"/>
+                    <text x="30" y="140" fill="#94a3b8" font-size="10" font-weight="700" text-anchor="middle">IN-</text>
+
+                    <!-- Out Terminals -->
+                    <circle cx="220" cy="70" r="8" fill="#0f172a" stroke="#3b82f6" stroke-width="2"/>
+                    <text x="220" y="52" fill="#93c5fd" font-size="10" font-weight="700" text-anchor="middle">OUT+ (5V)</text>
+                    
+                    <circle cx="220" cy="120" r="8" fill="#0f172a" stroke="#64748b" stroke-width="2"/>
+                    <text x="220" y="140" fill="#94a3b8" font-size="10" font-weight="700" text-anchor="middle">OUT- (GND)</text>
+                </g>
+
+                <!-- ============================================================== -->
+                <!-- 3. COMPONENT 2: 1000µF 16V FILTER CAPACITOR (BETWEEN 5V & GND) -->
+                <!-- ============================================================== -->
+                <g transform="translate(680, 50)" filter="url(#shadow)" id="comp-capacitor">
+                    <!-- Glow Outline -->
+                    <rect x="-10" y="-10" width="160" height="190" rx="14" fill="rgba(59, 130, 246, 0.08)" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4 3"/>
+                    <text x="70" y="-18" fill="#93c5fd" font-size="12" font-weight="800" text-anchor="middle">★ WHERE TO PUT CAPACITOR</text>
+                    
+                    <!-- Capacitor Can -->
+                    <rect x="35" y="20" width="70" height="100" rx="16" fill="url(#capBody)" stroke="#1e40af" stroke-width="2"/>
+                    <!-- Negative Stripe -->
+                    <rect x="80" y="20" width="22" height="100" fill="#e2e8f0"/>
+                    <text x="91" y="45" fill="#0f172a" font-size="14" font-weight="900" text-anchor="middle">-</text>
+                    <text x="91" y="70" fill="#0f172a" font-size="14" font-weight="900" text-anchor="middle">-</text>
+                    <text x="91" y="95" fill="#0f172a" font-size="14" font-weight="900" text-anchor="middle">-</text>
+                    
+                    <text x="56" y="65" fill="#ffffff" font-size="11" font-weight="700" text-anchor="middle">1000µF</text>
+                    <text x="56" y="80" fill="#93c5fd" font-size="10" font-weight="600" text-anchor="middle">16V</text>
+
+                    <!-- Capacitor Leads -->
+                    <!-- Long Leg (+) -->
+                    <line x1="50" y1="120" x2="50" y2="155" stroke="#93c5fd" stroke-width="3"/>
+                    <circle cx="50" cy="155" r="5" fill="#3b82f6"/>
+                    <text x="35" y="150" fill="#3b82f6" font-size="11" font-weight="800">+</text>
+
+                    <!-- Short Leg (-) -->
+                    <line x1="90" y1="120" x2="90" y2="155" stroke="#94a3b8" stroke-width="3"/>
+                    <circle cx="90" cy="155" r="5" fill="#64748b"/>
+                    <text x="105" y="150" fill="#94a3b8" font-size="13" font-weight="900">-</text>
+                </g>
+
+                <!-- ============================================================== -->
+                <!-- 4. ESP32 DEV MODULE (BOTTOM-LEFT)                              -->
+                <!-- ============================================================== -->
+                <g transform="translate(60, 430)" filter="url(#shadow)">
+                    <rect width="300" height="270" rx="12" fill="#0f172a" stroke="#334155" stroke-width="2"/>
+                    <rect x="0" y="0" width="300" height="32" rx="12" fill="#1e2942"/>
+                    <rect x="0" y="20" width="300" height="12" fill="#1e2942"/>
+                    <text x="150" y="21" fill="#f8fafc" font-size="13" font-weight="700" text-anchor="middle">ESP32 Dev Module (30-Pin)</text>
+
+                    <!-- Wi-Fi Shield -->
+                    <rect x="100" y="60" width="100" height="90" rx="6" fill="#1e2942" stroke="#475569"/>
+                    <text x="150" y="110" fill="#94a3b8" font-size="11" font-weight="700" text-anchor="middle">ESP-WROOM-32</text>
+
+                    <!-- USB Port -->
+                    <rect x="120" y="245" width="60" height="25" rx="4" fill="#64748b"/>
+
+                    <!-- Pins on right side -->
+                    <!-- VIN (5V IN) -->
+                    <circle cx="280" cy="65" r="6" fill="#0f172a" stroke="#3b82f6" stroke-width="2"/>
+                    <text x="260" y="70" fill="#93c5fd" font-size="11" font-weight="700" text-anchor="end">VIN (5V)</text>
+
+                    <!-- GND -->
+                    <circle cx="280" cy="100" r="6" fill="#0f172a" stroke="#64748b" stroke-width="2"/>
+                    <text x="260" y="105" fill="#94a3b8" font-size="11" font-weight="700" text-anchor="end">GND</text>
+
+                    <!-- GPIO 27 (Relay Control) -->
+                    <circle cx="280" cy="150" r="7" fill="#0f172a" stroke="#f59e0b" stroke-width="3"/>
+                    <text x="260" y="155" fill="#fde68a" font-size="12" font-weight="800" text-anchor="end">GPIO 27 (RELAY)</text>
+
+                    <!-- 3V3 -->
+                    <circle cx="280" cy="200" r="6" fill="#0f172a" stroke="#10b981" stroke-width="2"/>
+                    <text x="260" y="205" fill="#6ee7b7" font-size="11" font-weight="700" text-anchor="end">3V3 (Sensors)</text>
+                </g>
+
+                <!-- ============================================================== -->
+                <!-- 5. 1-CHANNEL 5V RELAY MODULE (BOTTOM-CENTER)                   -->
+                <!-- ============================================================== -->
+                <g transform="translate(480, 430)" filter="url(#shadow)">
+                    <rect width="320" height="270" rx="12" fill="#1e1b4b" stroke="#4338ca" stroke-width="2"/>
+                    <rect x="0" y="0" width="320" height="32" rx="12" fill="#312e81"/>
+                    <rect x="0" y="20" width="320" height="12" fill="#312e81"/>
+                    <text x="160" y="21" fill="#e0e7ff" font-size="13" font-weight="700" text-anchor="middle">1-Channel 5V Relay Module</text>
+
+                    <!-- Blue Relay Cube -->
+                    <rect x="110" y="60" width="100" height="120" rx="6" fill="#1d4ed8" stroke="#1e40af"/>
+                    <text x="160" y="110" fill="#ffffff" font-size="11" font-weight="800" text-anchor="middle">SONGLE</text>
+                    <text x="160" y="130" fill="#93c5fd" font-size="10" font-weight="600" text-anchor="middle">5V DC RELAY</text>
+
+                    <!-- Logic Header Pins (Left) -->
+                    <circle cx="30" cy="80" r="7" fill="#0f172a" stroke="#3b82f6" stroke-width="2"/>
+                    <text x="45" y="85" fill="#93c5fd" font-size="11" font-weight="700">VCC (5V)</text>
+
+                    <circle cx="30" cy="125" r="7" fill="#0f172a" stroke="#64748b" stroke-width="2"/>
+                    <text x="45" y="130" fill="#94a3b8" font-size="11" font-weight="700">GND</text>
+
+                    <circle cx="30" cy="170" r="7" fill="#0f172a" stroke="#f59e0b" stroke-width="3"/>
+                    <text x="45" y="175" fill="#fde68a" font-size="12" font-weight="800">IN (SIG)</text>
+
+                    <!-- JD-VCC Jumper -->
+                    <rect x="15" y="210" width="55" height="28" rx="4" fill="#0f172a" stroke="#6366f1"/>
+                    <text x="42" y="228" fill="#a5b4fc" font-size="9" font-weight="700" text-anchor="middle">JD-VCC</text>
+
+                    <!-- High-Voltage Screw Terminal Block (Right) -->
+                    <rect x="270" y="55" width="40" height="140" rx="6" fill="#065f46" stroke="#047857"/>
+                    
+                    <!-- NO Terminal -->
+                    <circle cx="290" cy="80" r="8" fill="#0f172a" stroke="#e11d48" stroke-width="2"/>
+                    <text x="255" y="85" fill="#fca5a5" font-size="11" font-weight="800" text-anchor="end">NO</text>
+
+                    <!-- COM Terminal -->
+                    <circle cx="290" cy="125" r="8" fill="#0f172a" stroke="#e11d48" stroke-width="2"/>
+                    <text x="255" y="130" fill="#fca5a5" font-size="11" font-weight="800" text-anchor="end">COM</text>
+
+                    <!-- NC Terminal -->
+                    <circle cx="290" cy="170" r="8" fill="#0f172a" stroke="#64748b" stroke-width="2"/>
+                    <text x="255" y="175" fill="#94a3b8" font-size="11" font-weight="700" text-anchor="end">NC</text>
+                </g>
+
+                <!-- ============================================================== -->
+                <!-- 6. 12V SOLENOID / MAGNETIC DOOR LOCK (FAR-RIGHT)               -->
+                <!-- ============================================================== -->
+                <g transform="translate(1120, 360)" filter="url(#shadow)">
+                    <rect width="260" height="340" rx="12" fill="#1e293b" stroke="#475569" stroke-width="2"/>
+                    <rect x="0" y="0" width="260" height="32" rx="12" fill="#334155"/>
+                    <rect x="0" y="20" width="260" height="12" fill="#334155"/>
+                    <text x="130" y="21" fill="#f8fafc" font-size="13" font-weight="700" text-anchor="middle">12V Solenoid / Electric Strike Lock</text>
+
+                    <!-- Lock Solenoid Coil Graphic -->
+                    <rect x="50" y="60" width="160" height="130" rx="8" fill="#0f172a" stroke="#64748b"/>
+                    <!-- Coil Windings -->
+                    <path d="M 70 80 Q 90 70, 110 80 Q 130 90, 150 80 Q 170 70, 190 80" stroke="#d97706" stroke-width="5" fill="none"/>
+                    <path d="M 70 105 Q 90 95, 110 105 Q 130 115, 150 105 Q 170 95, 190 105" stroke="#d97706" stroke-width="5" fill="none"/>
+                    <path d="M 70 130 Q 90 120, 110 130 Q 130 140, 150 130 Q 170 120, 190 130" stroke="#d97706" stroke-width="5" fill="none"/>
+                    <text x="130" y="165" fill="#f59e0b" font-size="11" font-weight="700" text-anchor="middle">INDUCTIVE COIL (SOURCE OF SPIKES)</text>
+
+                    <!-- Lock Terminals -->
+                    <circle cx="70" cy="270" r="10" fill="#0f172a" stroke="#e11d48" stroke-width="3"/>
+                    <text x="70" y="240" fill="#f43f5e" font-size="12" font-weight="800" text-anchor="middle">LOCK (+) 12V</text>
+
+                    <circle cx="190" cy="270" r="10" fill="#0f172a" stroke="#64748b" stroke-width="3"/>
+                    <text x="190" y="240" fill="#94a3b8" font-size="12" font-weight="800" text-anchor="middle">LOCK (-) GND</text>
+                </g>
+
+                <!-- ============================================================== -->
+                <!-- 7. COMPONENT 1: 1N4007 FLYBACK DIODE (BETWEEN LOCK + AND -)    -->
+                <!-- ============================================================== -->
+                <g transform="translate(1140, 640)" filter="url(#shadow)" id="comp-diode">
+                    <!-- Glow Outline -->
+                    <rect x="-10" y="-12" width="240" height="90" rx="12" fill="rgba(244, 63, 94, 0.08)" stroke="#f43f5e" stroke-width="1.5" stroke-dasharray="4 3"/>
+                    <text x="110" y="-18" fill="#fda4af" font-size="12" font-weight="800" text-anchor="middle">★ WHERE TO PUT 1N4007 DIODE</text>
+
+                    <!-- Diode Leads -->
+                    <!-- Cathode Lead (Connected to +12V) -->
+                    <line x1="20" y1="35" x2="55" y2="35" stroke="#f43f5e" stroke-width="3"/>
+                    <circle cx="20" cy="35" r="5" fill="#f43f5e"/>
+
+                    <!-- Anode Lead (Connected to GND) -->
+                    <line x1="165" y1="35" x2="200" y2="35" stroke="#64748b" stroke-width="3"/>
+                    <circle cx="200" cy="35" r="5" fill="#64748b"/>
+
+                    <!-- Diode Cylindrical Body -->
+                    <rect x="55" y="20" width="110" height="30" rx="6" fill="url(#diodeBody)" stroke="#404040" stroke-width="1.5"/>
+
+                    <!-- Silver Band (Cathode Marker) - CRITICAL VISUAL! -->
+                    <rect x="62" y="20" width="18" height="30" fill="url(#silverBand)"/>
+                    <text x="71" y="65" fill="#fda4af" font-size="10" font-weight="800" text-anchor="middle">SILVER BAND</text>
+                    <text x="71" y="78" fill="#fca5a5" font-size="9" font-weight="700" text-anchor="middle">(Cathode / +12V)</text>
+
+                    <!-- Diode Label -->
+                    <text x="122" y="40" fill="#ffffff" font-size="11" font-weight="700" text-anchor="middle">1N4007</text>
+                    <text x="185" y="65" fill="#94a3b8" font-size="10" font-weight="700" text-anchor="middle">ANODE (GND)</text>
+                </g>
+
+                <!-- ============================================================== -->
+                <!-- 8. WIRES & CONNECTIONS                                         -->
+                <!-- ============================================================== -->
+
+                <!-- [POWER 12V]: UPS +12V to Buck Converter IN+ -->
+                <path d="M 110 185 L 110 240 L 400 240 L 400 130" 
+                      class="wire wire-power12v" stroke="#e11d48" stroke-width="4"
+                      data-desc="12V Power from UPS (+) to LM2596 Buck Converter IN+"/>
+
+                <!-- [POWER 12V]: UPS +12V to Relay COM -->
+                <path d="M 110 185 L 110 370 L 770 370 L 770 555" 
+                      class="wire wire-power12v" stroke="#e11d48" stroke-width="4"
+                      data-desc="Continuous +12V Feed to Relay COM Terminal (Switches power to lock)"/>
+
+                <!-- [COMMON GND]: UPS GND to Buck Converter IN- -->
+                <path d="M 180 185 L 180 270 L 400 270 L 400 180" 
+                      class="wire wire-ground" stroke="#64748b" stroke-width="4"
+                      data-desc="Common Ground: 12V UPS (-) to LM2596 Buck Converter IN-"/>
+
+                <!-- [COMMON GND]: Buck Converter OUT- to ESP32 GND & Relay GND -->
+                <path d="M 590 180 L 640 180 L 640 330 L 340 330 L 340 530" 
+                      class="wire wire-ground" stroke="#64748b" stroke-width="4"
+                      data-desc="Common Ground Rail: Buck OUT- (GND) to ESP32 GND Pin"/>
+
+                <path d="M 640 330 L 510 330 L 510 555" 
+                      class="wire wire-ground" stroke="#64748b" stroke-width="3"
+                      data-desc="Common Ground: Buck OUT- to Relay Module GND Pin"/>
+
+                <!-- [COMMON GND]: Ground link to Lock (-) -->
+                <path d="M 640 180 L 1310 180 L 1310 630" 
+                      class="wire wire-ground" stroke="#64748b" stroke-width="4"
+                      data-desc="Common Ground: Ground Rail to Lock (-) Terminal"/>
+
+                <!-- [CAPACITOR 5V]: Buck OUT+ (5V) to Capacitor (+) -->
+                <path d="M 590 130 L 730 130 L 730 205" 
+                      class="wire wire-capacitor" stroke="#3b82f6" stroke-width="4"
+                      data-desc="★ CAPACITOR (+) PIN: Connected directly to 5V Output of Buck Converter"/>
+
+                <!-- [CAPACITOR GND]: Buck OUT- (GND) to Capacitor (-) -->
+                <path d="M 590 180 L 770 180 L 770 205" 
+                      class="wire wire-capacitor" stroke="#64748b" stroke-width="4"
+                      data-desc="★ CAPACITOR (-) PIN (Stripe side): Connected directly to GND Output of Buck Converter"/>
+
+                <!-- [5V RAIL]: Buck OUT+ (5V) through Capacitor to ESP32 VIN -->
+                <path d="M 730 130 L 800 130 L 800 300 L 340 300 L 340 495" 
+                      class="wire wire-5v" stroke="#3b82f6" stroke-width="4"
+                      data-desc="Regulated 5.0V Power to ESP32 VIN (Buffered by 1000µF Capacitor)"/>
+
+                <!-- [5V RAIL]: 5V power to Relay Module VCC -->
+                <path d="M 800 300 L 510 300 L 510 510" 
+                      class="wire wire-5v" stroke="#3b82f6" stroke-width="3"
+                      data-desc="5V Power to Relay Module VCC Pin (Powers optocoupler and coil)"/>
+
+                <!-- [RELAY CONTROL]: ESP32 GPIO 27 to Relay IN (SIG) -->
+                <path d="M 340 580 L 400 580 L 400 600 L 510 600" 
+                      class="wire wire-relay" stroke="#f59e0b" stroke-width="4"
+                      data-desc="Relay Control Signal: ESP32 GPIO 27 to Relay IN (HIGH = 6s Unlock)"/>
+
+                <!-- [SWITCHED 12V]: Relay NO to Lock (+) -->
+                <path d="M 770 510 L 980 510 L 980 630 L 1190 630" 
+                      class="wire wire-power12v" stroke="#f43f5e" stroke-width="4"
+                      data-desc="Switched 12V Output: Relay NO Terminal to Door Lock (+) Terminal"/>
+
+                <!-- [DIODE CATHODE]: 1N4007 Silver Band to Lock (+) -->
+                <path d="M 1160 675 L 1190 675 L 1190 630" 
+                      class="wire wire-diode" stroke="#f43f5e" stroke-width="4"
+                      data-desc="★ DIODE CATHODE (SILVER BAND): Clamped to Lock (+) and Relay NO Switched Line!"/>
+
+                <!-- [DIODE ANODE]: 1N4007 Black side to Lock (-) -->
+                <path d="M 1340 675 L 1310 675 L 1310 630" 
+                      class="wire wire-diode" stroke="#64748b" stroke-width="4"
+                      data-desc="★ DIODE ANODE (PLAIN BLACK): Clamped to Lock (-) and Common Ground!"/>
+
+                <!-- Directional Arrow on Diode Current Bypass -->
+                <polygon points="1245,670 1245,680 1235,675" fill="#f43f5e"/>
+                <text x="1255" y="660" fill="#fda4af" font-size="9" font-weight="700">Back-EMF Snub Loop</text>
+            </svg>
+        </div>
+    </div>
+
+    <!-- 3-Component Detail Cards -->
+    <div class="spotlight-grid">
+        <!-- 1. 1N4007 Diode -->
+        <div class="spotlight-card">
+            <div class="spotlight-header">
+                <div class="spotlight-num" style="background:rgba(244,63,94,0.2); color:#fda4af;">1</div>
+                <div>
+                    <div class="spotlight-title">1N4007 Flyback Diode</div>
+                    <div class="spotlight-sub">The Inductive Kickback Absorber</div>
+                </div>
+            </div>
+            <div class="spotlight-body">
+                <strong>Exact Placement:</strong> Connect in <em>reverse bias</em> directly across the two terminals of your 12V Solenoid / Mag Lock (or into the Relay screw terminal block between <strong>NO</strong> and <strong>GND</strong>).
+                <div class="polarity-callout">
+                    <span style="color:#fda4af;">[SILVER BAND]</span> → Connect to <strong>Lock (+) / Relay NO</strong><br>
+                    <span style="color:#94a3b8;">[BLACK END]</span> → Connect to <strong>Lock (-) / GND</strong>
+                </div>
+                <p style="margin-top:0.6rem;">
+                    ⚠️ <strong>Never reverse this!</strong> The silver band MUST face positive (+12V). If wired backward, it will cause a short-circuit.
+                </p>
+            </div>
+        </div>
+
+        <!-- 2. 1000µF Capacitor -->
+        <div class="spotlight-card">
+            <div class="spotlight-header">
+                <div class="spotlight-num" style="background:rgba(59,130,246,0.2); color:#93c5fd;">2</div>
+                <div>
+                    <div class="spotlight-title">1000µF 16V Capacitor</div>
+                    <div class="spotlight-sub">The Anti-Brownout Energy Reservoir</div>
+                </div>
+            </div>
+            <div class="spotlight-body">
+                <strong>Exact Placement:</strong> Connect directly across the <strong>5V OUT (+)</strong> and <strong>GND (-)</strong> output pins of your LM2596 buck converter (or across the 5V power rails on your breadboard right next to ESP32 VIN).
+                <div class="polarity-callout">
+                    <span style="color:#93c5fd;">[LONG LEAD (+)]</span> → Connect to <strong>5V Rail (ESP32 VIN)</strong><br>
+                    <span style="color:#94a3b8;">[SHORT LEAD / STRIPE (-)]</span> → Connect to <strong>Common GND</strong>
+                </div>
+                <p style="margin-top:0.6rem;">
+                    Provides instant stored energy when the relay coil pulls current, keeping the ESP32 power line above 4.8V.
+                </p>
+            </div>
+        </div>
+
+        <!-- 3. Relay Optical Isolation -->
+        <div class="spotlight-card">
+            <div class="spotlight-header">
+                <div class="spotlight-num" style="background:rgba(245,158,11,0.2); color:#fde68a;">3</div>
+                <div>
+                    <div class="spotlight-title">Relay Module & JD-VCC</div>
+                    <div class="spotlight-sub">100% Optical Isolation from Lock Noise</div>
+                </div>
+            </div>
+            <div class="spotlight-body">
+                <strong>Option A (Standard):</strong> Keep JD-VCC jumper on. Connect Relay VCC to 5V, GND to GND, and IN to <strong>GPIO 27</strong>.<br><br>
+                <strong>Option B (Pro Isolation):</strong> Remove the black jumper cap from JD-VCC!
+                <div class="polarity-callout">
+                    <span style="color:#fde68a;">[JD-VCC Pin]</span> → Connect to <strong>5V Buck Converter</strong><br>
+                    <span style="color:#6ee7b7;">[VCC Pin]</span> → Connect to <strong>ESP32 3V3 Pin</strong><br>
+                    <span style="color:#fda4af;">[IN Pin]</span> → Connect to <strong>ESP32 GPIO 27</strong>
+                </div>
+                This completely isolates the ESP32 microchip electrically from the mechanical relay coil.
+            </div>
+        </div>
+    </div>
+
+    <!-- Step-by-Step Connection Table -->
+    <div class="table-card">
+        <h3>📋 Exact Pin-by-Pin Wiring Checklist</h3>
+        <table class="pinout-table">
+            <thead>
+                <tr>
+                    <th>Component & Part</th>
+                    <th>Lead / Pin</th>
+                    <th>Target Destination</th>
+                    <th>Wire Color / Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="tag tag-diode">1N4007 Diode</span></td>
+                    <td><strong>Cathode (Silver Band)</strong></td>
+                    <td>12V Lock (+) Terminal / Relay NO</td>
+                    <td>🔴 Red / Connect to Switched +12V</td>
+                </tr>
+                <tr>
+                    <td><span class="tag tag-diode">1N4007 Diode</span></td>
+                    <td><strong>Anode (Black Body)</strong></td>
+                    <td>12V Lock (-) Terminal / Common GND</td>
+                    <td>⚫ Black / Connect to Ground</td>
+                </tr>
+                <tr>
+                    <td><span class="tag tag-cap">1000µF Capacitor</span></td>
+                    <td><strong>Long Leg (+)</strong></td>
+                    <td>LM2596 5V OUT / ESP32 VIN Rail</td>
+                    <td>🔵 Blue / Stores 5V reserve charge</td>
+                </tr>
+                <tr>
+                    <td><span class="tag tag-cap">1000µF Capacitor</span></td>
+                    <td><strong>Short Leg with Stripe (-)</strong></td>
+                    <td>LM2596 GND OUT / Common GND</td>
+                    <td>⚫ Black / Common Ground</td>
+                </tr>
+                <tr>
+                    <td><span class="tag tag-relay">1-CH 5V Relay</span></td>
+                    <td><strong>IN (Signal)</strong></td>
+                    <td>ESP32 GPIO 27</td>
+                    <td>🟡 Yellow / HIGH = 6s Door Unlock</td>
+                </tr>
+                <tr>
+                    <td><span class="tag tag-relay">1-CH 5V Relay</span></td>
+                    <td><strong>VCC</strong></td>
+                    <td>5V Buck Converter Rail</td>
+                    <td>🔵 Blue / 5.0V Regulated Power</td>
+                </tr>
+                <tr>
+                    <td><span class="tag tag-relay">1-CH 5V Relay</span></td>
+                    <td><strong>GND</strong></td>
+                    <td>Common Ground Rail</td>
+                    <td>⚫ Black / Common Ground</td>
+                </tr>
+                <tr>
+                    <td><span class="tag tag-relay">1-CH 5V Relay</span></td>
+                    <td><strong>COM (Common)</strong></td>
+                    <td>12V 5A UPS (+) Power Terminal</td>
+                    <td>🔴 Red / Direct 12V supply to relay switch</td>
+                </tr>
+                <tr>
+                    <td><span class="tag tag-relay">1-CH 5V Relay</span></td>
+                    <td><strong>NO (Normally Open)</strong></td>
+                    <td>12V Lock (+) Terminal</td>
+                    <td>🔴 Red / Switched 12V line to lock</td>
+                </tr>
+                <tr>
+                    <td><span class="tag tag-esp">ESP32 Dev Module</span></td>
+                    <td><strong>VIN</strong></td>
+                    <td>5V Buck Converter Rail</td>
+                    <td>⚠️ Multimeter must read 5.0V on buck converter</td>
+                </tr>
+                <tr>
+                    <td><span class="tag tag-esp">ESP32 Dev Module</span></td>
+                    <td><strong>GND</strong></td>
+                    <td>Common Ground Rail</td>
+                    <td>Mandatory shared reference across all boards</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // Wire Filter functionality
+    function filterWires(category, event) {
+        const buttons = document.querySelectorAll('.btn-filter');
+        buttons.forEach(btn => btn.classList.remove('active'));
+        if (event && event.currentTarget) {
+            event.currentTarget.classList.add('active');
+        }
+
+        const wires = document.querySelectorAll('.wire');
+        wires.forEach(wire => {
+            wire.classList.remove('wire-highlighted', 'wire-dimmed');
+            if (category === 'all') {
+                return;
+            }
+
+            if (category === 'diode' && wire.classList.contains('wire-diode')) {
+                wire.classList.add('wire-highlighted');
+            } else if (category === 'capacitor' && wire.classList.contains('wire-capacitor')) {
+                wire.classList.add('wire-highlighted');
+            } else if (category === 'relay' && wire.classList.contains('wire-relay')) {
+                wire.classList.add('wire-highlighted');
+            } else if (category === 'power12v' && wire.classList.contains('wire-power12v')) {
+                wire.classList.add('wire-highlighted');
+            } else {
+                wire.classList.add('wire-dimmed');
+            }
+        });
+    }
+
+    // Tooltip functionality
+    const tooltip = document.getElementById('wire-tooltip');
+    const svg = document.querySelector('.circuit-svg');
+
+    document.querySelectorAll('.wire').forEach(wire => {
+        wire.addEventListener('mouseenter', (e) => {
+            const desc = wire.getAttribute('data-desc');
+            if (desc) {
+                tooltip.textContent = desc;
+                tooltip.style.display = 'block';
+            }
+        });
+
+        wire.addEventListener('mousemove', (e) => {
+            const containerRect = svg.parentElement.getBoundingClientRect();
+            tooltip.style.left = (e.clientX - containerRect.left + 15) + 'px';
+            tooltip.style.top = (e.clientY - containerRect.top + 15) + 'px';
+        });
+
+        wire.addEventListener('mouseleave', () => {
+            tooltip.style.display = 'none';
+        });
+    });
+</script>
+
+</body>
+</html>

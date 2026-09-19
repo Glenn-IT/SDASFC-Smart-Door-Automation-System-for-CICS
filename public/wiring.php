@@ -28,6 +28,7 @@ Auth::requireLogin();
                 <div class="btn-group" role="group">
                     <button type="button" class="btn btn-sm btn-primary active" id="btnBreadboard" onclick="switchDiagram('breadboard')">With Breadboard</button>
                     <button type="button" class="btn btn-sm btn-outline-primary" id="btnDirect" onclick="switchDiagram('direct')">Without Breadboard</button>
+                    <button type="button" class="btn btn-sm btn-outline-warning text-dark fw-semibold" id="btnProtection" onclick="switchDiagram('protection')">🛡️ Lock Protection & Diode Guide</button>
                 </div>
                 <a href="<?php echo BASE_URL; ?>/dashboard.php" class="btn btn-outline-secondary btn-sm">← Back to Dashboard</a>
             </div>
@@ -40,19 +41,22 @@ Auth::requireLogin();
         const frame = document.getElementById('diagramFrame');
         const btnB = document.getElementById('btnBreadboard');
         const btnD = document.getElementById('btnDirect');
+        const btnP = document.getElementById('btnProtection');
+
+        // Reset all buttons to inactive outline
+        btnB.className = 'btn btn-sm btn-outline-primary';
+        btnD.className = 'btn btn-sm btn-outline-primary';
+        btnP.className = 'btn btn-sm btn-outline-warning text-dark fw-semibold';
 
         if (type === 'breadboard') {
             frame.src = '../arduino/wiring_diagram_with_breadboard/wiring_diagram.html';
-            btnB.classList.add('btn-primary', 'active');
-            btnB.classList.remove('btn-outline-primary');
-            btnD.classList.remove('btn-primary', 'active');
-            btnD.classList.add('btn-outline-primary');
-        } else {
+            btnB.className = 'btn btn-sm btn-primary active';
+        } else if (type === 'direct') {
             frame.src = '../arduino/wiring_diagram_without_breadboard/wiring_diagra_wb.html';
-            btnD.classList.add('btn-primary', 'active');
-            btnD.classList.remove('btn-outline-primary');
-            btnB.classList.remove('btn-primary', 'active');
-            btnB.classList.add('btn-outline-primary');
+            btnD.className = 'btn btn-sm btn-primary active';
+        } else if (type === 'protection') {
+            frame.src = '../arduino/wiring_diagram_protection/wiring_diagram_protection.html';
+            btnP.className = 'btn btn-sm btn-warning text-dark fw-bold active';
         }
     }
     </script>

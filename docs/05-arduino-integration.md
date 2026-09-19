@@ -8,6 +8,7 @@
 - **Real-Time Clock:** DS3231 AT24C32 I2C RTC Module (SDA GPIO 21, SCL GPIO 22)
 - **Audio Feedback:** DFPlayer Mini (MP3-TF-16P) + 3W 8Ω Speaker (HardwareSerial2: RX2 GPIO 16, TX2 GPIO 17)
 - **Power System:** 12V 5A UPS Power Supply + 12V Battery + LM2596 Buck Converter (Step-down to 5.0V) with 1000µF capacitor
+- **Protection Components:** 1N4007 Flyback Diode across 12V lock terminals (prevents back-EMF reboot loops)
  
 ## Pin Mapping & Wiring (ESP32)
 | Module / Line | Module Pin | ESP32 GPIO Pin | Description / Notes |
@@ -20,6 +21,9 @@
 | | 3.3V | **3V3 Pin** | ⚠️ 3.3V ONLY! Never connect to 5V |
 | | GND | Common GND | Ground |
 | **Relay (1-CH 5V)** | IN / SIG | **GPIO 27** | HIGH = Unlocked (6s hold), LOW = Locked |
+| **1N4007 Diode** | Cathode (Band) | Lock (+) / Relay NO | ⚠️ Silver band MUST face +12V! |
+| | Anode (Black) | Lock (-) / Common GND | Absorbs inductive back-EMF spikes |
+| **1000µF Capacitor** | (+) / (-) | 5V Rail / Common GND | Prevents brownout voltage drops |
 | **Exit Sensor (IR)**| NO / OUT | **GPIO 33** | Active LOW (Internal pullup) |
 | **DS3231 RTC** | SDA / SCL | **GPIO 21 / 22** | I2C Bus |
 | **DFPlayer Mini** | RX / TX | **GPIO 17 / 16** | TX2 / RX2 via 1kΩ resistors |
