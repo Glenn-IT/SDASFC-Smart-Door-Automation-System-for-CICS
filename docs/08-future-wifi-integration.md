@@ -12,7 +12,7 @@ The ESP32 and the host laptop connect to the **same local Wi-Fi router network**
 ```
 [ ESP32 Door Controller ]
    │
-   ├─► (Wi-Fi Online) ────────► Direct HTTP POST to http://192.168.1.208/.../rfid_scan.php
+   ├─► (Wi-Fi Online) ────────► Direct HTTP POST to http://192.168.1.35/.../rfid_scan.php
    │                               └─► No Serial Bridge Needed!
    │
    ├─► (Wi-Fi Offline/Dropped) ► Fallback: Transmits UID over USB Serial to start_bridge.bat
@@ -33,7 +33,7 @@ const char* WIFI_SSID     = "YOUR_ROUTER_SSID";
 const char* WIFI_PASSWORD = "YOUR_ROUTER_PASSWORD";
 
 // Local Laptop IP running XAMPP Apache/MySQL (No internet required)
-const char* API_URL       = "http://192.168.1.208/SDASFC-Smart-Door-Automation-System-for-CICS/public/api/rfid_scan.php";
+const char* API_URL       = "http://192.168.1.35/SDASFC-Smart-Door-Automation-System-for-CICS/public/api/rfid_scan.php";
 
 // Master Emergency Key (Works 100% offline, during power outages/brownouts)
 const String MASTER_CARD_UID = "93 39 6E 1B";

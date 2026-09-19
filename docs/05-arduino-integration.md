@@ -29,7 +29,7 @@
 2. Baud rate: **`115200 baud`**.
 3. **Master Emergency Key (`93 39 6E 1B`):** Verified locally by ESP32 firmware. Bypasses network and unlocks the door immediately for 6s during power brownouts or server downtime.
 4. **Dual Transport Mode:**
-   - **Wi-Fi Mode (Primary):** Sends HTTP POST directly to `http://192.168.1.208/.../rfid_scan.php`. No serial bridge needed when connected to router.
+   - **Wi-Fi Mode (Primary):** Sends HTTP POST directly to `http://192.168.1.35/.../rfid_scan.php`. No serial bridge needed when connected to router.
    - **Serial Mode (Fallback):** If Wi-Fi is disconnected, sends `UID:<HEX>` over USB Serial to `start_bridge.bat`.
 5. On `GRANT`: Relay energized for 6000ms (`UNLOCK_HOLD_MS 6000`), DFPlayer plays Track 2 (`0002.mp3` - Access Granted & Welcome) at maximum volume (30).
 6. On `DENY` or offline timeout: Relay remains locked, DFPlayer plays Track 1 (`0001.mp3` - Access Denied).

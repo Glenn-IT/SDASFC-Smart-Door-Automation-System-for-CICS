@@ -1,26 +1,23 @@
 /*
  * SDASFC — Smart Door Automation System for CICS
-<<<<<<< HEAD
- * Hardware Firmware for ESP32 (Hybrid Production Firmware v3.0)
+ * Hardware Firmware for ESP32 (Production Firmware v3.1 - WiFi + Serial Hybrid + NVS Flash Whitelist + Anti-Loop Protection)
  * 
  * ============================================================================
- * HYBRID OPERATION MODES (USB Tethered, Standalone Offline, & Optional Wi-Fi):
+ * HYBRID OPERATION MODES (USB Tethered, Standalone Offline, & Direct Wi-Fi):
  * ============================================================================
  * 1. STANDALONE OFFLINE MODE (No USB, No Wi-Fi):
  *    - All registered card UIDs are saved in ESP32 Non-Volatile Flash (Preferences/NVS).
- *    - When the USB cord is unplugged, the ESP32 checks its internal flash memory.
- *    - If the tapped card is registered, the door unlocks IMMEDIATELY and plays voice prompt.
+ *    - Master Emergency Key Card ("93 39 6E 1B") has hardware-level bypass.
+ *    - When offline/unplugged, the ESP32 verifies against internal flash memory.
+ *    - If the tapped card is registered, the door unlocks IMMEDIATELY.
  * 
  * 2. USB SERIAL BRIDGE MODE:
  *    - Connected to PC via USB running serial_bridge (PowerShell, Python, or PHP).
  *    - Transmits "UID:<HEX_UID>" and awaits live server decision.
  *    - Automatically synchronizes the entire database whitelist to ESP32 Flash memory on connect!
  * 
- * 3. OPTIONAL DIRECT WI-FI MODE:
- *    - If configured, ESP32 joins your local Wi-Fi and communicates directly with XAMPP API.
-=======
- * Hardware Firmware for ESP32 (Production Firmware v3.1 - WiFi + Serial Hybrid + Offline Master Key + Anti-Loop Protection)
->>>>>>> 25894a46631aefda6af4dad2ae001b4fb7cf8a9a
+ * 3. DIRECT WI-FI MODE:
+ *    - If configured, ESP32 joins local Wi-Fi and communicates directly with XAMPP API.
  * 
  * Hardware Components:
  * - ESP32 Dev Module (30-pin)
@@ -32,21 +29,24 @@
  * - DS3231 AT24C32 Real-Time Clock Module (I2C)
  * - DFPlayer Mini MP3 Module + 3W 8Ω Speaker
  * 
-<<<<<<< HEAD
- * MicroSD Audio Tracks:
- * - Track 2 (0002.mp3): "Access granted you may now open the door. Welcome to the CICS laboratory"
- * - Track 1 (0001.mp3): "Access Denied"
-=======
  * MicroSD Audio Track Mapping:
  * - Track 2 (0002.mp3): "Access granted you may now open the door. Welcome to the CICS laboratory" (Card tap only)
  * - Track 1 (0001.mp3): "Access Denied" (Card tap rejected / timeout)
  * - IR Exit Button: SILENT UNLOCK (No welcome voice prompt on exit)
->>>>>>> 25894a46631aefda6af4dad2ae001b4fb7cf8a9a
  * 
  * Master Emergency Key (Brownout / Offline Hardware Bypass):
  * - UID: "93 39 6E 1B" (Works 100% offline, during power failure/brownouts, or server downtime)
  * 
-<<<<<<< HEAD
+ * ESP32 Pin Mapping:
+ * - RC522 RFID (SPI Bus):
+ *   - SDA (SS) -> GPIO 5
+ *   - SCK      -> GPIO 18
+ *   - MOSI     -> GPIO 23
+ *   - MISO     -> GPIO 19
+ *   - RST      -> GPIO 4
+ *   - 3.3V     -> ESP32 3.3V Pin
+ *   - GND      -> Common GND
+ * 
  * - DS3231 RTC (I2C):
  *   - SDA      -> GPIO 21
  *   - SCL      -> GPIO 22
@@ -69,13 +69,12 @@
  *   - OUT / NO -> GPIO 33 (Internal Pull-Up enabled)
  *   - COM      -> Common GND
  *   - V+ / GND -> 12V Power Supply +12V / GND
-=======
- * Network Operation:
+ * 
+ * Network & Safety:
  * - Local Wi-Fi Direct: Sends HTTP POST directly to Host Laptop XAMPP API (No internet needed)
  * - USB Serial Fallback: Bridges via serial_bridge.ps1 / .py / .php if Wi-Fi is unavailable
- * - Anti-Loop Protection: Software state-machine prevents continuous open-close cycling
- * - Brownout Detector Protection: Prevents ESP32 reboot loops during relay/lock inductive inrush
->>>>>>> 25894a46631aefda6af4dad2ae001b4fb7cf8a9a
+ * - Anti-Loop Protection: Edge-triggered detection with 2.5s cooldown prevents continuous looping
+ * - Brownout Protection: Disables brownout detector to prevent reboot loops during inductive relay switching
  */
 
 #include "soc/soc.h"
@@ -89,37 +88,20 @@
 #include <DFRobotDFPlayerMini.h>
 #include <RTClib.h>
 #include <Preferences.h>
-#include <WiFi.h>
-#include <HTTPClient.h>
-
-// ============================================================================
-// OPTIONAL WI-FI CONFIGURATION (Leave SSID blank if using pure USB / Offline)
-// ============================================================================
-const char* WIFI_SSID     = "";  // e.g. "Your_WiFi_SSID"
-const char* WIFI_PASSWORD = "";  // e.g. "Your_WiFi_Password"
-const char* SERVER_HOST   = "http://192.168.1.100/SDASFC-Smart-Door-Automation-System-for-CICS"; // Local PC XAMPP URL
-
-// ============================================================================
-// HARDCODED FALLBACK WHITELIST (Always authorized, even if flash is empty)
-// ============================================================================
-const char* FALLBACK_CARDS[] = {
-  "08 E9 1E 26",  // Admin / Master Card 1
-  "C6 85 C6 01"   // Master Card 2
-};
-const int NUM_FALLBACK = sizeof(FALLBACK_CARDS) / sizeof(FALLBACK_CARDS[0]);
 
 //==================================================
 // 1. Wi-Fi & Local Server Configuration
 //==================================================
-// Wi-Fi credentials for presentation router (No internet required)
+// Presentation router credentials (No internet required)
 const char* WIFI_SSID     = "PLDT_Home_1D000";
 const char* WIFI_PASSWORD = "pldthome";
 
-// Local Laptop IP running XAMPP Apache/MySQL (Presentation Router IP)
-const char* API_URL       = "http://192.168.1.208/SDASFC-Smart-Door-Automation-System-for-CICS/public/api/rfid_scan.php";
+// Local Laptop IP running XAMPP Apache/MySQL
+const char* API_URL       = "http://192.168.1.166/SDASFC-Smart-Door-Automation-System-for-CICS/public/api/rfid_scan.php";
+const char* WHITELIST_URL = "http://192.168.1.166/SDASFC-Smart-Door-Automation-System-for-CICS/public/api/whitelist.php";
 
 // Wi-Fi Connection Settings
-const unsigned long WIFI_TIMEOUT_MS = 8000; // 8 seconds timeout for Wi-Fi association on boot
+const unsigned long WIFI_TIMEOUT_MS = 6000; // 6 seconds timeout for Wi-Fi association on boot
 bool wifiEnabled = false;
 
 //==================================================
@@ -127,6 +109,12 @@ bool wifiEnabled = false;
 //==================================================
 const String MASTER_CARD_UID          = "93 39 6E 1B";
 const String MASTER_CARD_UID_NO_SPACE = "93396E1B";
+
+// Hardcoded Fallback Cards (Always authorized even on fresh flash)
+const char* FALLBACK_CARDS[] = {
+  "93 39 6E 1B"  // Master Emergency Key Card
+};
+const int NUM_FALLBACK = sizeof(FALLBACK_CARDS) / sizeof(FALLBACK_CARDS[0]);
 
 //==================================================
 // 3. Pin Definitions (ESP32 Dev Module)
@@ -157,17 +145,12 @@ Preferences prefs;
 // Status Flags & Runtime Variables
 bool hasDFPlayer = false;
 bool hasRTC = false;
-<<<<<<< HEAD
-bool wifiEnabled = false;
-int defaultVolume = 25; // Safe audio volume (0 - 30)
-=======
 int defaultVolume = 30; // Maximum audio volume (0 - 30)
 
 // Anti-Loop & Debounce State Tracking for Exit Sensor
 bool lastExitState = HIGH;
 unsigned long lastExitTriggerTime = 0;
 const unsigned long EXIT_COOLDOWN_MS = 2500; // 2.5-second cooldown after relocking to prevent looping
->>>>>>> 25894a46631aefda6af4dad2ae001b4fb7cf8a9a
 
 // In-Memory Whitelist Cache
 String whitelist[MAX_WHITELIST_ENTRIES];
@@ -188,17 +171,13 @@ void unlockDoorExitSilent();
 void playGranted();
 void playDenied();
 bool initDFPlayer();
-<<<<<<< HEAD
 void handleDFPlayerEvents();
 void processSerialCommands();
 String checkOnlineVerification(String uidStr);
-void syncWhitelistFromWiFi();
-=======
 String verifyViaWiFi(String uid);
 String waitForSerialResponse(unsigned long timeoutMs);
-void handleDFPlayerEvents();
+void syncWhitelistFromWiFi();
 void connectToWiFi();
->>>>>>> 25894a46631aefda6af4dad2ae001b4fb7cf8a9a
 
 void setup() {
   // Disable ESP32 Brownout Detector to prevent inductive relay click reboot loops
@@ -207,18 +186,11 @@ void setup() {
   Serial.begin(SERIAL_BAUD);
   delay(500);
   Serial.println("\n==================================================");
-<<<<<<< HEAD
-  Serial.println("  SDASFC ESP32 SMART DOOR CONTROLLER (HYBRID v3.0)");
-  Serial.println("==================================================");
-
-  // 1. Relay Initialization (Default Locked)
-=======
   Serial.println("  SDASFC ESP32 SMART DOOR LOCK CONTROLLER (v3.1)");
   Serial.println("  Wi-Fi + Serial Hybrid & Offline Master Key Ready");
   Serial.println("==================================================");
 
   // 1. Relay Initialization (Default Locked / De-energized for Brownout Safety)
->>>>>>> 25894a46631aefda6af4dad2ae001b4fb7cf8a9a
   pinMode(RELAY_PIN, OUTPUT);
   digitalWrite(RELAY_PIN, RELAY_OFF);
   Serial.println("[HW] Relay initialized (State: LOCKED).");
@@ -244,7 +216,6 @@ void setup() {
     Serial.println("[HW] IR Exit Sensor initialized on GPIO 33 (State: IDLE / HIGH).");
   }
 
-  // Initialize previous state
   lastExitState = digitalRead(EXIT_BUTTON);
 
   // 3. Initialize Flash Storage (Preferences) & Load Whitelist
@@ -275,39 +246,16 @@ void setup() {
   // 6. Initialize DFPlayer Mini MP3 Player
   hasDFPlayer = initDFPlayer();
 
-<<<<<<< HEAD
-  // 7. Optional Wi-Fi Setup
-  if (strlen(WIFI_SSID) > 0) {
-    Serial.printf("[WIFI] Connecting to '%s'...\n", WIFI_SSID);
-    WiFi.mode(WIFI_STA);
-    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-    unsigned long wifiStart = millis();
-    while (WiFi.status() != WL_CONNECTED && millis() - wifiStart < 5000) {
-      delay(250);
-      Serial.print(".");
-    }
-    if (WiFi.status() == WL_CONNECTED) {
-      wifiEnabled = true;
-      Serial.printf("\n[WIFI] ✅ Connected! IP: %s\n", WiFi.localIP().toString().c_str());
-      syncWhitelistFromWiFi();
-    } else {
-      Serial.println("\n[WIFI] ⚠️ Connection timed out. Running in Offline/USB mode.");
-    }
-  }
+  // 7. Connect to Wi-Fi (if configured)
+  connectToWiFi();
 
   // Request sync from USB Serial Bridge on startup
   Serial.println("REQ:SYNC");
 
   Serial.println("--------------------------------------------------");
-  Serial.printf("SYS:READY — %d Card(s) Cached in Flash. Ready to scan.\n", whitelistCount);
-=======
-  // 6. Connect to Wi-Fi Network
-  connectToWiFi();
-
-  Serial.println("--------------------------------------------------");
   Serial.printf("MASTER KEY CONFIGURED : '%s'\n", MASTER_CARD_UID.c_str());
+  Serial.printf("SYS:READY — %d Card(s) Cached in Flash. Ready to scan.\n", whitelistCount);
   Serial.println("SYS:READY — Awaiting RFID taps or Exit button events.");
->>>>>>> 25894a46631aefda6af4dad2ae001b4fb7cf8a9a
   Serial.println("--------------------------------------------------\n");
 }
 
@@ -317,7 +265,6 @@ void loop() {
   // 1. Process DFPlayer real-time events
   handleDFPlayerEvents();
 
-<<<<<<< HEAD
   // 2. Process incoming Serial commands from Host PC Bridge
   processSerialCommands();
 
@@ -328,17 +275,8 @@ void loop() {
   }
 
   // ==================================================
-  // 4. INFRARED EXIT SENSOR TRIGGER (Wave to Exit)
+  // 4. INFRARED EXIT SENSOR TRIGGER (Edge-Triggered Anti-Loop)
   // ==================================================
-  if (digitalRead(EXIT_BUTTON) == LOW) {
-    delay(40); // Debounce
-    if (digitalRead(EXIT_BUTTON) == LOW) {
-      Serial.println("\n[EVENT:EXIT_BUTTON] IR Exit Sensor Triggered!");
-      unlockDoorAndPrompt();
-=======
-  //==================================================
-  // 2. INFRARED EXIT SENSOR TRIGGER (Edge-Triggered Anti-Loop)
-  //==================================================
   int currentExitState = digitalRead(EXIT_BUTTON);
 
   // Trigger ONLY on HIGH -> LOW transition AND after cooldown period has elapsed
@@ -350,7 +288,6 @@ void loop() {
       // Unlock door SILENTLY without welcome prompt!
       unlockDoorExitSilent();
       lastExitTriggerTime = millis();
->>>>>>> 25894a46631aefda6af4dad2ae001b4fb7cf8a9a
 
       // Wait until hand / object is removed from sensor before re-arming
       unsigned long waitRelease = millis();
@@ -395,8 +332,29 @@ void loop() {
                   now.hour(), now.minute(), now.second());
   }
 
-<<<<<<< HEAD
-  Serial.println("[SCAN] Scanned RFID UID: " + uidStr);
+  Serial.printf("\n[CARD DETECTED] UID: %s\n", uidStr.c_str());
+
+  // Check Master Emergency Key Check (Hardware-level Bypass)
+  String uidNoSpace = uidStr;
+  uidNoSpace.replace(" ", "");
+
+  if (uidStr == MASTER_CARD_UID || uidNoSpace == MASTER_CARD_UID_NO_SPACE) {
+    Serial.println("==================================================");
+    Serial.println("🔑 [EMERGENCY MASTER KEY] Verified Locally on ESP32!");
+    Serial.println("⚡ [BROWNOUT BYPASS] Unlocking Door Immediately...");
+    Serial.println("==================================================");
+
+    unlockDoorAndPrompt();
+
+    // If Wi-Fi is connected, log access event to server in background
+    if (wifiEnabled && WiFi.status() == WL_CONNECTED) {
+      verifyViaWiFi(uidStr);
+    }
+
+    rfid.PICC_HaltA();
+    delay(200);
+    return;
+  }
 
   // Check local offline whitelist first
   bool localMatch = isCardAuthorized(uidStr);
@@ -412,74 +370,6 @@ void loop() {
   else if (onlineResult == "DENY") {
     Serial.println("[ACCESS] ❌ DENIED (Online Server Decision)");
     removeCardFromWhitelist(uidStr); // Remove deactivated card from flash
-=======
-  Serial.printf("\n[CARD DETECTED] UID: %s\n", uidStr.c_str());
-
-  //==================================================
-  // 5. MASTER EMERGENCY KEY CHECK (Hardware-level Bypass)
-  //==================================================
-  String uidNoSpace = uidStr;
-  uidNoSpace.replace(" ", "");
-
-  if (uidStr == MASTER_CARD_UID || uidNoSpace == MASTER_CARD_UID_NO_SPACE) {
-    Serial.println("==================================================");
-    Serial.println("🔑 [EMERGENCY MASTER KEY] Verified Locally on ESP32!");
-    Serial.println("⚡ [BROWNOUT BYPASS] Unlocking Door Immediately...");
-    Serial.println("==================================================");
-
-    // Unlocks door immediately without depending on server or Wi-Fi
-    unlockDoorAndPrompt();
-
-    // If Wi-Fi is connected, log access event to server in background
-    if (WiFi.status() == WL_CONNECTED) {
-      verifyViaWiFi(uidStr);
-    }
-
-    rfid.PICC_HaltA();
-    delay(200);
-    return;
-  }
-
-  //==================================================
-  // 6. STANDARD ACCESS DECISION (Wi-Fi or Serial)
-  //==================================================
-  String response = "";
-  bool evaluatedViaWiFi = false;
-
-  // Option A: Direct Wi-Fi HTTP API Request
-  if (WiFi.status() == WL_CONNECTED) {
-    Serial.printf("[WIFI] Querying Web API (%s)...\n", API_URL);
-    response = verifyViaWiFi(uidStr);
-    evaluatedViaWiFi = true;
-    Serial.printf("[WIFI RESPONSE] '%s'\n", response.c_str());
-  }
-
-  // Option B: Fallback to USB Serial Bridge (if Wi-Fi is down / offline)
-  if (!evaluatedViaWiFi || response == "DISCONNECTED" || response == "ERROR") {
-    Serial.println("[SERIAL BRIDGE] Transmitting UID over USB Serial...");
-    while (Serial.available() > 0) {
-      Serial.read();
-    }
-    Serial.print("UID:");
-    Serial.println(uidStr);
-    Serial.flush();
-
-    response = waitForSerialResponse(3000);
-    Serial.printf("[SERIAL RESPONSE] '%s'\n", response.c_str());
-  }
-
-  // Execute Decision
-  if (response == "GRANT") {
-    Serial.println("[ACCESS] ✅ GRANTED - Unlocking Door Immediately!");
-    unlockDoorAndPrompt();
-  } else if (response == "DENY") {
-    Serial.println("[ACCESS] ❌ DENIED - Card Unauthorized or Inactive.");
-    playDenied();
-    delay(2000);
-  } else {
-    // Brownout / Offline safety: If server is unreachable, door stays safely locked!
-    Serial.println("[ACCESS] ⚠️ OFFLINE / TIMEOUT - Door remains LOCKED for security.");
->>>>>>> 25894a46631aefda6af4dad2ae001b4fb7cf8a9a
     playDenied();
     delay(2000);
   } 
@@ -500,43 +390,28 @@ void loop() {
   delay(150);
 }
 
-<<<<<<< HEAD
 // ============================================================================
 // ONLINE VERIFICATION (USB Serial + Wi-Fi HTTP)
 // ============================================================================
 String checkOnlineVerification(String uidStr) {
-  // Clear any stale serial incoming bytes
-  while (Serial.available() > 0) { Serial.read(); }
+  // Option A: If Wi-Fi connected, try HTTP POST first
+  if (wifiEnabled && WiFi.status() == WL_CONNECTED) {
+    String wifiResp = verifyViaWiFi(uidStr);
+    if (wifiResp == "GRANT" || wifiResp == "DENY") {
+      return wifiResp;
+    }
+  }
 
-  // 1. Send UID via USB Serial
+  // Option B: Transmit UID via USB Serial Bridge
+  while (Serial.available() > 0) { Serial.read(); }
   Serial.print("UID:");
   Serial.println(uidStr);
   Serial.flush();
 
-  // 2. If Wi-Fi connected, try HTTP POST concurrently
-  if (wifiEnabled && WiFi.status() == WL_CONNECTED) {
-    HTTPClient http;
-    String url = String(SERVER_HOST) + "/public/api/rfid_scan.php";
-    http.begin(url);
-    http.addHeader("Content-Type", "application/json");
-    http.setTimeout(800);
-
-    String payload = "{\"rfid_uid\":\"" + uidStr + "\"}";
-    int httpCode = http.POST(payload);
-
-    if (httpCode == 200) {
-      String response = http.getString();
-      http.end();
-      if (response.indexOf("\"granted\"") >= 0) return "GRANT";
-      if (response.indexOf("\"denied\"") >= 0)  return "DENY";
-    }
-    http.end();
-  }
-
-  // 3. Await USB Serial response with fast 700ms timeout
+  // Await USB Serial response with 1200ms timeout
   unsigned long start = millis();
   String buffer = "";
-  while (millis() - start < 700) {
+  while (millis() - start < 1200) {
     yield();
     while (Serial.available() > 0) {
       char c = (char)Serial.read();
@@ -548,6 +423,71 @@ String checkOnlineVerification(String uidStr) {
   }
 
   return "OFFLINE";
+}
+
+/**
+ * Send HTTP POST to Web API directly over Wi-Fi
+ */
+String verifyViaWiFi(String uid) {
+  if (WiFi.status() != WL_CONNECTED) {
+    return "DISCONNECTED";
+  }
+
+  HTTPClient http;
+  http.begin(API_URL);
+  http.addHeader("Content-Type", "application/json");
+  http.addHeader("User-Agent", "SDASFC-ESP32-WiFi/3.1");
+  http.setTimeout(2500);
+
+  String payload = "{\"rfid_uid\":\"" + uid + "\"}";
+  int httpCode = http.POST(payload);
+
+  if (httpCode == 200 || httpCode == HTTP_CODE_OK) {
+    String responseBody = http.getString();
+    http.end();
+    if (responseBody.indexOf("\"access\":\"granted\"") >= 0) {
+      return "GRANT";
+    } else {
+      return "DENY";
+    }
+  } else {
+    Serial.printf("[WIFI HTTP ERROR] Status Code: %d\n", httpCode);
+    http.end();
+    return "ERROR";
+  }
+}
+
+/**
+ * Connect to Local Router Wi-Fi
+ */
+void connectToWiFi() {
+  if (String(WIFI_SSID) == "" || String(WIFI_SSID) == "YOUR_WIFI_SSID") {
+    Serial.println("[WIFI] Wi-Fi credentials not set (Running in USB Serial mode).");
+    wifiEnabled = false;
+    return;
+  }
+
+  Serial.printf("[WIFI] Connecting to SSID: '%s'...\n", WIFI_SSID);
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+
+  unsigned long startAttempt = millis();
+  while (WiFi.status() != WL_CONNECTED && millis() - startAttempt < WIFI_TIMEOUT_MS) {
+    delay(250);
+    Serial.print(".");
+  }
+  Serial.println();
+
+  if (WiFi.status() == WL_CONNECTED) {
+    wifiEnabled = true;
+    Serial.println("✅ [WIFI] Connected successfully!");
+    Serial.printf("   ESP32 Local IP : %s\n", WiFi.localIP().toString().c_str());
+    Serial.printf("   Target API URL : %s\n", API_URL);
+    syncWhitelistFromWiFi();
+  } else {
+    wifiEnabled = false;
+    Serial.println("⚠️ [WIFI] Connection failed/timed out. Operating in USB Serial Bridge fallback mode.");
+  }
 }
 
 // ============================================================================
@@ -712,14 +652,12 @@ void syncWhitelistFromWiFi() {
   if (!wifiEnabled || WiFi.status() != WL_CONNECTED) return;
 
   HTTPClient http;
-  String url = String(SERVER_HOST) + "/public/api/whitelist.php";
-  http.begin(url);
-  http.setTimeout(2000);
+  http.begin(WHITELIST_URL);
+  http.setTimeout(2500);
 
   int httpCode = http.GET();
   if (httpCode == 200) {
     String payload = http.getString();
-    // Parse JSON uids: ["UID1", "UID2"]
     int uidsStart = payload.indexOf("\"uids\":[");
     if (uidsStart >= 0) {
       int uidsEnd = payload.indexOf("]", uidsStart);
@@ -735,105 +673,9 @@ void syncWhitelistFromWiFi() {
   http.end();
 }
 
-// ============================================================================
-// DOOR CONTROL & AUDIO PROMPTS
-// ============================================================================
-void unlockDoorAndPrompt() {
-  Serial.println("[DOOR] >>> 🔓 RELAY ENERGIZED: Door is UNLOCKED <<<");
-  digitalWrite(RELAY_PIN, RELAY_ON);
-
-  playGranted();
-
-  // Keep door unlocked for specified duration
-  delay(UNLOCK_HOLD_MS);
-
-  digitalWrite(RELAY_PIN, RELAY_OFF);
-  Serial.println("[DOOR] >>> 🔒 RELAY DE-ENERGIZED: Door is LOCKED <<<");
-
-  rfid.PCD_Init();
-}
-
-void playGranted() {
-  if (!hasDFPlayer) return;
-  Serial.println("[AUDIO] Playing: Access Granted & Welcome (Track 2)");
-  player.play(2);
-}
-
-void playDenied() {
-  if (!hasDFPlayer) return;
-  Serial.println("[AUDIO] Playing: Access Denied (Track 1)");
-  player.play(1);
-}
-
-=======
-/**
- * Connect to Local Router Wi-Fi
- */
-void connectToWiFi() {
-  if (String(WIFI_SSID) == "YOUR_WIFI_SSID") {
-    Serial.println("[WIFI] Wi-Fi credentials not set (Running in USB Serial mode).");
-    wifiEnabled = false;
-    return;
-  }
-
-  Serial.printf("[WIFI] Connecting to SSID: '%s'...\n", WIFI_SSID);
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-
-  unsigned long startAttempt = millis();
-  while (WiFi.status() != WL_CONNECTED && millis() - startAttempt < WIFI_TIMEOUT_MS) {
-    delay(300);
-    Serial.print(".");
-  }
-  Serial.println();
-
-  if (WiFi.status() == WL_CONNECTED) {
-    wifiEnabled = true;
-    Serial.println("✅ [WIFI] Connected successfully!");
-    Serial.printf("   ESP32 Local IP : %s\n", WiFi.localIP().toString().c_str());
-    Serial.printf("   Target API URL : %s\n", API_URL);
-  } else {
-    wifiEnabled = false;
-    Serial.println("⚠️ [WIFI] Connection failed/timed out. Operating in USB Serial Bridge fallback mode.");
-  }
-}
-
-/**
- * Send HTTP POST to Web API directly over Wi-Fi
- */
-String verifyViaWiFi(String uid) {
-  if (WiFi.status() != WL_CONNECTED) {
-    return "DISCONNECTED";
-  }
-
-  HTTPClient http;
-  http.begin(API_URL);
-  http.addHeader("Content-Type", "application/json");
-  http.addHeader("User-Agent", "SDASFC-ESP32-WiFi/3.1");
-  http.setTimeout(3500);
-
-  String payload = "{\"rfid_uid\":\"" + uid + "\"}";
-  int httpCode = http.POST(payload);
-
-  if (httpCode == 200 || httpCode == HTTP_CODE_OK) {
-    String responseBody = http.getString();
-    http.end();
-    if (responseBody.indexOf("\"access\":\"granted\"") >= 0) {
-      return "GRANT";
-    } else {
-      return "DENY";
-    }
-  } else {
-    Serial.printf("[WIFI HTTP ERROR] Status Code: %d\n", httpCode);
-    http.end();
-    return "ERROR";
-  }
-}
-
 /**
  * Initialize DFPlayer Mini with non-blocking check & diagnostics
  */
->>>>>>> 25894a46631aefda6af4dad2ae001b4fb7cf8a9a
 bool initDFPlayer() {
   mp3Serial.begin(9600, SERIAL_8N1, RX2_PIN, TX2_PIN);
   delay(500);
@@ -846,6 +688,7 @@ bool initDFPlayer() {
   }
 
   Serial.println("✅ Module Online!");
+  delay(200);
   player.volume(defaultVolume); // Set to 30 (Maximum volume)
   delay(200);
   yield();
@@ -876,34 +719,6 @@ void handleDFPlayerEvents() {
         break;
     }
   }
-}
-<<<<<<< HEAD
-=======
-
-/**
- * Read response from Serial stream (instant substring GRANT/DENY detection)
- */
-String waitForSerialResponse(unsigned long timeoutMs) {
-  unsigned long start = millis();
-  String buffer = "";
-
-  while (millis() - start < timeoutMs) {
-    yield();
-    while (Serial.available() > 0) {
-      char c = (char)Serial.read();
-      buffer += c;
-
-      if (buffer.indexOf("GRANT") >= 0) {
-        return "GRANT";
-      }
-      if (buffer.indexOf("DENY") >= 0) {
-        return "DENY";
-      }
-    }
-    delay(10);
-  }
-
-  return "TIMEOUT";
 }
 
 /**
@@ -959,6 +774,8 @@ void unlockDoorExitSilent() {
  */
 void playGranted() {
   if (!hasDFPlayer) return;
+  player.volume(defaultVolume); // Re-assert maximum volume 30
+  delay(30);
   Serial.println("[AUDIO] Playing: Access Granted & Welcome (Track 2) @ Volume 30");
   player.play(2);
 }
@@ -969,7 +786,8 @@ void playGranted() {
  */
 void playDenied() {
   if (!hasDFPlayer) return;
+  player.volume(defaultVolume); // Re-assert maximum volume 30
+  delay(30);
   Serial.println("[AUDIO] Playing: Access Denied (Track 1) @ Volume 30");
   player.play(1);
 }
->>>>>>> 25894a46631aefda6af4dad2ae001b4fb7cf8a9a

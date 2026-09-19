@@ -50,11 +50,7 @@ The firmware ([`arduino/sdasfc_door_lock.ino`](file:///C:/xampp/htdocs/SDASFC-Sm
 | **Infrared Exit Sensor** | OUT / NO | **GPIO 33** | Active LOW (Hand wave detection) |
 | | COM | Common GND | Ground Reference |
 | | V+ / GND | Power Supply (+12V / GND) | Powered by 12V supply |
-<<<<<<< HEAD
-| **1-CH 5V Relay** | IN / SIG | **GPIO 27** | HIGH = Unlocked (6s), LOW = Locked |
-=======
 | **1-CH 5V Relay** | IN / SIG | **GPIO 27** | HIGH = Unlocked (6s hold), LOW = Locked |
->>>>>>> 25894a46631aefda6af4dad2ae001b4fb7cf8a9a
 | | VCC | 5V Rail (Buck Converter) | 5V Relay Coil Power |
 | | GND | Common GND | Ground |
 | | COM / NO | 12V Door Lock Loop | Switched 12V Power |
@@ -81,7 +77,7 @@ The ESP32 can connect directly to your local Wi-Fi router to send access queries
    ```cpp
    const char* WIFI_SSID     = "YOUR_ROUTER_SSID";
    const char* WIFI_PASSWORD = "YOUR_ROUTER_PASSWORD";
-   const char* API_URL       = "http://192.168.1.208/SDASFC-Smart-Door-Automation-System-for-CICS/public/api/rfid_scan.php";
+   const char* API_URL       = "http://192.168.1.35/SDASFC-Smart-Door-Automation-System-for-CICS/public/api/rfid_scan.php";
    ```
 2. Note: The presentation router does not need internet access; all requests travel over the local Wi-Fi subnet!
 3. When connected to Wi-Fi, no USB serial bridge is required!
@@ -105,13 +101,8 @@ Format a MicroSD card ($\le$ 32GB) to **FAT32 (MBR)** and place the following fi
 
 ```text
 MicroSD Card Root/
-<<<<<<< HEAD
-├── 0001.mp3  <-- Track 1: Access Denied prompt
-└── 0002.mp3  <-- Track 2: Access Granted & Welcome to CICS Laboratory prompt
-=======
 ├── 0001.mp3  <-- Track 1: Access Denied prompt (triggers on invalid RFID or timeout)
 └── 0002.mp3  <-- Track 2: Access Granted & Welcome prompt (triggers on valid RFID card tap ONLY)
->>>>>>> 25894a46631aefda6af4dad2ae001b4fb7cf8a9a
 ```
 
 - **Exit Button Behavior:** Unlocks door **SILENTLY** for 6 seconds without playing the welcome voice prompt.
@@ -126,14 +117,13 @@ MicroSD Card Root/
 
 1. Open [`arduino/sdasfc_door_lock.ino`](file:///C:/xampp/htdocs/SDASFC-Smart-Door-Automation-System-for-CICS/arduino/sdasfc_door_lock.ino) in Arduino IDE.
 2. Select Board: **ESP32 Dev Module**, select your COM port, and upload.
-<<<<<<< HEAD
-3. Start the Serial Bridge:
+3. **Serial Bridge Mode**:
    - Double-click [`hardware/bridge/start_bridge.bat`](file:///C:/xampp/htdocs/SDASFC-Smart-Door-Automation-System-for-CICS/hardware/bridge/start_bridge.bat) or run PowerShell / Python / PHP CLI bridge.
    - It will automatically synchronize all active users from MySQL into ESP32 Flash memory.
-4. **Standalone Test**: Unplug the USB cable (ensure ESP32 is powered via 5V from the LM2596 buck converter). Tap a registered card — the door will unlock immediately!
-=======
-3. Open **Serial Monitor** at **`115200 baud`**.
-4. The system will run hardware diagnostics, connect to Wi-Fi (if configured), and report `SYS:READY`.
-5. Tap the Master Key Card (`93 39 6E 1B`) or registered user cards to verify immediate unlock and audio prompts!
+4. **Standalone Offline Mode**:
+   - Unplug the USB cable (ensure ESP32 is powered via 5V from the LM2596 buck converter).
+   - Tap any cached registered card or the Master Key Card (`93 39 6E 1B`) — the door will unlock immediately!
+5. **Direct Serial Monitor Mode**:
+   - Open **Serial Monitor** at **`115200 baud`**.
+   - The system will run hardware diagnostics, connect to Wi-Fi (if configured), and report `SYS:READY`.
 
->>>>>>> 25894a46631aefda6af4dad2ae001b4fb7cf8a9a
