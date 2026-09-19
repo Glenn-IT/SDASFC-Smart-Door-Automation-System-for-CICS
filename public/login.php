@@ -42,7 +42,7 @@ $appJsVer = @filemtime(__DIR__ . '/assets/js/app.js') ?: time();
 
     <div class="login-wrapper login-wrapper--wide">
         <div class="login-card login-card--split">
-            <div class="login-hero-panel" style="background-image:url('../docs/Login-BG.jpg')">
+            <div class="login-hero-panel" style="background-image:url('assets/img/Login-BG.jpg')">
                 <div class="login-hero-content">
                     <div class="login-hero-logo">
                         <img src="assets/img/logo.jpg" alt="SDASFC Logo" class="login-hero-logo-img">
