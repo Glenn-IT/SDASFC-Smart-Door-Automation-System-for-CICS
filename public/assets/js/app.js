@@ -49,7 +49,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const sidebar = document.querySelector('.app-sidebar');
     if (!sidebar) return;
 
-    if (localStorage.getItem('sidebarCollapsed') === '1') {
+    if (window.innerWidth <= 768) {
+        sidebar.classList.add('collapsed');
+    } else if (localStorage.getItem('sidebarCollapsed') === '1') {
         sidebar.classList.add('collapsed');
     }
 });
@@ -64,5 +66,7 @@ document.addEventListener('click', function (event) {
     if (!sidebar) return;
 
     sidebar.classList.toggle('collapsed');
-    localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed') ? '1' : '0');
+    if (window.innerWidth > 768) {
+        localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed') ? '1' : '0');
+    }
 });

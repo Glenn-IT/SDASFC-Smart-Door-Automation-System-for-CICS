@@ -32,9 +32,9 @@ $appJsVer = @filemtime(__DIR__ . '/assets/js/app.js') ?: time();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login - Smart Door Automation System for CICS</title>
-    <link rel="icon" type="image/jpeg" href="assets/img/logo.jpg">
-    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
-    <link href="assets/css/login.css?v=<?= $loginCssVer ?>" rel="stylesheet">
+    <link rel="icon" type="image/jpeg" href="<?= BASE_URL ?>/assets/img/logo.jpg">
+    <link href="<?= BASE_URL ?>/assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="<?= BASE_URL ?>/assets/css/login.css?v=<?= $loginCssVer ?>" rel="stylesheet">
 </head>
 <body class="login-body">
     <div class="login-blob login-blob-1"></div>
@@ -42,10 +42,10 @@ $appJsVer = @filemtime(__DIR__ . '/assets/js/app.js') ?: time();
 
     <div class="login-wrapper login-wrapper--wide">
         <div class="login-card login-card--split">
-            <div class="login-hero-panel" style="background-image:url('assets/img/Login-BG.jpg')">
+            <div class="login-hero-panel" style="background-image:url('<?= BASE_URL ?>/assets/img/Login-BG.jpg')">
                 <div class="login-hero-content">
                     <div class="login-hero-logo">
-                        <img src="assets/img/logo.jpg" alt="SDASFC Logo" class="login-hero-logo-img">
+                        <img src="<?= BASE_URL ?>/assets/img/logo.jpg" alt="SDASFC Logo" class="login-hero-logo-img">
                     </div>
                     <h1 class="login-hero-title">Smart Door Automation System for CICS</h1>
                     <p class="login-hero-desc">Real-time, secure access control for the CICS building — monitor doors, manage users, and keep your campus protected from anywhere.</p>
@@ -106,6 +106,6 @@ $appJsVer = @filemtime(__DIR__ . '/assets/js/app.js') ?: time();
             </div>
         </div>
     </div>
-    <script src="assets/js/app.js?v=<?= $appJsVer ?>"></script>
+    <script src="<?= BASE_URL ?>/assets/js/app.js?v=<?= $appJsVer ?>"></script>
 </body>
 </html>

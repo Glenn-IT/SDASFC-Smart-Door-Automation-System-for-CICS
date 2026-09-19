@@ -15,7 +15,7 @@
 <div class="d-flex">
     <?php include __DIR__ . '/sidebar.php'; ?>
 
-    <div class="flex-grow-1">
+    <div class="flex-grow-1 w-100" style="min-width: 0;">
         <nav class="navbar app-navbar navbar-light border-bottom px-3">
             <div class="d-flex align-items-center gap-2">
                 <button type="button" class="app-sidebar-toggle" data-sidebar-toggle aria-label="Toggle sidebar">
