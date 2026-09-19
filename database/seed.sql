@@ -15,3 +15,8 @@ VALUES (
     '$2y$10$gjv6sWwKwel1SO3YShsQdepDAnb1FJubOtf6PiQBqm3O3ze19j.lS'
 )
 ON DUPLICATE KEY UPDATE username = username;
+
+-- Seed Emergency Master Key Card (Brownout / Offline Hardware Bypass)
+INSERT INTO users (full_name, id_number, rfid_uid, role, status)
+VALUES ('Master Emergency Key (Admin)', 'MASTER-001', '93 39 6E 1B', 'faculty', 'active')
+ON DUPLICATE KEY UPDATE rfid_uid = VALUES(rfid_uid);

@@ -50,7 +50,11 @@ The firmware ([`arduino/sdasfc_door_lock.ino`](file:///C:/xampp/htdocs/SDASFC-Sm
 | **Infrared Exit Sensor** | OUT / NO | **GPIO 33** | Active LOW (Hand wave detection) |
 | | COM | Common GND | Ground Reference |
 | | V+ / GND | Power Supply (+12V / GND) | Powered by 12V supply |
+<<<<<<< HEAD
 | **1-CH 5V Relay** | IN / SIG | **GPIO 27** | HIGH = Unlocked (6s), LOW = Locked |
+=======
+| **1-CH 5V Relay** | IN / SIG | **GPIO 27** | HIGH = Unlocked (6s hold), LOW = Locked |
+>>>>>>> 25894a46631aefda6af4dad2ae001b4fb7cf8a9a
 | | VCC | 5V Rail (Buck Converter) | 5V Relay Coil Power |
 | | GND | Common GND | Ground |
 | | COM / NO | 12V Door Lock Loop | Switched 12V Power |
@@ -63,12 +67,35 @@ The firmware ([`arduino/sdasfc_door_lock.ino`](file:///C:/xampp/htdocs/SDASFC-Sm
 
 ---
 
+## Master Key Card & Brownout Protection
+
+- **Master Key Card UID:** `93 39 6E 1B` (or `93396E1B`)
+- **Brownout / Power Loss Behavior:** The lock is powered by a 12V 5A UPS with 12V backup battery. During a building power outage, the relay stays securely locked. If network/Wi-Fi/PC goes down, only the Master Key Card can unlock the door locally via hardware bypass.
+
+---
+
+## Wi-Fi & Local Server Configuration
+
+The ESP32 can connect directly to your local Wi-Fi router to send access queries directly to the laptop's XAMPP Web API:
+1. In [`arduino/sdasfc_door_lock.ino`](file:///C:/xampp/htdocs/SDASFC-Smart-Door-Automation-System-for-CICS/arduino/sdasfc_door_lock.ino), update:
+   ```cpp
+   const char* WIFI_SSID     = "YOUR_ROUTER_SSID";
+   const char* WIFI_PASSWORD = "YOUR_ROUTER_PASSWORD";
+   const char* API_URL       = "http://192.168.1.208/SDASFC-Smart-Door-Automation-System-for-CICS/public/api/rfid_scan.php";
+   ```
+2. Note: The presentation router does not need internet access; all requests travel over the local Wi-Fi subnet!
+3. When connected to Wi-Fi, no USB serial bridge is required!
+4. If Wi-Fi is not connected or drops, the ESP32 automatically falls back to USB Serial Bridge mode (`start_bridge.bat`).
+
+---
+
 ## Required Arduino IDE Libraries
 
 Before uploading [`arduino/sdasfc_door_lock.ino`](file:///C:/xampp/htdocs/SDASFC-Smart-Door-Automation-System-for-CICS/arduino/sdasfc_door_lock.ino), open Arduino IDE (`Tools` -> `Manage Libraries...`) and install:
 1. **MFRC522** by GithubCommunity
 2. **RTClib** by Adafruit (for DS3231 RTC)
 3. **DFRobotDFPlayerMini** by DFRobot
+4. *(ESP32 Board Package includes built-in `WiFi.h` and `HTTPClient.h`)*
 
 ---
 
@@ -78,9 +105,20 @@ Format a MicroSD card ($\le$ 32GB) to **FAT32 (MBR)** and place the following fi
 
 ```text
 MicroSD Card Root/
+<<<<<<< HEAD
 ├── 0001.mp3  <-- Track 1: Access Denied prompt
 └── 0002.mp3  <-- Track 2: Access Granted & Welcome to CICS Laboratory prompt
+=======
+├── 0001.mp3  <-- Track 1: Access Denied prompt (triggers on invalid RFID or timeout)
+└── 0002.mp3  <-- Track 2: Access Granted & Welcome prompt (triggers on valid RFID card tap ONLY)
+>>>>>>> 25894a46631aefda6af4dad2ae001b4fb7cf8a9a
 ```
+
+- **Exit Button Behavior:** Unlocks door **SILENTLY** for 6 seconds without playing the welcome voice prompt.
+- **Anti-Loop & Stuck Sensor Protection:** Firmware employs edge-triggered state detection with 2.5s lockout cooldown, preventing open-close loops even if sensor is held or wired NC.
+- **Brownout Reset Immunity:** Hardware brownout detector is masked in software to prevent inductive relay click reboot loops.
+- **Audio Volume:** Set to **`30` (Maximum hardware volume)** in firmware.
+- **Door Relock:** Operates silently after 6 seconds (`UNLOCK_HOLD_MS 6000`).
 
 ---
 
@@ -88,7 +126,14 @@ MicroSD Card Root/
 
 1. Open [`arduino/sdasfc_door_lock.ino`](file:///C:/xampp/htdocs/SDASFC-Smart-Door-Automation-System-for-CICS/arduino/sdasfc_door_lock.ino) in Arduino IDE.
 2. Select Board: **ESP32 Dev Module**, select your COM port, and upload.
+<<<<<<< HEAD
 3. Start the Serial Bridge:
    - Double-click [`hardware/bridge/start_bridge.bat`](file:///C:/xampp/htdocs/SDASFC-Smart-Door-Automation-System-for-CICS/hardware/bridge/start_bridge.bat) or run PowerShell / Python / PHP CLI bridge.
    - It will automatically synchronize all active users from MySQL into ESP32 Flash memory.
 4. **Standalone Test**: Unplug the USB cable (ensure ESP32 is powered via 5V from the LM2596 buck converter). Tap a registered card — the door will unlock immediately!
+=======
+3. Open **Serial Monitor** at **`115200 baud`**.
+4. The system will run hardware diagnostics, connect to Wi-Fi (if configured), and report `SYS:READY`.
+5. Tap the Master Key Card (`93 39 6E 1B`) or registered user cards to verify immediate unlock and audio prompts!
+
+>>>>>>> 25894a46631aefda6af4dad2ae001b4fb7cf8a9a

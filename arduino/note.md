@@ -47,7 +47,17 @@
 ## 2. MicroSD Card Audio Tracks Setup
 
 Format a MicroSD card ($\le$ 32GB) to **FAT32 (MBR)** and place the following files in root:
-- `0001.mp3` : System Ready / Welcome prompt
-- `0002.mp3` : Access Granted prompt (triggers on valid RFID or IR Exit wave)
-- `0003.mp3` : Access Denied prompt (triggers on invalid RFID or timeout)
-- `0004.mp3` : Door Locked prompt (optional confirmation sound)
+- `0001.mp3` : Access Denied prompt (triggers on invalid / unauthorized RFID scan or timeout)
+- `0002.mp3` : Access Granted & Welcome prompt (triggers on valid RFID card tap ONLY)
+- IR Exit Button : Unlocks door SILENTLY for 6 seconds without welcome voice prompt.
+- Anti-Loop Safety: State-machine edge-triggering prevents close-open looping if sensor is held or wired NC.
+- Playback Volume: Set to **`30` (Maximum hardware volume)** in firmware.
+- Relay Unlock Hold Duration: 6 seconds (`UNLOCK_HOLD_MS 6000`)
+- Silent Door Lock: Door relocks automatically after 6 seconds without intrusive audio.
+
+---
+
+## 3. Master Emergency Key & Brownout Safety
+
+- **Master Key Card UID:** `93 39 6E 1B`
+- **Brownout / Power Loss Behavior:** In case of a building power outage or server network loss, the 12V UPS keeps the door locked for security. The Master Key Card `93 39 6E 1B` is programmed in ESP32 firmware as a direct hardware bypass and will immediately unlock the door locally even if Wi-Fi and the PC server are offline.

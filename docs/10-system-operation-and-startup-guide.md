@@ -21,7 +21,7 @@
 
 ## 1. System Architecture Overview
 
-The SDASFC integrates an **ESP32 microcontroller**, a local **PHP/MySQL web portal**, and an automatic **USB Serial Bridge**:
+The SDASFC integrates an **ESP32 microcontroller**, a local **PHP/MySQL web portal**, **Wi-Fi Direct HTTP**, and an automatic **USB Serial Bridge Fallback**:
 
 ```
  ┌────────────────────────────────────────────────────────┐
@@ -34,26 +34,31 @@ The SDASFC integrates an **ESP32 microcontroller**, a local **PHP/MySQL web port
  │         │                               │              │
  │         ▼                               │              │
  │  [ ESP32 Microcontroller (115200 Baud) ]               │
+ │    ├─► Master Emergency Key (93 39 6E 1B) Offline Bypass│
  │    ├─► 1-CH 5V Relay ──► 12V Mag Lock / Solenoid       │
  │    ├─► DS3231 RTC Module (I2C Real-Time Clock)         │
- │    └─► DFPlayer Mini ──► 3W 8Ω Speaker (Voice Prompts) │
- └───────────────────────┬────────────────────────────────┘
-                         │ USB Serial Cable
-                         │ ("UID:<HEX_UID>" / "GRANT" / "DENY")
-                         ▼
+ │    └─► DFPlayer Mini ──► 3W 8Ω Speaker (Volume 30)     │
+ └───────────┬────────────────────────────────┬───────────┘
+             │                                │
+             │ (Wi-Fi Direct HTTP)            │ (USB Serial Fallback)
+             │ "POST {"rfid_uid":"..."}"      │ ("UID:<HEX_UID>")
+             ▼                                ▼
+ ┌────────────────────────┐       ┌────────────────────────┐
+ │  ROUTER LOCAL NETWORK  │       │ Hardware Serial Bridge │
+ └───────────┬────────────┘       │ (start_bridge.bat)     │
+             │                    └───────────┬────────────┘
+             │ POST JSON                      │ POST JSON
+             ▼                                ▼
  ┌────────────────────────────────────────────────────────┐
  │                 HOST PC / SERVER                       │
  │                                                        │
- │  [ Hardware Serial Bridge ] (serial_bridge.php / .ps1) │
- │         │                                              │
- │         ▼ POST JSON                                    │
  │  [ Web API: public/api/rfid_scan.php ]                 │
  │         │                                              │
  │         ▼                                              │
  │  [ MySQL Database: `sdasfc` (Users & Access Logs) ]    │
  │         │                                              │
  │         ▼                                              │
- │  [ Admin Web Dashboard: http://localhost/.../public/ ] │
+ │  [ Admin Web Dashboard: http://192.168.1.208/.../ ]    │
  └────────────────────────────────────────────────────────┘
 ```
 
@@ -104,9 +109,9 @@ The DFPlayer Mini plays synchronized voice prompts for each access event.
 
 1. **Card Format:** Format a MicroSD card ($\le 32$GB) as **FAT32** with Master Boot Record (MBR).
 2. **File Structure:** Place audio files directly in the root directory (or in a folder named `MP3`):
-   - `0001.mp3` — **Access Granted & Welcome:** *"Access granted you may now open the door. Welcome to the CICS laboratory"* (Plays on valid RFID card tap or IR Exit wave).
-   - `0002.mp3` — **Access Denied:** *"Access Denied"* (Plays on unregistered or inactive/deactivated card taps).
-   - *(Note: `0004.mp3 Door Lock` has been removed from the system. The lock operates silently after 5 seconds).*
+   - `0001.mp3` — **Access Denied (Track 1):** *"Access Denied"* (Plays on unregistered or inactive/deactivated card taps, or serial timeouts).
+   - `0002.mp3` — **Access Granted & Welcome (Track 2):** *"Access granted you may now open the door. Welcome to the CICS laboratory"* (Plays on valid RFID card tap or IR Exit wave).
+   - *(Note: `0004.mp3 Door Lock` has been removed from the system. The lock operates silently after 6 seconds).*
 3. Insert the card into the DFPlayer Mini slot.
 
 ---
@@ -129,7 +134,7 @@ The DFPlayer Mini plays synchronized voice prompts for each access event.
    [HW] RTC DS3231 Ready: 2026-08-20 18:30:00
    [HW] RFID RC522 Reader Ready.
    [HW] Detecting DFPlayer Mini... ✅ Module Online!
-   [HW] MicroSD Card OK: 4 readable audio file(s) found.
+   [HW] MicroSD Card OK: 2 readable audio file(s) found.
    --------------------------------------------------
    SYS:READY — Awaiting RFID taps or Exit button events.
    --------------------------------------------------
@@ -137,7 +142,7 @@ The DFPlayer Mini plays synchronized voice prompts for each access event.
 
 ### Quick Manual Test:
 - **Tap a Card:** The monitor prints `UID:XX XX XX XX`.
-- **Wave at IR Sensor:** The relay clicks open for 5 seconds and prints `[EVENT] IR Exit Sensor Triggered!`.
+- **Wave at IR Sensor:** The relay clicks open for 6 seconds (`UNLOCK_HOLD_MS 6000`) and prints `[EVENT:EXIT_BUTTON] IR Exit Sensor Triggered!`.
 
 > ⚠️ **IMPORTANT:** Close the Serial Monitor tab before proceeding to Step 5!
 
@@ -223,10 +228,10 @@ You will see:
 
 ### Scenario C: Exiting the Room (No-Touch Wave-to-Exit)
 1. Person inside the room waves their hand 5–10 cm in front of the optical IR sensor.
-2. ESP32 detects signal on **GPIO 33**:
-   - **Immediately energizes relay** for 6 seconds.
-   - Plays Track 2: *"Access granted you may now open the door. Welcome to the CICS laboratory"*.
-   - Automatically relocks after 6 seconds.
+2. ESP32 detects edge-triggered signal on **GPIO 33**:
+   - **Immediately energizes relay** for 6 seconds (`UNLOCK_HOLD_MS = 6000`).
+   - **Silent Exit:** No welcome voice prompt is played (voice prompt is reserved exclusively for card entry).
+   - Automatically relocks after 6 seconds with a 2.5-second anti-loop debounce cooldown.
 
 ---
 
@@ -238,9 +243,18 @@ You will see:
 
 ### Q2: DFPlayer Mini plays wrong sound
 - **Cause:** Track index mapping.
-- **Fix:** Firmware maps Track 2 $\rightarrow$ Access Granted/Welcome, Track 1 $\rightarrow$ Access Denied.
+- **Fix:** Firmware maps Track 2 $\rightarrow$ Access Granted/Welcome (Card Entry), Track 1 $\rightarrow$ Access Denied. Exit button unlocks silently.
 
-### Q3: Database connection refused error
+### Q3: The relay clicks open and close in an infinite loop upon powering on
+- **Cause 1 (Wiring):** The IR exit sensor output wire is connected to the **NC (Normally Closed)** terminal instead of **NO (Normally Open)**, keeping GPIO 33 pulled LOW permanently.
+- **Cause 2 (Sensitivity):** The IR exit sensor potentiometer is set too sensitive or pointing directly at a close reflective surface.
+- **Cause 3 (Brownout Reset):** Power supply voltage dipping when the relay coil energizes, causing an ESP32 reboot cycle.
+- **Fix:**
+  1. Verify the IR exit sensor is wired to **NO** and **COM** (or `OUT` active LOW only when hand is present).
+  2. Adjust the sensitivity potentiometer on the IR sensor until the onboard indicator LED turns OFF when no hand is in front.
+  3. The latest firmware includes brownout detector suppression (`WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0)`), edge-triggered activation, and a stuck-sensor safety release check.
+
+### Q4: Database connection refused error
 - **Cause:** MySQL is stopped in XAMPP.
 - **Fix:** Open XAMPP Control Panel and start MySQL.
 
