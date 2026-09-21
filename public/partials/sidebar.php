@@ -18,6 +18,8 @@ function navLink(string $file, string $label, string $currentPage): string
         <?= navLink('dashboard.php', 'Dashboard', $currentPage) ?>
         <?= navLink('users/index.php', 'Manage Users', $currentPage) ?>
         <?= navLink('reports/index.php', 'Reports', $currentPage) ?>
+        <?= navLink('wiring.php', 'Hardware Wiring', $currentPage) ?>
+        <?= navLink('prototype.php', 'System Prototype', $currentPage) ?>
         <?= navLink('profile.php', 'Profile', $currentPage) ?>
     </nav>
     <div class="mt-auto pt-3 border-top border-light border-opacity-25">
